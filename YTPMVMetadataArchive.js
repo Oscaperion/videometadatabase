@@ -1,55 +1,8 @@
-// Node.js demo - YTPMV Metadata Archive
-// by FinnOtaku; ver. 2021.08.10
-
-/*
-   The values of the JSON file:
-   
-   'videos':
-        All the singular videos are stored under this value.
-        This is the sole topmost value of the JSON file.
-        
-   'upload_date':
-        The upload date of a video; formatted as YYYYMMDD (e.g. 20091224)
-        The value is saved as a String, not as an Integer. Might be 'undefined' in some cases
-
-   'id':
-        The ID of a video (e.g. In 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' the ID is 'dQw4w9WgXcQ'). In case there being multiple videos by the same name, this is used to definitively differentiate them.
-        
-   'webpage_url':
-        The direct URL of the video (e.g. Just 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
-
-   'title':
-        The video's title/name.
-
-   'uploader':
-        The name of the channel that uploaded the video.
-        
-   'uploader_id':
-        The ID of the channel that uploaded the video. In case there being multiple users by the same name, this is used to definitively differentiate them.
-        
-   'uploader_url':
-        The direct URL to the channel that uploaded the video. (e.g. Just 'https://www.youtube.com/channel/UCuAXFkgsw1L7xaCfnd5JJOw')
-        
-   'duration':
-        The duration of the video, saved in seconds. The duration is turned to HH:MM format by this script.    
-        
-   'description':
-        The description of the video, if available. Most do not have links that are understood by HTML as-is, they are added during runtime by the script.
-        
-   'tags':
-        The tags bundled with the video, if available.
-        
-   'extractor_key':
-        The value that determines the source site of the video (e.g. 'Youtube', 'Niconico', etc.)
-
-*/
-
-// Requiring path and fs modules
+//requiring path and fs modules
 const fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-// This is for freeing up unneeded space once a JSON file has been processed. (Optional)
 // https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
 function forceGC() {
    if (global.gc) {
@@ -59,19 +12,30 @@ function forceGC() {
    }
 }
 
-// This will be used to make the HTML created during runtime more comprehensible, adds a linebreak when inserted
-const br = '\r\n';
+const br =  '\r\n';
 
 console.log('Started forming the server')  ;
+
+// Original
 console.log('Loading metadata...')  ;
 
+const lastUpdated = '20220131 [YYYYMMDD]';
+const videosPerPage = 25;
+const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
+var showcasedVideos;
+// This is for cases when a user searches with an empty string, which shows all results
+var showcasingAllVideos = [];
+var nullUploaderPlaceholder = 'skaPiPiduuDelierp';
+
 var parsedVideos = [];
+// Remember edit elsewhere if you edit this!!
+var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others']; // extractor_key
 var y;
-// The JSON has been currently spliced into 20 parts: 'vids0.json' to 'vids19.json'. minY and maxY determine the part amount. The parts in question can be currently found behind the "Download JSON File". For this script to currently work these JSON files need to be in the same folder.
 var minY = 0;
-var maxY = 19;
+var maxY = 27;
 for (y = minY; y <= maxY; y++) {
-   var terappi = 'YTPMV Metadata Archive JSON/split_parts/vids' + y + '.json';
+   //var terappi = 'vidJson/vids' + y + '.json';
+   var terappi = 'vidJson/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    var teray = fs.readFileSync(terappi, 'utf8');
    console.log('Check 1')  ;
@@ -86,7 +50,6 @@ forceGC();
 
 console.log('All metadata loaded! Sorting things out...')  ;
 
-// The following bit will create an overarching list of entry values. Later on this will be sorted alphabetically, so the values derived from the separate JSON files will not be changed or sorted in any way. This searchVars will then be referenced when the script searches through metadata in alphabetical order, which in turn then references the unsorted metadata derived from JSON files.
 var searchVars = [];
 var overaro = 0;
 for (y = minY; y <= maxY; y++) {
@@ -100,7 +63,8 @@ for (y = minY; y <= maxY; y++) {
    }
 }
 
-// This sorts the searchVars list by looking up the values that match the vid and subvid values coupled with each ID value
+console.log('Chack gamma ' + searchVars[100].vids)  ;
+
 searchVars = searchVars.sort(function(a,b) {
        var tmpA = getVideo(a.id);
        var tmpB = getVideo(b.id);
@@ -112,11 +76,11 @@ searchVars = searchVars.sort(function(a,b) {
        var dateA = tmpA.upload_date ;
        var dateB = tmpB.upload_date ;
 
-       // DON'T UNCOMMENT THIS BIT. I wanted to test if this saves RAM but all it did was rendering the sorting function slow af and borderline useless. This remains here as a cautionary example
        //forceGC();
 
        if (dateA === undefined) dateA = "000000";
        if (dateB === undefined) dateB = "000000";
+
 
        var compA = dateA + ' -- ' + nameA;
        var compB = dateB + ' -- ' + nameB;
@@ -132,26 +96,22 @@ searchVars = searchVars.sort(function(a,b) {
 
     });
 
-forceGC();
 console.log("Yeees!");
 
+var otrpi;
+for (otrpi = 0; otrpi < searchVars.length; otrpi++) {
+    showcasingAllVideos[otrpi] = otrpi;
+}
 
-// This was used when there was only one JSON file before
-// var parsedVideos = JSON.parse(fs.readFileSync('YTPMV-2021-06-01.json', 'utf8'));
+//var parsedVideos = JSON.parse(fs.readFileSync('YTPMV-2021-06-01.json', 'utf8'));
+//const parsedVideos = require('./YTPMV Metadata Archive JSON/YTPMV-2021-06-12.json');
 
 
-console.log('Loaded! Carbage collecting...')  ;
+console.log('Loaded! Carbage collecting...');
 
 forceGC();
 
 console.log('Done?');
-//console.log(getVideo(10000));
-
-const lastUpdated = '2021/06/01';
-const videosPerPage = 25;
-const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
-var showcasedVideos;
-var nullUploaderPlaceholder = 'skaPiPiduuDelierp';
 
 // Uploaders whose videos are either deleted or scarcely available. This adds a link to the assumed reuploads at Archive.org
 const exceptionUsers = ['Rlcemaster3',
@@ -165,6 +125,13 @@ const exceptionUsers = ['Rlcemaster3',
     'marcelozcanarioa',
     'MrXarlable',
     'ProPantsuWrestler',
+    'omniputance',
+    'HaikeiAkane',
+    'SuperBocky',
+    'StarWarsXM',
+    'Torjuz1337',
+    'NicoUploader092288C',
+    'bobywea',
     'faugapeengana',            // Tris AF
     'gcon1350',                 // Tris
     'RP1234BITCH',              // Neavy
@@ -175,7 +142,14 @@ const exceptionUsers = ['Rlcemaster3',
     'INTELSPARTA',              // Tea
     '123benjl123',              // Rosie
     'MineTakkunCH',             // Yuicheon Express
+    'genpachi2000',             // suika 514
     'UCRwd3zsU0hwQBSrZaz-qGWA',
+    'UC5A3XSKxvvtiLMaDyKg3R2g',
+    'UCDTS3NrYaqxZFlbqir9RrTQ',
+    'UCcFoMCwZJmCq-KvsHEg-BOw',
+    'UC6ZDG-FH46f-zslm-EA3nrg', // Gurchik's reupload+alt account
+    'UCYhO7XqtAl4-r2wsXgumGzA', // namcigam
+    'UCuBT3ZZANZ93az4LBUP8aeQ', // Neavy's alt
     'UClzjW7WE8o-ZrJAJ4nIBWcw', // Reuploader
     'UC3rfEppAd8qeBfyMF253B6A', // Greg
     'UCkaAQFfaaOmaxx_LRAA8Hzg', // I YTPMV Everything
@@ -197,32 +171,91 @@ const exceptionUsers = ['Rlcemaster3',
     'UCP3oP9jNvMeGT9qNVr0eX5Q', // umi nae
     'UCK-ps_sc5rY7Xt7j1hTtXjw', // Lee (male sign)
     'UCimBvWLwntbNAKxw_7gufBw', // Detrimental Derivation
+    'UCAoxZg10to0Nh8sXlaOSp6g', // Fasolt
     'UCNVTR24Mzg7_3HrgmX9bUhQ', // Fasolt Alt
     'UC1qzdvmhmxFVBjbvfCowgtQ', // Alex2
     'UC4ft1MHe2gpFFWVstwfA5Hw', // Pac Man
+    'UCeg9LfP6p-PAplogCSflP7A', // fake sample
     'UClobvUCGR2VUkBlN0ax570g'];// pongayu
 
-// Get video based on the order in the searchVars list, NOT based on ID.
 function getVideo(orderNumber) {
    var terpm = searchVars[orderNumber];
    //console.log(terpm);
    return parsedVideos[terpm.vids].videos[terpm.subvid];
 }
 
-// This will create the HTML compatible results page to be shown for the browser. A string value equal to nullUploaderPlaceholder value will be passed through searchUploaderId if the page were to show results of the search word only.
-function showList(searchWord, searchUploaderId, page) {
-    var searchingForUploaderToo = !(searchUploaderId.localeCompare(nullUploaderPlaceholder) == 0);
-    console.log('Searching: ' + searchWord);
+//var searchWord = 'thwy';
 
-    // These will create the appropriate type of list based on the search values. The list will be saved in the global showcasedVideos variable and includes ALL videos that fit the search values.
+//var videoitaFile = fs.readFileSync('YTPMV-2019-11-28.json', 'utf8');
+//var parsedVideos = JSON.parse(videoitaFile);
+
+
+
+/*
+var parsedVideos = null;
+
+fs.readFile('YTPMV-2020-06-03.json', 'utf8', (err, fileDat) => {
+    if (err) {
+    console.error(err);
+    return;
+  }
+  
+  try {
+     parsedVideos =  JSON.parse(fileDat);
+  } catch(err) {
+    console.error(err);
+  }
+});*/
+
+function addSiteCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+    var returnStr = '';
+    if (!(checkMarks[0] === undefined) || checkMarks[0] === 'true') {
+       returnStr += '&Youtube=true';
+    }   
+    if (!(checkMarks[1] === undefined) || checkMarks[1] === 'true') {
+       returnStr += '&Niconico=true';
+    }
+    if (!(checkMarks[2] === undefined) || checkMarks[2] === 'true') {
+       returnStr += '&BiliBili=true';
+    }
+    if (!(checkMarks[3] === undefined) || checkMarks[3] === 'true') {
+       returnStr += '&Twitter=true';
+    }
+    if (!(checkMarks[4] === undefined) || checkMarks[4] === 'true') {
+       returnStr += '&Soundcloud=true';
+    }
+    if (!(checkMarks[5] === undefined) || checkMarks[5] === 'true') {
+       returnStr += '&VK=true';
+    }
+    if (!(checkMarks[6] === undefined) || checkMarks[6] === 'true') {
+       returnStr += '&Others=true';
+    }
+    return returnStr;
+}
+
+function showList(searchWord, searchUploaderId,page,checkMarks) {
+    var searchingForUploaderToo = !(searchUploaderId.localeCompare(nullUploaderPlaceholder) == 0);
+    //var newSearch = !(searchWord.toLowerCase().trim().localeCompare(lastSearchword.toLowerCase().trim()) == 0) || (!(searchUploaderId.toLowerCase().trim().localeCompare(lastCheckedUploader.toLowerCase().trim()) == 0) && searchingForUploaderToo);
+    //console.log("Why doesn't this work");
+    console.log('Searching: ' + searchWord);
+    //console.log(lastSearchword + '');
+    //console.log(newSearch);
+
+
     if (searchingForUploaderToo) {
-       createListForUploader(searchWord,searchUploaderId);
+       createListForUploader(searchWord,searchUploaderId,checkMarks);
     }
     else {
-       createList(searchWord);
+       createList(searchWord,checkMarks);
     }
 
     var videoList = '';
+    
+    var searchWordTmp = 'search=' + searchWord + '&';
+    // If the search word is an empty string, no search word is added to the page links
+    if ((searchWord.trim() + ' ') == ' ') {
+        searchWordTmp = '';
+    }
 
     var totalPages = 1;
     while ((totalPages * videosPerPage) <= showcasedVideos.length) {
@@ -238,40 +271,43 @@ function showList(searchWord, searchUploaderId, page) {
     if (endValue > showcasedVideos.length) endValue = showcasedVideos.length;
 
     var linkThing = '';
-
-    // Writing page links on top of page
+    // Writing links on top of page
     if (totalPages > 1) {
          linkThing += '<hr/>';
          var keepGoing = true;
 
          if (currentPage != 1) {
-             linkThing += '<a href="results.html?search=' + searchWord + '&page=1';
+             linkThing += '<a href="results.html?' + searchWordTmp + 'page=1';
              if (searchingForUploaderToo) {
                  linkThing += '&uploader_id=' + searchUploaderId;
              }
+             linkThing += addSiteCheckmarks(checkMarks);
              linkThing += '">&#171;&nbsp;1</a> &#9674; ' + br;
          }
 
          if (currentPage == 1) {
              linkThing += '<b>&#139;1&#155;</b> &#9674; ' + br;
              if (totalPages == 2) {
-                linkThing += '<a href="results.html?search=' + searchWord + '&page=2';
+                linkThing += '<a href="results.html?' + searchWordTmp + 'page=2';
                 if (searchingForUploaderToo) {
                  linkThing += '&uploader_id=' + searchUploaderId;
-                }  
+                }
+                linkThing += addSiteCheckmarks(checkMarks);
                 linkThing += '">2&nbsp;&#187;</a>' + br;
                 keepGoing = false;
              }
              if (keepGoing && totalPages > 2) {
-                linkThing += '<a href="results.html?search=' + searchWord + '&page=2';
+                linkThing += '<a href="results.html?' + searchWordTmp + 'page=2';
                 if (searchingForUploaderToo) {
                    linkThing += '&uploader_id=' + searchUploaderId;
                 }
+                linkThing += addSiteCheckmarks(checkMarks);
                 linkThing += '">2&nbsp;&#155;</a> &#9674; ' + br;
-                linkThing += '<a href="results.html?search=' + searchWord + '&page=' + totalPages;
+                linkThing += '<a href="results.html?' + searchWordTmp + 'page=' + totalPages;
                 if (searchingForUploaderToo) {
                    linkThing += '&uploader_id=' + searchUploaderId;
                 }
+                linkThing += addSiteCheckmarks(checkMarks);
                 linkThing +='">' + totalPages + '&nbsp;&#187;</a>' + br;
                 keepGoing = false;
              }
@@ -283,10 +319,11 @@ function showList(searchWord, searchUploaderId, page) {
          }
 
          if (keepGoing && currentPage == totalPages) {
-             linkThing += '<a href="results.html?search=' + searchWord + '&page=' + (totalPages - 1);
+             linkThing += '<a href="results.html?' + searchWordTmp + 'page=' + (totalPages - 1);
              if (searchingForUploaderToo) {
                  linkThing += '&uploader_id=' + searchUploaderId;
              }
+             linkThing += addSiteCheckmarks(checkMarks);
              linkThing += '">&#139;&nbsp;' + (totalPages - 1) + '</a> &#9674; ' + br;
              linkThing += '<b>&#139;' + totalPages + '&#155;</b>';
              keepGoing = false;
@@ -296,24 +333,28 @@ function showList(searchWord, searchUploaderId, page) {
              var previousPage = currentPage - 1;
              var nextPage = currentPage - 1 + 2;
              if (currentPage > 2) {
-                linkThing += '<a href="results.html?search=' + searchWord + '&page=' + previousPage;
+                linkThing += '<a href="results.html?' + searchWordTmp + 'page=' + previousPage;
                 if (searchingForUploaderToo) {
                     linkThing += '&uploader_id=' + searchUploaderId;
                 }
+                linkThing += addSiteCheckmarks(checkMarks);
                 linkThing +='">&#139;&nbsp;' + previousPage + '</a> &#9674; ' + br;
              }
              linkThing += '<b>&#139;' + currentPage + '&#155;</b> &#9674; ' + br;
              if (nextPage != totalPages) {
-                linkThing += '<a href="results.html?search=' + searchWord + '&page=' + nextPage;
+                linkThing += '<a href="results.html?' + searchWordTmp + 'page=' + nextPage;
                 if (searchingForUploaderToo) {
                     linkThing += '&uploader_id=' + searchUploaderId;
                 }
+                linkThing += addSiteCheckmarks(checkMarks);
                 linkThing += '">' + nextPage + '&nbsp;&#155;</a> &#9674; ' + br;
              }
-             linkThing += '<a href="results.html?search=' + searchWord + '&page=' + totalPages;
+             linkThing += '<a href="results.html?' + searchWordTmp + 'page=' + totalPages;
              if (searchingForUploaderToo) {
                     linkThing += '&uploader_id=' + searchUploaderId;
                 }
+
+             linkThing += addSiteCheckmarks(checkMarks);
              linkThing += '">' + totalPages + '&nbsp;&#187;</a>' + br;
          }
     }
@@ -321,37 +362,91 @@ function showList(searchWord, searchUploaderId, page) {
     videoList += linkThing;
 
     videoList += '<br/>Search word: "' + unableCodingInSearch(searchWord) + '"';
-
+    // TEST
     if (searchingForUploaderToo) {
-       videoList += '<br/>Searched Uploader ID: "' + unableCodingInSearch(searchUploaderId) + '"';
-    }
+    videoList += '<br/>Searched Uploader ID: "' + unableCodingInSearch(searchUploaderId) + '"';
+    //videoList += '</div>';
+}
 
-    // This will be used to create the entries for the page
     for (i = startValue; i < endValue; i++) {
        videoList += '<hr/><div>' + br;
        var listedVideo = getVideo(showcasedVideos[i]);
        videoList += '<b>' + listedVideo.title + '</b> (' + formatDuration(listedVideo.duration) +')<br/>' + br;
-       videoList += '<code><a href=\"' + listedVideo.webpage_url + '\" target=\"_blank\">' + listedVideo.webpage_url + '</a></code>';
+
+       // Video link
+       var vidTmp = '<code><a href=\"' + listedVideo.webpage_url + '\" target=\"_blank\">' + listedVideo.webpage_url + '</a></code>';
+       
+       if (listedVideo.extractor_key.search("Youtube") >= 0) {
+           var vidTmp2 = 'https://www.youtube.com/watch?v=' + listedVideo.id;
+           
+           vidTmp = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code>';
+       }
+       
+       if (listedVideo.extractor_key.search("Niconico") >= 0) {
+           var vidTmp2 = 'https://www.nicovideo.jp/watch/' + listedVideo.id;
+           
+           vidTmp = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code>';
+       }
+       
+       if (listedVideo.extractor_key.search("BiliBili") >= 0) {
+           var vidTmp2 = listedVideo.webpage_url;
+           var terraip = vidTmp2.indexOf('&');
+           if (terraip != -1) vidTmp2 = vidTmp2.substring(0,terraip);
+           terraip = vidTmp2.indexOf('?p=1');
+           if (terraip != -1 && vidTmp2.substring(terraip).length == 4) vidTmp2 = vidTmp2.substring(0,terraip);
+           
+           
+           vidTmp = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code>';
+       }
+       
+       videoList += vidTmp;
+       
+       if (listedVideo.extractor_key.search("BiliBili") >= 0 && listedVideo.webpage_url.search(listedVideo.id) == -1) {
+         if (listedVideo.id.search("_part1") > 0) {
+           var teypi = listedVideo.id.indexOf("_part1");
+           var teyp2 = listedVideo.id.substring(0,teypi);
+           var teyp21 = listedVideo.id.substring(teypi); 
+           if (teyp21.length > 6) { 
+              var teyp3 = listedVideo.id.substring(teypi + 5); 
+              videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '?p=' + teyp3 + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
+           } else {
+              videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '\" target=\"_blank\">av' + teyp2 + '</a>]</code>'; 
+           }
+         }
+         else if (listedVideo.id.search("_part") > 0) {
+           var teypi = listedVideo.id.indexOf("_part");
+           var teyp2 = listedVideo.id.substring(0,teypi);
+           var teyp3 = listedVideo.id.substring(teypi + 5);
+           videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '?p=' + teyp3 + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
+         }  
+         else if (listedVideo.id.search("_p") > 0) {
+           var teypi = listedVideo.id.indexOf("_p");
+           var teyp2 = listedVideo.id.substring(0,teypi);
+           var teyp3 = listedVideo.id.substring(teypi + 2);
+           videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '?p=' + teyp3 + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
+         } else {
+           videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + listedVideo.id + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
+         }
+       }
 
        // This will determine if a link to a supposed Archive.org reupload will be added
        if (checkForAcrhiveOrgLink(listedVideo))  {
        
             // Exception for DKCplayer     
             if (isTheUserSame(listedVideo,'DKCplayer')) {
-                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/yt-DKCplayer_201509\">(Archive.org reupload)</a>';
+                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/yt-DKCplayer_201509\">Archive.org reupload</a>';
             }
             // Exception for KinkyOats
             else if (isTheUserSame(listedVideo,'KinkyOats')) {
-                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/183b1uU3XIELr6c\">(Archive.org reupload)</a>';
+                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/183b1uU3XIELr6c\">Archive.org reupload</a>';
             
             }
             // Exception for HyperFlameXLI
             else if (isTheUserSame_String(listedVideo.uploader,'HyperFlameXLI')) {
-                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/HyperFlameXLI_Archive\">(Archive.org reupload)</a>'; 
+                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/HyperFlameXLI_Archive\">Archive.org reupload</a>';
             }
-            // For everyone else
             else {
-                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/youtube-' + listedVideo.id + '\">(Archive.org reupload)</a>';
+                videoList += '&nbsp;&#124; <a href=\"https://archive.org/details/youtube-' + listedVideo.id + '\">Archive.org reupload</a>';
             }
        }
        
@@ -391,10 +486,10 @@ function showList(searchWord, searchUploaderId, page) {
          }
          videoList += '</code>';
        }
-
+       
        if (!searchingForUploaderToo) {
-       videoList += br + '<br/><br/><a href="results.html?uploader_id=' + listedVideo.uploader_id + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
-       videoList += '<a href="results.html?search=' + searchWord + '&uploader_id=' + listedVideo.uploader_id + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
+       videoList += br + '<br/><br/><a href="results.html?uploader_id=' + listedVideo.uploader_id + addSiteCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
+       videoList += '<a href="results.html?search=' + searchWord + '&uploader_id=' + listedVideo.uploader_id + addSiteCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
        }
        
        videoList += '</div>';
@@ -406,7 +501,6 @@ function showList(searchWord, searchUploaderId, page) {
     return videoList;
 }
 
-// Crude unabling of running code through the searched string
 function unableCodingInSearch(searchWord) {
     var searchChar = '<';
     var replaceCode = '&#60;';
@@ -431,8 +525,12 @@ function unableCodingInSearch(searchWord) {
     return temppo;
 }
 
-// This checks if a video's author is in the exceptionUsers list. Returns 'true' if they are.
 function checkForAcrhiveOrgLink(videoInfo) {
+    /*
+    console.log(videoInfo.title);
+    console.log(videoInfo.id);
+    console.log(videoInfo.uploader);
+    console.log(videoInfo.uploader_id); */
 
     var exp;
 
@@ -441,7 +539,7 @@ function checkForAcrhiveOrgLink(videoInfo) {
             return true;
         }
     }
-
+    
     return false;
 }
 
@@ -457,7 +555,6 @@ function isTheUserSame_String(videoUploader, uploaderName) {
     return (videoUploader.localeCompare(uploaderName) == 0);
 }
 
-// Turns the seconds of video duration into more comprehensible format, goes up to hours (HH:MM:SS)
 function formatDuration(justSeconds) {
     var minute = 60;
     
@@ -501,7 +598,6 @@ function formatDuration(justSeconds) {
     return retStr;
 }
 
-// Adds HTML compatible links in the description as well as adds (Search with this ID) links. Returns altered description. This is ran through editDescription(ogDescription, extractorKey) function.
 function addLinks(ogDescription, searchString) {
     var editedDescription = ogDescription;
     var linkPos = editedDescription.indexOf(searchString);
@@ -516,12 +612,14 @@ function addLinks(ogDescription, searchString) {
                 endOfLink = tempp2;
             }
             var linkara = '';
+            //console.log('End of link: ' + endOfLink);
 
-            if (endOfLink == -1) {
+            if (endOfLink == -1) { //(tempp1 == -1 && tempp2 == -1) {
                 linkara = editedDescription.substring(linkPos);
             } else {
                 linkara = editedDescription.substring(linkPos,endOfLink);
             }
+            //console.log(linkara);
 
             var tempStr1 = editedDescription.substring(0,linkPos);
             var tempStr2 = editedDescription.substring(endOfLink);
@@ -638,7 +736,6 @@ function addLinks(ogDescription, searchString) {
     return editedDescription;
 }
 
-// This will be used to make the description more HTML compatible, most notably by adding line breaks. Also identifies and adds HTML compatible links
 function editDescription(ogDescription, extractorKey) {
     var editedDescription = ogDescription;
     
@@ -646,22 +743,23 @@ function editDescription(ogDescription, extractorKey) {
         return "<code>[No description]</code>";
     }
     
-    // Most of Niconico videos are already HTML compatible with hyperlinks, so descriptions from that site won't be edited by this link adding function
     if (extractorKey.indexOf("Niconico") == -1) {
-        // These two bugged out the links in some cases, so I settled with the string that all properly written links would share
-        // editedDescription = addLinks(editedDescription,'https://');
-        // editedDescription = addLinks(editedDescription,'http://');
+        //editedDescription = addLinks(editedDescription,'https://');
+        //editedDescription = addLinks(editedDescription,'http://');
         editedDescription = addLinks(editedDescription,'http');
     }
 
-    // This rest of this function will add line breaks if needed
+    //var thereAreBrs = false;
     var brPos = editedDescription.indexOf('\n');
+
+    //console.log('brPos (1ST): ' + brPos);
 
     if (brPos == -1) {
         return editedDescription;
     }
 
     while (brPos != -1) {
+        //console.log('brPos: ' + brPos);
         var temp1 = editedDescription.substring(0,brPos);
         var temp2 = editedDescription.substring(brPos);
         editedDescription = temp1 + '<br/>' + temp2;
@@ -672,19 +770,66 @@ function editDescription(ogDescription, extractorKey) {
     return editedDescription;
 }
 
-// Creates a list of numbers that will refer to searchVars values. The values will refer to number of order, not the IDs. Intended just for search word
-function createList(searchWord) {
-    showcasedVideos = [];
-    
-    // For making a list
-    listTmp = ' ';
+function createList(searchWord,checkMarks) {
+    var runThis = true;
+    var noCheckmarks = true;
+    var checkMarkBoolean = [];
+    for (var pp = 0; pp < checkMarks.length; pp++) {
+        if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
+           checkMarkBoolean.push(false);
+        } else {
+           checkMarkBoolean.push(true);
+           noCheckmarks = false;
+        }
+    }   /*
+    console.log(checkMarks);
+    console.log(checkMarkBoolean); 
+    console.log(noCheckmarks);*/
 
-    for (i = 0; i < searchVars.length; i++) {
+    // This is here in case someone provides an empty string which prompts the database to show all videos. This avoids running the comparison check needlessly
+    var tmpDread = searchWord.trim() + ' ';
+    if (tmpDread == ' ' && noCheckmarks) {
+        runThis = false;
+        showcasedVideos = showcasingAllVideos;
+        console.log('Showing all videos!');
+    }
+    
+    if (runThis) {
+    
+     showcasedVideos = [];
+
+     for (i = 0; i < searchVars.length; i++) {
        var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
+
+       var ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
+       var isOther = true;
+       for (var plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+
+           if (sitesList[plorar] === compareVid.extractor_key) {
+              isOther = false;
+              if (checkMarkBoolean[plorar]) {
+                ignoreRest = true;
+                continue;
+              }
+           }
+
+           if (sitesList[plorar] === 'Others' && checkMarkBoolean[plorar] && isOther) {
+                ignoreRest = true;
+                continue;
+           }
+       }
+       
+       if (ignoreRest === true) continue;
+
        var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + compareVid.uploader_id + ' ' + compareVid.upload_date;
-       // This has been added because Bilibili IDs exclude the first two letters when the metadata is saved in JSON. Makes sure that searching with full ID brings up the appropriate videos.
        if (compareVid.extractor_key.indexOf("BiliBili") == 0) {
            compareStr += ' av' + compareVid.id + ' BV' + compareVid.id;
+       }
+       
+       if (compareVid.extractor_key.search("BiliBili") >= 0 && compareVid.webpage_url.search(compareVid.id) == -1) {
+           //var temort = compareVid.webpage_url.indexOf("BV");
+           //compareStr += compareVid.webpage_url.substring(temort);
+           compareStr += compareVid.webpage_url.substring(compareVid.webpage_url.indexOf("BV"));
        }
        if (!(compareVid.description === undefined)) {
           compareStr += ' ' + compareVid.description;
@@ -702,21 +847,50 @@ function createList(searchWord) {
 
        if (compareStr.toLowerCase().trim().indexOf(searchWord.toLowerCase().trim()) > -1) {
           showcasedVideos.push(i);
-          // For list
-          listTmp = compareVid.webpage_url + '\n' + listTmp ;
-          //listTmp = listTmp + '\n' + compareVid.webpage_url ;
        }
+     }
     }
-    // This is for video download purposes, not necessary to run the database. This creates a list of URLs based on the search results. (e.g. searching for 'YTPMV' creates a list of URLs for videos that have this search word in them)
-    // fs.writeFileSync('searchingList1.txt', listTmp);
+    //lastSearchword = searchWord;
+    //updateShowcase = false;
 }
 
-// Creates a list of numbers that will refer to searchVars values. The values will refer to number of order, not the IDs. Intended for both search word and uploader
-function createListForUploader(searchWord,uploaderId) {
+function createListForUploader(searchWord,uploaderId,checkMarks) {
     showcasedVideos = [];
+    
+    var noCheckmarks = true;
+    var checkMarkBoolean = [];
+    for (var pp = 0; pp < checkMarks.length; pp++) {
+        if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
+           checkMarkBoolean.push(false);
+        } else {
+           checkMarkBoolean.push(true);
+           noCheckmarks = false;
+        }
+    }   /*
+    console.log(checkMarks);
+    console.log(checkMarkBoolean); 
+    console.log(noCheckmarks);*/
     
     for (i = 0; i < searchVars.length; i++) {
        var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
+
+       var ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
+       var isOther = true;
+       for (var plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+
+           if (sitesList[plorar] === compareVid.extractor_key) {
+              isOther = false;
+              if (checkMarkBoolean[plorar]) {
+                ignoreRest = true;
+                continue;
+              }
+           }
+
+           if (sitesList[plorar] === 'Others' && checkMarkBoolean[plorar] && isOther) {
+                ignoreRest = true;
+                continue;
+           }
+       }
 
        var tmp1 = compareVid.uploader_id + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
        var tmp2 = uploaderId.trim();
@@ -748,12 +922,16 @@ function createListForUploader(searchWord,uploaderId) {
           showcasedVideos.push(i);
        }
     }
+    //lastSearchword = searchWord;
+    //lastCheckedUploader = uploaderId;
+    //updateShowcase = false;
 }
 
 //console.log('List done');
 
-// This is used to create the index.html page
+
 function htmlStrIndex(querie) {
+  // Alustetaan HTML-koodia index.html-sivua varten
   var htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
  
   if ('/YTPMV_Database'.localeCompare(querie) == 0) {
@@ -776,26 +954,22 @@ function htmlStrIndex(querie) {
   return htmlStrIndex;
 }
 
-// This will be used at the beginning of every HTML page related to this database
 var htmlStrBegin = '<!DOCTYPE html>' + br;
 htmlStrBegin += '<html>' + br;
 
 htmlStrBegin += '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">' + br;
-//htmlStrBegin += '<link rel="stylesheet" href="dark_theme_style.css">' + br;
-htmlStrBegin += '<style>body { background-color: #292929; color: white; } a:link { color: #788BFF; } a:visited { color: #9BB1FF; } a:hover { color: #BFD7FF; } a:active { color: #E2FDFF; }</style>'+ br;
+htmlStrBegin += '<link rel="stylesheet" href="../assets/dark_theme_style.css">' + br;
 htmlStrBegin += '<title>Node.js demo - YTPMV Metadata Archive</title>' + br;
 htmlStrBegin += '</head>' + br;
 
 htmlStrBegin += '<body>' + br;
+//htmlStrBegin += '<div><h2>Node.js demo - YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="https://www.dropbox.com/s/tr9lgsviaf812l8/" target="_blank">Download JSON File</a></div>' + br;
 htmlStrBegin += '<div><h2>Node.js demo - YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="' + dropboxLink + '" target="_blank">Download JSON File</a></div>' + br;
 // Hosted by FinnOtaku &#151; 
 
-// This creates the pages of the database
-// If the code is ran locally, the site can be accessed through "http://localhost:3535/YTPMV_Database/index.html"
 http.createServer(function (req, res) {
   var q = url.parse(req.url, true);
-  
-  // For potential debugging purposes
+    
   console.log(q.pathname);
   console.log(q.query);
   console.log(q.search);
@@ -805,8 +979,10 @@ http.createServer(function (req, res) {
   console.log(q.query.page === undefined);
   console.log(q.query.uploader_id);
   console.log(q.query.uploader_id === undefined);
-  
-  console.log(showcasedVideos);
+
+  //  ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+  var chekingmarkss = [q.query.Youtube, q.query.Niconico, q.query.BiliBili, q.query.Twitter, q.query.Soundcloud, q.query.VK, q.query.Others];
+  //console.log(chekingmarkss);
 
   var searchingFor = q.query.search;
   var searchWordPresent = !(q.query.search === undefined);
@@ -822,6 +998,8 @@ http.createServer(function (req, res) {
        }
   }
   console.log('Page number is ' + pageNumber);
+  
+
 
   var fromUploaderId = q.query.uploader_id;
   var uploaderIdListed = !(q.query.uploader_id === undefined);
@@ -829,28 +1007,49 @@ http.createServer(function (req, res) {
 
   const htmPage = '/YTPMV_Database';
 
-  // Creates the page for results.html along with the appropriate lists
   if ((htmPage + '/results.html').localeCompare(q.pathname) == 0) {
      res.writeHead(200, {'Content-Type': 'text/html'});
- 
+
      var htmlStrSearch = '<hr/><p>' + br + 'Search for videos:' + br;
      htmlStrSearch += '<form action="results.html" method="GET">';
-     htmlStrSearch +=  br + '<input type="text" name="search" />&nbsp;' + br;
-     htmlStrSearch += '<input type="submit" value="Search" />' + br;
+     htmlStrSearch +=  br + '<input type="text" name="search"'
+     if (!(searchingFor === undefined)) htmlStrSearch += ' value="' + searchingFor.trim() + '"';
+     htmlStrSearch += ' />&nbsp;' + br;
+     htmlStrSearch += '<input type="submit" value="Search" />&nbsp;&#124;' + br;
+
+     // Create a bunch of checkboxes
+     htmlStrSearch += ' Exclude: ' + br;
+     var orep;
+     for (orep = 0; orep < sitesList.length; orep++) {
+        var tempww = chekingmarkss[orep];
+        if (tempww === undefined || !(tempww === 'true')) {
+           tempww = false;
+        }
+        htmlStrSearch += '<input type="checkbox" id="' + sitesList[orep] + '" name="' + sitesList[orep] + '" value="true"';
+        if (tempww === 'true') {
+           htmlStrSearch += ' checked="yes"';
+        }
+        htmlStrSearch += '><label for="' + sitesList[orep] + '">&nbsp;' + sitesList[orep] + '</label>' + br;
+     }
+
+
      htmlStrSearch += '</form>';
 
      res.write(htmlStrBegin);
-     res.write(htmlStrSearch);
-     res.write(showList(searchingFor, fromUploaderId, pageNumber));
+     res.write('<div>' + htmlStrSearch + '</div>');
+     res.write('<div>' + showList(searchingFor, fromUploaderId, pageNumber, chekingmarkss) + '</div>');
      res.write('</body></html>');
+     
+     // ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK'];
+
+     forceGC();
 
      res.end();
   }
   
-  // Creates the index of the database
   if (htmPage.localeCompare(q.pathname) == 0 || (htmPage + '/').localeCompare(q.pathname) == 0 || (htmPage + '/index.html').localeCompare(q.pathname) == 0) {
      res.writeHead(200, {'Content-Type': 'text/html'});
-
+     
      res.write(htmlStrBegin);
      res.write(htmlStrIndex(q.pathname));
 
@@ -863,5 +1062,9 @@ http.createServer(function (req, res) {
       res.end("404 Not Found. Tried to get to: " +  q.pathname);
   }
 
-// This is the port that the server will use
+  
+  //console.log('Cleaning');
+  //forceGC();
+
+//}).listen(8080);
 }).listen(3535);
