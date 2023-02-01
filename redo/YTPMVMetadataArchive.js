@@ -1,10 +1,16 @@
-//requiring path and fs modules
 const fs = require('fs');
 const url = require('url');
 const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
-// https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
+/*
+   Used to show, when the database was last updated. Needs to be updated manually.
+*/
+const lastUpdated = '20230129 [YYYYMMDD]';
+
+/*
+   https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
+*/
 function forceGC() {
    if (global.gc) {
       global.gc();
@@ -13,44 +19,129 @@ function forceGC() {
    }
 }
 
+/*
+   These determine if the provided search word is used. Utilized to mitigate the issue,
+     where queries involving shorter search words kept jamming the database.
+
+   oneLetterSearchBugThreshold: If the search word's length is equal to or less than this
+     value, the query will be ignored and the database showcases all videos in the
+     database. If there are more than 1 search words and each of their length is equal to
+     or less than this value, the query will be similarly ignored. However, if at least
+     one of these search words is longer than this value, the query will be handled and
+     results will be shown appropriately.
+   NOTE: The code currently executes all queries that have the "Exact word search" option
+     enabled regardless of the length of the search words, which could lead to the 
+     jamming of the database. Will be fixed at a later date.
+     
+   oneLetterBugPrevented: This is dynamically used to check whether or not the queries
+     will be processed.
+     - true: A query will be processed as intended.
+     - false: A query will be ignored and all of the database's entries will be showcased.
+*/
 const oneLetterSearchBugThreshold = 3;
 var oneLetterBugPrevented = false;
 
+/*
+   Linebreak for strings
+*/
 const br =  '\r\n';
 
 console.log('Started forming the server')  ;
 
-// Original
 console.log('Loading metadata...')  ;
 
-const lastUpdated = '20230129 [YYYYMMDD]';
+/*
+   Determines how many entries are being shown per page.
+*/
 const videosPerPage = 20;
+
+/*
+   Link to an external Dropbox repository, that has a backup of the JSON files used for
+     the database.
+*/
 const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
+
+/*
+   These are used to keep track of what videos are being listed. These do not store any
+     video metadata, just their overall order numbers/IDs (from the most to least recent).
+     These values are then used to reference entries in the "searchVars" array.
+
+   showcasedVideos: Once a query has been processed, this is where the IDs of matching
+     videos will be stored for further processing.
+
+   showcasingAllVideos: This will be filled with IDs of all entries in the database during
+     the startup of the code and isn't meant to be edited afterwards. If a query deems
+     that all entries should be showcased, this array will be passed on the
+     "showcasedVideos" array for further processing.
+*/
 var showcasedVideos;
-// This is for cases when a user searches with an empty string, which shows all results
 var showcasingAllVideos = [];
-var nullUploaderPlaceholder = 'skaPiPiduuDelierp';
 
-// I'm trying to see if I could thwart bots by changing these values
-var botCheckName = "hey_didyou_know";
-var botCheckValue = "selen_tatsuki_is_kool";
+/*
+   In case an uploader ID hasn't been specified in an entry, this string is used as a
+     placeholder. Needs to be changed if a channel with a matching ID is ever added into 
+     the database. :D
+*/
+const nullUploaderPlaceholder = 'skaPiPiduuDelierp';
 
+/* 
+   These are used as part of crude bot prevention measures. Any queries provided
+     without these values (&*botCheckName*=*botCheckValue*) will be redirected to a
+     placeholder page, which will provide instructions on how to carry on with the query
+     for actual visitors. So far this has been surprisingly effective, but if bots ever
+     learn to take this into consideration a more robust measure need to be implemented.
+*/
+const botCheckName = "hey_didyou_know";
+const botCheckValue = "selen_tatsuki_is_kool";
+
+/*
+   This will be used to determine, whether or not the provided search words will be
+     processed exactly as presented.
+     - true: The provided search word will be processed as-is.
+     - false: In case there are multiple words, each of them will be used separately.
+*/
 var exactWordSearch = false;
 
+/*
+   This will be used to determine, whether or not the entries will be accompanied by
+     embedded video players. So far it is only available for entries of videos from
+     YouTube, Niconico and Twitter. They are not shown by default.
+     - true: The video players are added along with the metadata.
+     - false: The video players are not shown along with the metadata.
+*/
 var showVidPrev = false;
 
-var parsedVideos = [];
-// Remember edit elsewhere if you edit this!!
-var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others']; // extractor_key
-var y;
 /*
-var minY = 0;
-var maxY = 34;*/
+   This is where the metadata entries are stored. The array will be processed during the
+     startup and is not meant to be edited afterwards. "parsedVideos" is meant to consist 
+     of multiple arrays. The order/ID of these entries are stored in the "searchVars"
+     array, which should be used to access the array since there is a chance that the 
+     entries are not in the intended order within "parsedVideos".
+*/
+var parsedVideos = [];
+
+/*
+   This is used as part of a method to determine, whether or not to exclude particular 
+     sites from search results. Compares this list to the "extractor_key" values of the 
+     entries, aside from the last option. The "Others" option include every other site,
+     that hasn't been listed.
+   NOTE: If values here are edited, you need to manually change other functions to match
+     the edits made to this array.
+*/
+var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+
+/*
+   These are used to process the JSON files that contain the entries for the database.
+     The values are supposed to read as a year and a month (YYYYMM) and the files should 
+     be named like "vids*YYYYMM*.json" (e.g. "vids202301.json") for them to be processed
+     correctly. If there are no files for certain months, the code will just ignore those
+     months.
+*/
 var maxY = 202312;
-//var minY = 202101;
 var minY = 200501;
 
 var numm = 0;
+var y;
 //for (y = minY; y <= maxY; y++) {
 for (y = maxY; y >= minY; y--) {
     
@@ -93,43 +184,6 @@ for (y = 0; y < numm; y++) {
 }
 
 console.log("Total number of entries: " + overaro);
-
-/*
-console.log('Chack gamma ' + searchVars[100].vids)  ;
-
-searchVars = searchVars.sort(function(a,b) {
-       var tmpA = getVideo(a.id);
-       var tmpB = getVideo(b.id);
-
-
-       var nameA = (tmpA.title + ' ' + tmpA.id).toUpperCase();
-       var nameB = (tmpB.title + ' ' + tmpB.id).toUpperCase();
-       
-       var dateA = tmpA.upload_date ;
-       var dateB = tmpB.upload_date ;
-
-       //forceGC();
-
-       if (dateA === undefined) dateA = "000000";
-       if (dateB === undefined) dateB = "000000";
-
-
-       var compA = dateA + ' -- ' + nameA;
-       var compB = dateB + ' -- ' + nameB;
-       //console.log(compA);
-
-       if (compA < compB) {
-          return 1; //nameB comes first
-       }
-       if (compA > compB) {
-          return -1; // nameA comes first
-       }
-       return 0;  // names must be equal
-
-    });
-
-console.log("Yeees!"); */
-
 
 var otrpi;
 for (otrpi = 0; otrpi < searchVars.length; otrpi++) {
@@ -316,7 +370,7 @@ function addCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'T
 }
 
 function showList(searchWord, searchUploaderId,page,checkMarks) {
-    var searchingForUploaderToo = !(searchUploaderId.localeCompare(nullUploaderPlaceholder) === 0);
+    var searchingForUploaderToo = !(searchUploaderId === nullUploaderPlaceholder);
     //var newSearch = !(searchWord.toLowerCase().trim().localeCompare(lastSearchword.toLowerCase().trim()) == 0) || (!(searchUploaderId.toLowerCase().trim().localeCompare(lastCheckedUploader.toLowerCase().trim()) == 0) && searchingForUploaderToo);
     //console.log("Why doesn't this work");
     console.log('Searching: ' + searchWord);
@@ -1176,7 +1230,7 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
 
        var tmp1 = compareVid.uploader_id + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
        var tmp2 = uploaderId.trim();
-       if (tmp1.trim().localeCompare(tmp2) != 0) continue;
+       if (!(tmp1.trim() === tmp2)) continue;
        
        if (searchWord.trim().length == 0) {
           showcasedVideos.push(i);
@@ -1216,7 +1270,7 @@ function htmlStrIndex(querie) {
   // Alustetaan HTML-koodia index.html-sivua varten
   var htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
  
-  if ('/YTPMV_Database'.localeCompare(querie) == 0) {
+  if ('/YTPMV_Database' === querie) {
      htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
   } else {
      htmlStrIndex += '<form action="results.html" method="GET">'; 
@@ -1241,7 +1295,7 @@ function htmlStrForBot(querie) {
   // Alustetaan HTML-koodia index.html-sivua varten
   var htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
  
-  if ('/YTPMV_Database'.localeCompare(querie) == 0) {
+  if ('/YTPMV_Database' === querie) {
      htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
   } else {
      htmlStrIndex += '<form action="results.html" method="GET">'; 
@@ -1340,7 +1394,7 @@ var srvr = http.createServer(function (req, res) {
 
   const htmPage = '/YTPMV_Database';
 
-  if ((htmPage + '/results.html').localeCompare(q.pathname) == 0) {
+  if ((htmPage + '/results.html') === q.pathname) {
      res.writeHead(200, {'Content-Type': 'text/html'});
      var htmlStrSearch = '<hr/><p>' + br + 'Search for videos:' + br;
         htmlStrSearch += '<form action="results.html" method="GET">';
@@ -1406,7 +1460,7 @@ var srvr = http.createServer(function (req, res) {
      res.end();
   }
   
-  if (htmPage.localeCompare(q.pathname) == 0 || (htmPage + '/').localeCompare(q.pathname) == 0 || (htmPage + '/index.html').localeCompare(q.pathname) == 0) {
+  if (htmPage === q.pathname || (htmPage + '/') === q.pathname || (htmPage + '/index.html') === q.pathname) {
      res.writeHead(200, {'Content-Type': 'text/html'});
      
      res.write(htmlStrBegin);
