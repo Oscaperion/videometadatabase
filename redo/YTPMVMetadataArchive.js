@@ -56,7 +56,7 @@ console.log('Loading metadata...')  ;
 const videosPerPage = 20;
 
 /*
-   Link to an external Dropbox repository, that has a backup of the JSON files used for
+   Link to an external Dropbox repository that has a backup of the JSON files used for
      the database.
 */
 const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
@@ -64,7 +64,7 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
 /*
    These are used to keep track of what videos are being listed. These do not store any
      video metadata, just their overall order numbers/IDs (from the most to least recent).
-     These values are then used to reference entries in the "searchVars" array.
+     These values are then used to reference entries through the "searchVars" array.
 
    showcasedVideos: Once a query has been processed, this is where the IDs of matching
      videos will be stored for further processing.
@@ -125,14 +125,14 @@ var parsedVideos = [];
      sites from search results. Compares this list to the "extractor_key" values of the 
      entries, aside from the last option. The "Others" option include every other site,
      that hasn't been listed.
-   NOTE: If values here are edited, you need to manually change other functions to match
+   NOTE: If values are edited here, you need to manually change other functions to match
      the edits made to this array.
 */
 var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
 
 /*
    These are used to process the JSON files that contain the entries for the database.
-     The values are supposed to read as a year and a month (YYYYMM) and the files should 
+     The values are supposed to read as a year and a month (YYYYMM) and the files should
      be named like "vids*YYYYMM*.json" (e.g. "vids202301.json") for them to be processed
      correctly. If there are no files for certain months, the code will just ignore those
      months.
