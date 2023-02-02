@@ -8,9 +8,9 @@ const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 */
 var currentDate = new Date();
 var cDay = currentDate.getDate();
-if (cDay < 10) cDay = '0' + cDay;
+//if (cDay < 10) cDay = '0' + cDay;
 var cMonth = currentDate.getMonth() + 1;
-if (cMonth < 10) cMonth = '0' + cMonth;
+//if (cMonth < 10) cMonth = '0' + cMonth;
 var cYear = currentDate.getFullYear() + '';
 
 const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
@@ -145,7 +145,7 @@ var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK
      months.
 */
 var maxY = 202312;
-var minY = 200501;
+var minY = 202201;
 
 var numm = 0;
 var y;
@@ -1356,7 +1356,7 @@ var srvr = http.createServer(function (req, res) {
      if ((q.query.search === undefined || q.query.search.trim() === '') && (q.query.uploader_id === undefined || q.query.uploader_id.trim() === '')) { tiitle = '<title>YTPMV Metadata Archive - Showing all videos - Page ' + pageNn + '</title>'; }
      else if (!(q.query.search === undefined || q.query.search.trim() === '')) { tiitle = '<title>YTPMV Metadata Archive - Searching: ' + q.query.search.trim() + ' - Page ' + pageNn + '</title>'; }
      
-     if (q.query.preview === undefined || q.query.preview.trim() === '') {
+     if (q.query.preview === undefined || q.query.preview.trim() === '' || q.query.preview.trim() === 'false') {
          showVidPrev = false;
      } else {
          showVidPrev = true;
@@ -1420,12 +1420,23 @@ var srvr = http.createServer(function (req, res) {
         if (exactWordSearch == true) {
            htmlStrSearch += ' checked="yes"';
         }
-        htmlStrSearch += ' /><label for="exactSearch">Exact word search</label> ' + br;
-        htmlStrSearch += '<input type="checkbox" id="preview" name="preview" value="true"';
-        if (showVidPrev == true) {
-           htmlStrSearch += ' checked="yes"';
+        htmlStrSearch += ' /><label for="exactSearch">Exact word search</label>&nbsp;&#124;' + br;
+
+        var linkkeriino = q.search;
+        if (linkkeriino.indexOf('preview=') > 0) {
+           var inderr  = linkkeriino.indexOf('preview=');
+           var inderr2 = linkkeriino.indexOf('&', (inderr + 1));
+           if (inderr2 > 0) linkkeriino = linkkeriino.substring(0,inderr) + 'preview=' + !showVidPrev + linkkeriino.substring(inderr2);
+           else linkkeriino = linkkeriino.substring(0,inderr) + 'preview=' + !showVidPrev;
+        } else {
+           linkkeriino += '&preview=' + !showVidPrev;
         }
-        htmlStrSearch += ' /><label for="preview">Show video previews</label><br/><br/>' + br;
+        htmlStrSearch += '<a href="results.html' + linkkeriino + '">';
+        if (showVidPrev == true) htmlStrSearch += 'Hide the video previews';
+        else htmlStrSearch += 'Show the video previews';
+
+        htmlStrSearch += '</a><br/><br/>' + br;
+
         htmlStrSearch += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + br;
 
         // Create a bunch of checkboxes
