@@ -6,7 +6,7 @@ const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 /*
    Used to show, when the database was last updated. Needs to be updated manually.
 */
-const lastUpdated = '20230129 [YYYYMMDD]';
+const lastUpdated = '20230202 [YYYYMMDD]';
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -963,6 +963,7 @@ function createVideoPreview(vidId,vidSite) {
     if (vidSite === 'Youtube') return '<br/><br/>' + createVideoPreviewYoutube(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Niconico') return '<br/><br/>' + createVideoPreviewNiconico(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Twitter') return '<br/>' + createVideoPreviewTwitter(vidId) + br;
+    if (vidSite === 'Soundcloud') return '<br/><br/>' + createAudioPreviewSoundcloud(vidId) + '<br/><br/>' + br;
     return '<br/><br/>';
 }
 
@@ -976,24 +977,26 @@ function createVideoPreviewNiconico(vidId) {
     return embbee;
 }
 
+function createAudioPreviewSoundcloud(vidId) {
+    var embbee = '<iframe width="640" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/' + vidId + '&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>';
+    return embbee;
+}
+
 //'<script type="application/javascript" src="https://embed.nicovideo.jp/watch/sm41701760/script?w=640&h=480"></script>'
 
 function createVideoPreviewTwitter(vidId) {
     var apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
     var embbee = '';
-    var requ_HSL = new XMLHttpRequest_node();
-    requ_HSL.onreadystatechange = function() {
-      // console.log("2nd HSL check");
-      if (requ_HSL.readyState == 4 && requ_HSL.status == 200){
-      //alert(req.responseText);
-      //rawdata_HSL = requ_HSL.responseText;
-        //console.log("3rd HSL check");
-        embbee = JSON.parse(requ_HSL.responseText).html;
+    var requ = new XMLHttpRequest_node();
+    requ.onreadystatechange = function() {
+      if (requ.readyState == 4 && requ.status == 200){
+        embbee = JSON.parse(requ.responseText).html;
         console.log("JSON succesfully fetched from Twitter's site");
        }
     };
-    requ_HSL.open("GET", apiLink, false);
-    requ_HSL.send(null);
+    requ.open("GET", apiLink, false);
+    requ.send(null);
+    requ.abort();
     
     embbee = embbee.trim();
     
@@ -1335,8 +1338,8 @@ var srvr = http.createServer(function (req, res) {
 
   htmlStrBegin += '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">' + br;
   htmlStrBegin += '<link rel="stylesheet" href="../assets/dark_theme_style.css">' + br;
- 
-  
+
+
   var tiitle = '<title>YTPMV Metadata Archive</title>';
   var pageNn = q.query.page;
   if (q.query.page === undefined) pageNn = "1";
@@ -1352,6 +1355,10 @@ var srvr = http.createServer(function (req, res) {
          showVidPrev = true;
      }
   }
+      /*
+  if (q.pathname === '/YTPMV_Database/details.html') {
+
+  } */
 
   htmlStrBegin += tiitle;
   htmlStrBegin += br + '</head>' + br;
