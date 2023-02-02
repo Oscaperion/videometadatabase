@@ -152,8 +152,8 @@ var y;
 //for (y = minY; y <= maxY; y++) {
 for (y = maxY; y >= minY; y--) {
     
-   // var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   var terappi = 'vidJson2/vids' + y + '.json';
+   var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   //var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {
      var teray = fs.readFileSync(terappi, 'utf8');
@@ -384,7 +384,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
     //console.log(lastSearchword + '');
     //console.log(newSearch);
     
-    
+
 
 
     if (searchingForUploaderToo) {
@@ -973,6 +973,7 @@ function createVideoPreview(vidId,vidSite) {
     if (vidSite === 'Soundcloud') return '<br/><br/>' + createAudioPreviewSoundcloud(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Vimeo') return '<br/><br/>' + createVideoPreviewVimeo(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Kakao') return '<br/><br/>' + createVideoPreviewKakao(vidId) + '<br/><br/>' + br;
+    if (vidSite === 'Dailymotion') return '<br/><br/>' + createVideoPreviewDailymotion(vidId) + '<br/><br/>' + br;
     return '<br/><br/>';
 }
 
@@ -999,6 +1000,12 @@ function createVideoPreviewVimeo(vidId) {
 
 function createVideoPreviewKakao(vidId) {
     var embbee = '<iframe width="640" height="480" src="https://play-tv.kakao.com/embed/player/cliplink/' + vidId + '?service=player_share" allowfullscreen frameborder="0" scrolling="no" allow="autoplay; fullscreen; encrypted-media"></iframe>';
+    
+    return embbee;
+}
+
+function createVideoPreviewDailymotion(vidId) {
+    var embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>'; 
     
     return embbee;
 }
