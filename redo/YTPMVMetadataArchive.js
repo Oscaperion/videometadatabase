@@ -168,7 +168,7 @@ for (y = maxY; y >= minY; y--) {
      
      console.log('numm value: ' + numm)  ;
    } catch(e) {
-     console.log("Oh wait, that doesn't exist");   
+     console.log("Oh wait, that doesn't exist");
    }
 }
 forceGC();
@@ -972,6 +972,7 @@ function createVideoPreview(vidId,vidSite) {
     if (vidSite === 'Twitter') return '<br/>' + createVideoPreviewTwitter(vidId) + br;
     if (vidSite === 'Soundcloud') return '<br/><br/>' + createAudioPreviewSoundcloud(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Vimeo') return '<br/><br/>' + createVideoPreviewVimeo(vidId) + '<br/><br/>' + br;
+    if (vidSite === 'Kakao') return '<br/><br/>' + createVideoPreviewKakao(vidId) + '<br/><br/>' + br;
     return '<br/><br/>';
 }
 
@@ -993,6 +994,12 @@ function createAudioPreviewSoundcloud(vidId) {
 function createVideoPreviewVimeo(vidId) {
     var embbee = '<iframe src="https://player.vimeo.com/video/' + vidId + '" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
 
+    return embbee;
+}
+
+function createVideoPreviewKakao(vidId) {
+    var embbee = '<iframe width="640" height="480" src="https://play-tv.kakao.com/embed/player/cliplink/' + vidId + '?service=player_share" allowfullscreen frameborder="0" scrolling="no" allow="autoplay; fullscreen; encrypted-media"></iframe>';
+    
     return embbee;
 }
 
