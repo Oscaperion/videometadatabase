@@ -8,12 +8,22 @@ const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 */
 var currentDate = new Date();
 var cDay = currentDate.getDate();
-//if (cDay < 10) cDay = '0' + cDay;
+if (cDay < 10) cDay = '0' + cDay;
 var cMonth = currentDate.getMonth() + 1;
-//if (cMonth < 10) cMonth = '0' + cMonth;
+if (cMonth < 10) cMonth = '0' + cMonth;
 var cYear = currentDate.getFullYear() + '';
 
 const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
+
+/*
+   These are used to process the JSON files that contain the entries for the database.
+     The values are supposed to read as a year and a month (YYYYMM) and the files should
+     be named like "vids*YYYYMM*.json" (e.g. "vids202301.json") for them to be processed
+     correctly. If there are no files for certain months, the code will just ignore those
+     months.
+*/
+var maxY = 202312;
+var minY = 200501;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -137,23 +147,13 @@ var parsedVideos = [];
 */
 var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
 
-/*
-   These are used to process the JSON files that contain the entries for the database.
-     The values are supposed to read as a year and a month (YYYYMM) and the files should
-     be named like "vids*YYYYMM*.json" (e.g. "vids202301.json") for them to be processed
-     correctly. If there are no files for certain months, the code will just ignore those
-     months.
-*/
-var maxY = 202312;
-var minY = 202201;
-
 var numm = 0;
 var y;
 //for (y = minY; y <= maxY; y++) {
 for (y = maxY; y >= minY; y--) {
     
-   var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   //var terappi = 'vidJson2/vids' + y + '.json';
+   // var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {
      var teray = fs.readFileSync(terappi, 'utf8');
@@ -971,6 +971,7 @@ function createVideoPreview(vidId,vidSite) {
     if (vidSite === 'Niconico') return '<br/><br/>' + createVideoPreviewNiconico(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Twitter') return '<br/>' + createVideoPreviewTwitter(vidId) + br;
     if (vidSite === 'Soundcloud') return '<br/><br/>' + createAudioPreviewSoundcloud(vidId) + '<br/><br/>' + br;
+    if (vidSite === 'Vimeo') return '<br/><br/>' + createVideoPreviewVimeo(vidId) + '<br/><br/>' + br;
     return '<br/><br/>';
 }
 
@@ -989,7 +990,11 @@ function createAudioPreviewSoundcloud(vidId) {
     return embbee;
 }
 
-//'<script type="application/javascript" src="https://embed.nicovideo.jp/watch/sm41701760/script?w=640&h=480"></script>'
+function createVideoPreviewVimeo(vidId) {
+    var embbee = '<iframe src="https://player.vimeo.com/video/' + vidId + '" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+
+    return embbee;
+}
 
 function createVideoPreviewTwitter(vidId) {
     var apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
