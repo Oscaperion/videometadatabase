@@ -4,9 +4,16 @@ const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
 /*
-   Used to show, when the database was last updated. Needs to be updated manually.
+   Used to show, when the database was last updated.
 */
-const lastUpdated = '20230202 [YYYYMMDD]';
+var currentDate = new Date();
+var cDay = currentDate.getDate();
+if (cDay < 10) cDay = '0' + cDay;
+var cMonth = currentDate.getMonth() + 1;
+if (cMonth < 10) cMonth = '0' + cMonth;
+var cYear = currentDate.getFullYear() + '';
+
+const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -145,8 +152,8 @@ var y;
 //for (y = minY; y <= maxY; y++) {
 for (y = maxY; y >= minY; y--) {
     
-   //var terappi = '../YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   var terappi = 'vidJson2/vids' + y + '.json';
+   var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   //var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {
      var teray = fs.readFileSync(terappi, 'utf8');
