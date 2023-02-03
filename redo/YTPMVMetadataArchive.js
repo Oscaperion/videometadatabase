@@ -1005,7 +1005,7 @@ function createVideoPreviewKakao(vidId) {
 }
 
 function createVideoPreviewDailymotion(vidId) {
-    var embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>'; 
+    var embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>';
     
     return embbee;
 }
@@ -1442,7 +1442,7 @@ var srvr = http.createServer(function (req, res) {
         htmlStrSearch += ' /><label for="exactSearch">Exact word search</label>&nbsp;&#124;' + br;
 
         var linkkeriino = q.search;
-        if (linkkeriino.indexOf('preview=') > 0) {
+        if (!(linkkeriino === undefined) && linkkeriino.indexOf('preview=') > 0) {
            var inderr  = linkkeriino.indexOf('preview=');
            var inderr2 = linkkeriino.indexOf('&', (inderr + 1));
            if (inderr2 > 0) linkkeriino = linkkeriino.substring(0,inderr) + 'preview=' + !showVidPrev + linkkeriino.substring(inderr2);
