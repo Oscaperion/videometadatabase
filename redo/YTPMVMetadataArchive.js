@@ -152,8 +152,8 @@ var y;
 //for (y = minY; y <= maxY; y++) {
 for (y = maxY; y >= minY; y--) {
     
-   var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   //var terappi = 'vidJson2/vids' + y + '.json';
+   //var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {
      var teray = fs.readFileSync(terappi, 'utf8');
@@ -646,9 +646,9 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        
        var uploader_Str = '<a href=\"' + listedVideo.uploader_url + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
 
-       if (listedVideo.uploader == null && listedVideo.uploader_id == null) {
+       if (listedVideo.uploader === null && listedVideo.uploader_id === null) {
           uploader_Str = '<code>undefined</code>';
-       } else if (listedVideo.uploader_id == null) {
+       } else if (listedVideo.uploader_id === null) {
           uploader_Str = listedVideo.uploader;
        }
 
@@ -739,7 +739,7 @@ function checkForAcrhiveOrgLink(videoInfo) {
 }
 
 function isTheUserSame(videoInfo, uploaderName) {
-    if (videoInfo.uploader_id == null) {
+    if (videoInfo.uploader_id === null) {
         return false;
     }
 
@@ -934,7 +934,7 @@ function addLinks(ogDescription, searchString) {
 function editDescription(ogDescription, extractorKey) {
     var editedDescription = ogDescription;
     
-    if (ogDescription == null) {
+    if (ogDescription === null) {
         return "<code>[No description]</code>";
     }
     
@@ -1442,7 +1442,7 @@ var srvr = http.createServer(function (req, res) {
         htmlStrSearch += ' /><label for="exactSearch">Exact word search</label>&nbsp;&#124;' + br;
 
         var linkkeriino = q.search;
-        if (!(linkkeriino === undefined) && linkkeriino.indexOf('preview=') > 0) {
+        if (!(linkkeriino === null) && linkkeriino.indexOf('preview=') > 0) {
            var inderr  = linkkeriino.indexOf('preview=');
            var inderr2 = linkkeriino.indexOf('&', (inderr + 1));
            if (inderr2 > 0) linkkeriino = linkkeriino.substring(0,inderr) + 'preview=' + !showVidPrev + linkkeriino.substring(inderr2);
