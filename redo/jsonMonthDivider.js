@@ -57,6 +57,10 @@ for (var yy = 2023; yy >= 2004; yy--) {
                   delete tmpVid["webpage_url"];
                }
                
+               if (tmpVid.extractor_key === "Youtube" || tmpVid.extractor_key === "BiliBili" || tmpVid.extractor_key === "Niconico" || tmpVid.extractor_key === "Twitter") {
+                  delete tmpVid["uploader_url"];
+               }
+               
                if (tmpVid.extractor_key === "BiliBili" && tmpVid.id.search("_part") > 0) {
                   var teypi = tmpVid.id.indexOf("_part");
                   var teyp2 = tmpVid.id.substring(teypi);
