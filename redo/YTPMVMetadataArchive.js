@@ -119,7 +119,7 @@ var mostRecentDate;
 var leastRecentDate;
 var dateQueried1;
 var dateQueried2;
-var customRangeApplied;
+var customRangeApplied = false;
 
 /*
    This will be used to determine, whether or not the provided search words will be
@@ -678,7 +678,31 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        
        videoList += '<br/><br/>' + br;
        
-       var uploader_Str = '<a href=\"' + listedVideo.uploader_url + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+       var uploader_Str = '';
+
+       if (listedVideo.extractor_key === 'BiliBili') {
+          uploader_Str = '<a href=\"https://space.bilibili.com/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+       }
+       
+       if (listedVideo.extractor_key === 'Niconico') {
+          uploader_Str = '<a href=\"https://www.nicovideo.jp/user/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+       }
+       
+       if (listedVideo.extractor_key === 'Twitter') {
+          uploader_Str = '<a href=\"https://twitter.com/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+       }
+       
+       if (listedVideo.extractor_key === 'Youtube') {
+          if (listedVideo.uploader_id.length === 24 && listedVideo.uploader_id.substring(0,2) === 'UC') {
+            uploader_Str = '<a href=\"https://www.youtube.com/channel/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+          } else {
+            uploader_Str = '<a href=\"https://www.youtube.com/user/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+          }
+       }
+       
+       if (uploader_Str === '') {
+          uploader_Str = '<a href=\"' + listedVideo.uploader_url + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+       }
 
        if (listedVideo.uploader === null && listedVideo.uploader_id === null) {
           uploader_Str = '<code>undefined</code>';
@@ -1068,7 +1092,7 @@ function createVideoPreviewTwitter(vidId) {
 var searchWordss = [];
 
 function createList(searchWord,checkMarks) {
-    
+
     setSearchWords(searchWord);
     console.log(searchWordss[0]);
     var runThis = true;
@@ -1452,7 +1476,7 @@ var srvr = http.createServer(function (req, res) {
        pageNumber = Math.round(pageNumber);
   }
   console.log('Page number is ' + pageNumber);
-  
+
 
 
   var fromUploaderId = q.query.uploader_id;
