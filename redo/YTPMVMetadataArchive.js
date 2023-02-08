@@ -101,7 +101,7 @@ var showcasingAllVideos = [];
 */
 const nullUploaderPlaceholder = 'skaPiPiduuDelierp';
 
-/* 
+/*
    These are used as part of crude bot prevention measures. Any queries provided
      without these values (&*botCheckName*=*botCheckValue*) will be redirected to a
      placeholder page, which will provide instructions on how to carry on with the query
@@ -110,6 +110,16 @@ const nullUploaderPlaceholder = 'skaPiPiduuDelierp';
 */
 const botCheckName = "hey_didyou_know";
 const botCheckValue = "selen_tatsuki_is_kool";
+
+/*
+   These are used as part of queries that specify certain dates. Also used to ensure that
+     the user won't just input whatever they please.
+*/
+var mostRecentDate;
+var leastRecentDate;
+var dateQueried1;
+var dateQueried2;
+var customRangeApplied;
 
 /*
    This will be used to determine, whether or not the provided search words will be
@@ -152,8 +162,8 @@ var y;
 //for (y = minY; y <= maxY; y++) {
 for (y = maxY; y >= minY; y--) {
     
-   //var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   var terappi = 'vidJson2/vids' + y + '.json';
+   var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   //var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {
      var teray = fs.readFileSync(terappi, 'utf8');
@@ -192,15 +202,24 @@ for (y = 0; y < numm; y++) {
 
 console.log("Total number of entries: " + overaro);
 
-var otrpi;
-for (otrpi = 0; otrpi < searchVars.length; otrpi++) {
-    showcasingAllVideos[otrpi] = otrpi;
-} 
+//var otrpi;
+for (overaro = 0; overaro < searchVars.length; overaro++) {
+    showcasingAllVideos[overaro] = overaro;
+}
+overaro = null;
 
 //var parsedVideos = JSON.parse(fs.readFileSync('YTPMV-2021-06-01.json', 'utf8'));
 //const parsedVideos = require('./YTPMV Metadata Archive JSON/YTPMV-2021-06-12.json');
 
+mostRecentDate = parsedVideos[0][0].upload_date;
+var dateTmp = parsedVideos.length - 1;
+dateTmp = parsedVideos[dateTmp];
+leastRecentDate = dateTmp[dateTmp.length - 1].upload_date;
+dateTmp = null;
+dateQueried1 = mostRecentDate;
+dateQueried1 = leastRecentDate;
 
+console.log('M ' + mostRecentDate + ' & L ' + leastRecentDate);
 console.log('Loaded! Carbage collecting...');
 
 forceGC();
@@ -285,6 +304,21 @@ const exceptionUsers2 = ['Rlcemaster3',
     'UClobvUCGR2VUkBlN0ax570g'];// pongayu
     */
 
+function dateWithinRange(videoDate) {
+   if (videoDate.length != 8) return false;
+
+   var tmpRecent = dateQueried1;
+   var tmpOldest = dateQueried2;
+
+   if (tmpRecent < tmpOldest) {
+      tmpRecent = dateQueried2;
+      tmpOldest = dateQueried1;
+   }
+
+   if (tmpRecent >= videoDate && tmpRecent <= videoDate) return true;
+   
+   return false;
+}
 
 function getVideo(orderNumber) {
     
