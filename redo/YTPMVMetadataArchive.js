@@ -797,7 +797,7 @@ function checkForAcrhiveOrgLink(videoInfo) {
 }
 
 function isTheUserSame(videoInfo, uploaderName) {
-    if (videoInfo.uploader_id === null) {
+    if (videoInfo.uploader_id === null || videoInfo.uploader_id === undefined) {
         return false;
     }
 
