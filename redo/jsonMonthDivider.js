@@ -6,6 +6,8 @@ const http = require('http');
 
 var ignoreUsers = JSON.parse(fs.readFileSync('ignoreChannels.json', 'utf8'));
 
+var nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+
 var toBeSortedList = [];
 
 for (var yy = 2023; yy >= 2004; yy--) {
@@ -51,6 +53,33 @@ for (var yy = 2023; yy >= 2004; yy--) {
                   var truId = tmpVid.webpage_url.substring(tmpVid.webpage_url.indexOf('/status/') + 8);
                   tmpVid.id = truId;
                   tmpVid.title = '';
+               }
+               
+               if (tmpVid.extractor_key === "Niconico") {
+                  for (var p = 0; p < nicoTags.length; p++) {
+                     if (nicoTags[p].id === tmpVid.id) {
+                       var checkingTags = nicoTags[p].tags;
+
+                       var checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
+
+                       for (var tt = 0; tt < checkingTags.length; tt++) {
+                          for (var pp = 0; pp < checkke.length; pp++) {
+                             var teeew = checkingTags[tt].indexOf(checkke[pp][0]);
+                             while (teeew > -1) {
+                                var tmoo1 = checkingTags[tt].substring(0,checkingTags[tt].indexOf(checkke[pp][0]));
+                                var tmoo2 = checkingTags[tt].substring(checkingTags[tt].indexOf(checkke[pp][0]) + checkke[pp][0].length);
+                                checkingTags[tt] = tmoo1 + checkke[pp][1] + tmoo2;
+                                teeew = checkingTags[tt].indexOf(checkke[pp][0]);
+                                console.log("Patched Niconico tags");
+                             }
+                          }
+                       }
+
+                       tmpVid["tags"] = checkingTags;
+                       break;
+                     }
+                  }
+                  console.log("Adding tags for " + tmpVid.id);
                }
 
                if (tmpVid.extractor_key === "Youtube" || tmpVid.extractor_key === "Niconico" || tmpVid.extractor_key === "Twitter") {
