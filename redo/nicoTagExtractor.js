@@ -36,23 +36,44 @@ const search2 = '</div>';
 
 var foundTags;
 
-var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids6.json', 'utf8'));
-//var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202211.json', 'utf8')) };
+//var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids36.json', 'utf8'));
+var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202210.json', 'utf8')) };
 
 var replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 
+var orttt = 0;
+
+while (orttt < vids.videos.length) {
 //for (var i = 0; i < 500; i++) {
-for (var i = 0; i < vids.videos.length; i++) {
-  if (vids.videos[i].extractor_key === "Niconico") {
+
+//var ertt = 10 + (10 * opp);
+//if (ertt >  vids.videos.length ) ertt = vids.videos.length;
+var orttt2 = 0;
+console.log("Abba");
+
+while (orttt2 < 10 && orttt < vids.videos.length) {
+//console.log("aAbba " + orttt);
+  if (vids.videos[orttt].extractor_key === "Niconico") {
      var doIt = true;
-     
+
      for (var j = 0; j < replll.length; j++) {
-         if (vids.videos[i].id === replll[j].id) doIt = false;
+         if (vids.videos[orttt].id === replll[j].id) doIt = false;
          if (!doIt) break;
      }
 
-     if (doIt) checkVideo(vids.videos[i].id);
+     if (doIt) {
+       checkVideo(vids.videos[orttt].id);
+       orttt2++;
+       orttt++;
+     }
+//console.log("bAbba" + orttt2);
   }
+
+       orttt++;
+}
+console.log("Temporary save");
+fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', JSON.stringify(replll));
+replll = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 }
 
 function checkVideo(videoId) {
@@ -79,7 +100,7 @@ function checkVideo(videoId) {
       console.log(tmp2 + ', ' + tmp3);
 
       var tmp4 = feats_HSL.substring(tmp2 + 1, tmp3);
-      
+
       if (tmp4.length > 100) tmp4 = undefined;
 
       if (!(firstEntry === undefined)) {
@@ -99,5 +120,3 @@ function checkVideo(videoId) {
 
    replll.push(teee);
 }
-
-fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', JSON.stringify(replll));
