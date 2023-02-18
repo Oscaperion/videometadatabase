@@ -693,11 +693,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        }
        
        if (listedVideo.extractor_key === 'Youtube') {
-          if (listedVideo.uploader_id.length === 24 && listedVideo.uploader_id.substring(0,2) === 'UC') {
-            uploader_Str = '<a href=\"https://www.youtube.com/channel/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
-          } else {
-            uploader_Str = '<a href=\"https://www.youtube.com/user/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
-          }
+          uploader_Str = youtubeUploaderFormer(listedVideo.uploader,listedVideo.uploader_id);
        }
        
        if (uploader_Str === '') {
@@ -741,8 +737,8 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        }
        
        if (!searchingForUploaderToo) {
-       videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + listedVideo.uploader_id + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
-       videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + listedVideo.uploader_id + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
+       videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + listedVideo.uploader_id[0] + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
+       videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + listedVideo.uploader_id[0] + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
        }
        
        videoList += '</div>';
@@ -800,8 +796,12 @@ function isTheUserSame(videoInfo, uploaderName) {
     if (videoInfo.uploader_id === null || videoInfo.uploader_id === undefined) {
         return false;
     }
+    
+    for (var jkh = 0; jkh < videoInfo.uploader_id.length; jkh++) {
+        if (isTheUserSame_String(videoInfo.uploader_id[jkh].trim(), uploaderName)) return true;
+    }
 
-    return isTheUserSame_String(videoInfo.uploader_id.trim(), uploaderName);
+    return false;
 }
 
 function isTheUserSame_String(videoUploader, uploaderName) {
@@ -1239,6 +1239,35 @@ function setSearchWords(searchWord) {
     //console.log(searchWordss[0]);
 }
 
+function youtubeUploaderFormer(uploaderName,uploaderArray) {
+     var returnStr = youtubeChannelLinkFormer(uploaderArray[0]);
+     returnStr += uploaderName + ' [<code>' + uploaderArray[0] + '</code>]</a>';
+     
+     for (var ku = 1; ku < uploaderArray.length; ku++) {
+        returnStr += ' ' + youtubeChannelLinkFormer(uploaderArray[ku]) + '[<code>' + uploaderArray[ku] + '</code>]</a>';
+     }
+     
+     return returnStr;
+}
+
+function youtubeChannelLinkFormer(youtubeId) {
+     return '<a href=\"' + youtubeChannelURLFormer(youtubeId) + '\" target=\"_blank\">';
+}
+
+function youtubeChannelURLFormer(youtubeId) {
+     var uploader_Str = "https://www.youtube.com/";
+     
+     if (youtubeId.length === 24 && youtubeId.substring(0,2) === 'UC') {
+        return uploader_Str + "channel/" + youtubeId;
+     } 
+     
+     if (youtubeId.charAt(0) === '@') {
+        return uploader_Str + youtubeId;
+     }
+     
+     return uploader_Str + "user/" + youtubeId;
+}
+
 function hasSearchWord(compareString) {               /*
     // In case there's no search word and if at least one site is excluded, this should skip the comparison process
     console.log(searchWordss[0]);
@@ -1314,10 +1343,24 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
                 continue;
            }
        }
-
-       var tmp1 = compareVid.uploader_id + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
+       var tmpCont = true;
        var tmp2 = uploaderId.trim();
-       if (!(tmp1.trim() === tmp2)) continue;
+
+       if (compareVid.extractor_key === "Youtube") {
+        for (var hg = 0; hg < compareVid.uploader_id.length; hg++) {
+          var tmp1 = compareVid.uploader_id[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
+
+          if (tmp1.trim() === tmp2) {
+            tmpCont = false;
+            break;
+          }
+        }
+       } else {
+          var tmp1 = compareVid.uploader_id + ' ';
+          if (tmp1.trim() === tmp2) tmpCont = false;
+       }
+
+       if (tmpCont) continue;
        
        if (searchWord.trim().length == 0) {
           showcasedVideos.push(i);
