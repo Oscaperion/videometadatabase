@@ -4,9 +4,10 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-var ignoreUsers = JSON.parse(fs.readFileSync('ignoreChannels.json', 'utf8'));
+const ignoreUsers = JSON.parse(fs.readFileSync('ignoreChannels.json', 'utf8'));
 
-var nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+const nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
 
 var toBeSortedList = [];
 
@@ -80,6 +81,47 @@ for (var yy = 2023; yy >= 2004; yy--) {
                      }
                   }
                   console.log("Adding tags for " + tmpVid.id);
+               }
+
+               
+               if (tmpVid.extractor_key === "Youtube" && addForSure) {
+                  var uploader_id_tmp = [tmpVid.uploader_id];
+                  // var channelIdPresent = (tmpVid.channel_id !== undefined);
+                  var channelIdOrder = null;
+                  
+                  /*
+                  if (channelIdPresent) {
+                     for (var uyt = 0; uyt < youtubeUserList.length; uyt++) {
+                        if (tmpVid.channel_id === youtubeUserList[uyt].channel_id) {
+                           channelIdOrder = uyt;
+                           break;
+                        }
+                     }
+                  }            */
+
+                  //if (channelIdOrder === null) {
+                     for (var uyt = 0; uyt < youtubeUserList.length; uyt++) {
+                        for (var ytr = 0; ytr < youtubeUserList[uyt].uploader_id.length; ytr++) {
+                           if (tmpVid.uploader_id === youtubeUserList[uyt].uploader_id[ytr]) {
+                              channelIdOrder = uyt;
+                              break;
+                           }
+                        }
+                        if (channelIdOrder !== null) break;
+                     }
+                  //}
+                  
+                  if (channelIdOrder !== null) {
+                     var channelUrls = [];
+                     for (var uyy = 0; uyy < youtubeUserList[channelIdOrder].uploader_id.length; uyy++) {
+                        channelUrls.push(youtubeUserList[channelIdOrder].uploader_id[uyy]);
+                     }
+                     uploader_id_tmp = channelUrls;
+                  }
+                  
+                  tmpVid.uploader_id = uploader_id_tmp;
+                  console.log("Uploader info for " + tmpVid.id + ": " + tmpVid.uploader_id);
+                  delete tmpVid["channel_id"];
                }
 
                if (tmpVid.extractor_key === "Youtube" || tmpVid.extractor_key === "Niconico" || tmpVid.extractor_key === "Twitter") {
