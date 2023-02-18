@@ -106,6 +106,7 @@ for (var j = 38; j >= 38; j--) {
             uploader: parsedJSON.uploader,
             uploader_id: parsedJSON.uploader_id,
             uploader_url: uPage,
+            channel_id: parsedJSON.channel_id,
             duration: parsedJSON.duration,
             description: parsedJSON.description,
             tags: parsedJSON.tags,
