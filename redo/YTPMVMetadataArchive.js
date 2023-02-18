@@ -737,8 +737,11 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        }
        
        if (!searchingForUploaderToo) {
-       videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + listedVideo.uploader_id[0] + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
-       videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + listedVideo.uploader_id[0] + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
+        // console.log(listedVideo);
+        var tret = listedVideo.uploader_id;
+        if (listedVideo.extractor_key === "Youtube") tret = listedVideo.uploader_id[0];
+       videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
+       videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
        }
        
        videoList += '</div>';
