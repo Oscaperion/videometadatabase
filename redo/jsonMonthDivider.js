@@ -4,10 +4,32 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-const ignoreUsers = JSON.parse(fs.readFileSync('ignoreChannels.json', 'utf8'));
+var ignoreUsersTmp = JSON.parse(fs.readFileSync('ignoreChannels.json', 'utf8'));
 
 const nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+
+var ignoreUsers = [];
+for (var ttu = 0; ttu < youtubeUserList.length; ttu++) {
+   var tmpArr = youtubeUserList[ttu].uploader_id;
+   var addUser = false;
+   for (var tty = 0; tty < tmpArr.length; tty++) {
+      if (ignoreUsersTmp.includes(tmpArr[tty])) {
+         addUser = true;
+         break;
+      }
+   }
+   
+   if (addUser) {
+      for (var tti = 0; tti < tmpArr.length; tti++) {
+         ignoreUsers.push(tmpArr[tti]);
+      }
+   }
+
+
+}
+ignoreUsersTmp = null;
+console.log(ignoreUsers);
 
 var toBeSortedList = [];
 
@@ -42,13 +64,39 @@ for (var yy = 2023; yy >= 2004; yy--) {
            {
              
                var tmpVid =  parsedVideos.videos[oi];
+               //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
                var addForSure = true;
-               for (var lkj = 0; lkj < ignoreUsers.length; lkj++) {
-                   if (tmpVid.uploader_id === ignoreUsers[lkj]) {
-                       addForSure = false;
-                       break;
+               
+               if (ignoreUsers.includes(tmpVid.uploader_id)) addForSure = false;
+
+               /*
+               if (tmpVid.extractor_key !== "Youtube" && ignoreUsers.includes(tmpVid.uploader_id)) {
+                      addForSure = false;
+               } if (addForSure && tmpVid.extractor_key === "Youtube") {
+                   if (ignoreUsers.includes(tmpVid.uploader_id))
+
+                   if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP2 " + ignoreUsers.includes("UCC_kncD0fjZiTlEM7Wdnv3g") + " " + tmpVid.uploader_id + " " + tmpVid.id + " " + youtubeUserList.includes("UCC_kncD0fjZiTlEM7Wdnv3g"));
+                   for (var lkj = 0; lkj < tmpVid.uploader_id.length; lkj++) {
+                      if (tmpVid.uploader_id[lkj] === "UCC_kncD0fjZiTlEM7Wdnv3g") console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP3 " + lkj);
+                      if (ignoreUsers.includes(tmpVid.uploader_id[lkj])) {
+                        if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP4");
+                        addForSure = false;
+                        break;
+                      }
                    }
-               }
+               }  */
+
+               /*
+               for (var lkj = 0; lkj < ignoreUsers.length; lkj++) {
+                         // if (tmpVid.uploader_id[oop] === "UCC_kncD0fjZiTlEM7Wdnv3g") console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP2");
+                   if (tmpVid.extractor_key !== "Youtube" && tmpVid.uploader_id === ignoreUsers[lkj]) {
+                         addForSure = false;
+                         break;
+                   } if (tmpVid.extractor_key === "Youtube" && tmpVid.uploader_id.includes(ignoreUsers[lkj])) {
+                         addForSure = false;
+                         break;
+                   }
+               }       */
 
                if (tmpVid.extractor_key === "Twitter") {
                   var truId = tmpVid.webpage_url.substring(tmpVid.webpage_url.indexOf('/status/') + 8);
