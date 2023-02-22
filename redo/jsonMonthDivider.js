@@ -4,14 +4,15 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-var ignoreUsersTmp = JSON.parse(fs.readFileSync('ignoreChannels.json', 'utf8'));
+var ignoreUsersTmp = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/ignoreChannels.json', 'utf8'));
 
 const nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+const youtubeUserList1 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
 var ignoreUsers = [];
-for (var ttu = 0; ttu < youtubeUserList.length; ttu++) {
-   var tmpArr = youtubeUserList[ttu].uploader_id;
+for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
+   var tmpArr = youtubeUserList1[ttu].uploader_id;
    var addUser = false;
    for (var tty = 0; tty < tmpArr.length; tty++) {
       if (ignoreUsersTmp.includes(tmpArr[tty])) {
@@ -52,7 +53,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
         console.log("Checking vids" + tu);
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
-       var parsedVideos = JSON.parse(fs.readFileSync(('YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
+       var parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
        var lrn = parsedVideos.videos.length;
        for (var oi = 0; oi < lrn; oi++) {
            if (parsedVideos.videos[oi].extractor_key === "BiliBili" && parsedVideos.videos[oi].upload_date === undefined) {
@@ -67,36 +68,9 @@ for (var yy = 2023; yy >= 2004; yy--) {
                //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
                var addForSure = true;
                
+               if (tmpVid.extractor_key === "Youtube" && tmpVid.uploader_id === undefined) tmpVid.uploader_id = tmpVid.channel_id;
+               
                if (ignoreUsers.includes(tmpVid.uploader_id)) addForSure = false;
-
-               /*
-               if (tmpVid.extractor_key !== "Youtube" && ignoreUsers.includes(tmpVid.uploader_id)) {
-                      addForSure = false;
-               } if (addForSure && tmpVid.extractor_key === "Youtube") {
-                   if (ignoreUsers.includes(tmpVid.uploader_id))
-
-                   if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP2 " + ignoreUsers.includes("UCC_kncD0fjZiTlEM7Wdnv3g") + " " + tmpVid.uploader_id + " " + tmpVid.id + " " + youtubeUserList.includes("UCC_kncD0fjZiTlEM7Wdnv3g"));
-                   for (var lkj = 0; lkj < tmpVid.uploader_id.length; lkj++) {
-                      if (tmpVid.uploader_id[lkj] === "UCC_kncD0fjZiTlEM7Wdnv3g") console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP3 " + lkj);
-                      if (ignoreUsers.includes(tmpVid.uploader_id[lkj])) {
-                        if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP4");
-                        addForSure = false;
-                        break;
-                      }
-                   }
-               }  */
-
-               /*
-               for (var lkj = 0; lkj < ignoreUsers.length; lkj++) {
-                         // if (tmpVid.uploader_id[oop] === "UCC_kncD0fjZiTlEM7Wdnv3g") console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP2");
-                   if (tmpVid.extractor_key !== "Youtube" && tmpVid.uploader_id === ignoreUsers[lkj]) {
-                         addForSure = false;
-                         break;
-                   } if (tmpVid.extractor_key === "Youtube" && tmpVid.uploader_id.includes(ignoreUsers[lkj])) {
-                         addForSure = false;
-                         break;
-                   }
-               }       */
 
                if (tmpVid.extractor_key === "Twitter") {
                   var truId = tmpVid.webpage_url.substring(tmpVid.webpage_url.indexOf('/status/') + 8);
@@ -133,42 +107,26 @@ for (var yy = 2023; yy >= 2004; yy--) {
 
                
                if (tmpVid.extractor_key === "Youtube" && addForSure) {
-                  var uploader_id_tmp = [tmpVid.uploader_id];
-                  // var channelIdPresent = (tmpVid.channel_id !== undefined);
-                  var channelIdOrder = null;
-                  
-                  /*
-                  if (channelIdPresent) {
-                     for (var uyt = 0; uyt < youtubeUserList.length; uyt++) {
-                        if (tmpVid.channel_id === youtubeUserList[uyt].channel_id) {
-                           channelIdOrder = uyt;
+                  var uploader_id_tmp = -1 // tmpVid.uploader_id;
+                  var uploaderFound = false;
+
+                  for (var i = 0; i < youtubeUserList.length; i++) {
+                     for (var j = 0; j < youtubeUserList[i].length; j++) {
+                        if (tmpVid.uploader_id === youtubeUserList[i][j]) {
+                           uploader_id_tmp = i;
+                           uploaderFound = true;
                            break;
                         }
                      }
-                  }            */
-
-                  //if (channelIdOrder === null) {
-                     for (var uyt = 0; uyt < youtubeUserList.length; uyt++) {
-                        for (var ytr = 0; ytr < youtubeUserList[uyt].uploader_id.length; ytr++) {
-                           if (tmpVid.uploader_id === youtubeUserList[uyt].uploader_id[ytr]) {
-                              channelIdOrder = uyt;
-                              break;
-                           }
-                        }
-                        if (channelIdOrder !== null) break;
-                     }
-                  //}
-                  
-                  if (channelIdOrder !== null) {
-                     var channelUrls = [];
-                     for (var uyy = 0; uyy < youtubeUserList[channelIdOrder].uploader_id.length; uyy++) {
-                        channelUrls.push(youtubeUserList[channelIdOrder].uploader_id[uyy]);
-                     }
-                     uploader_id_tmp = channelUrls;
+                     if (uploaderFound) break;
                   }
                   
-                  tmpVid.uploader_id = uploader_id_tmp;
-                  console.log("Uploader info for " + tmpVid.id + ": " + tmpVid.uploader_id);
+                  if (uploaderFound) {
+                     tmpVid["uId"] = uploader_id_tmp;
+                     delete tmpVid["uploader_id"];
+                     console.log("Uploader order number: " + uploader_id_tmp);
+                  }
+
                   delete tmpVid["channel_id"];
                }
 
@@ -197,7 +155,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
                } else if (tmpVid.extractor_key === "BiliBili" && tmpVid.id.search("_p") > 0) {
                   var teypi = tmpVid.id.indexOf("_p");
                   var teyp2 = tmpVid.id.substring(teypi);
-                  
+
                   if (teyp2.length === 3) {
                       if (!(teyp2 === "_p1")) {
                           addForSure = false;
@@ -270,7 +228,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
     console.log("Sorting 2");
 
     if (toBeSortedList.length > 0) {
-      var miii = 'YTPMV Metadata Archive JSON/split_parts2/vids' + yy + mm_tmp + '.json';
+      var miii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + yy + mm_tmp + '.json';
       //fs.writeFileSync(miii, JSON.stringify({videos: toBeSortedList}));
       fs.writeFileSync(miii, JSON.stringify(toBeSortedList));
     } else {
