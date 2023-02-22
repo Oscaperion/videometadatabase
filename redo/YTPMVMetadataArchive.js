@@ -13,6 +13,8 @@ var cMonth = currentDate.getMonth() + 1;
 if (cMonth < 10) cMonth = '0' + cMonth;
 var cYear = currentDate.getFullYear() + '';
 
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+
 const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 
 /*
@@ -23,7 +25,7 @@ const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
      months.
 */
 var maxY = 202312;
-var minY = 200501;
+var minY = 202206;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -303,6 +305,12 @@ const exceptionUsers2 = ['Rlcemaster3',
     'UCeg9LfP6p-PAplogCSflP7A', // fake sample
     'UClobvUCGR2VUkBlN0ax570g'];// pongayu
     */
+
+function getUploaderId(video) {
+   if (video.uploader_id !== undefined) return video.uploader_id;
+
+   return youtubeUserList[video.uId];
+}
 
 function dateWithinRange(videoDate) {
    if (videoDate.length != 8) return false;
@@ -693,7 +701,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        }
        
        if (listedVideo.extractor_key === 'Youtube') {
-          uploader_Str = youtubeUploaderFormer(listedVideo.uploader,listedVideo.uploader_id);
+          uploader_Str = youtubeUploaderFormer(listedVideo.uploader,getUploaderId(listedVideo));
        }
        
        if (uploader_Str === '') {
@@ -739,7 +747,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        if (!searchingForUploaderToo) {
         // console.log(listedVideo);
         var tret = listedVideo.uploader_id;
-        if (listedVideo.extractor_key === "Youtube") tret = listedVideo.uploader_id[0];
+        if (listedVideo.extractor_key === "Youtube") tret = getUploaderId(listedVideo)[0];
        videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
        videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
        }
@@ -800,8 +808,8 @@ function isTheUserSame(videoInfo, uploaderName) {
         return false;
     }
     
-    for (var jkh = 0; jkh < videoInfo.uploader_id.length; jkh++) {
-        if (isTheUserSame_String(videoInfo.uploader_id[jkh].trim(), uploaderName)) return true;
+    for (var jkh = 0; jkh < getUploaderId(videoInfo).length; jkh++) {
+        if (isTheUserSame_String(getUploaderId(videoInfo)[jkh].trim(), uploaderName)) return true;
     }
 
     return false;
@@ -1160,7 +1168,7 @@ function createList(searchWord,checkMarks) {
 
        else {
 
-       var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + compareVid.uploader_id + ' ' + compareVid.upload_date;
+       var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
        if (compareVid.extractor_key.indexOf("BiliBili") == 0) {
            compareStr += ' av' + compareVid.id + ' BV' + compareVid.id;
        }
@@ -1292,18 +1300,18 @@ function hasSearchWord(compareString) {               /*
 
     //console.log(searchWords); 
     */
-    var isTheWordHere = [];
+    //var isTheWordHere = [];
 
     // var hasSearchWords = true;
 
     for (var i = 0; i < searchWordss.length; i++) {
-        isTheWordHere.push(tmp1.indexOf(searchWordss[i].trim()) > -1);
-
+        //isTheWordHere.push(tmp1.includes(searchWordss[i].trim()));
+        if (tmp1.includes(searchWordss[i].trim()) === false) return false;
     }
-
+           /*
     for (var j = 0; j < isTheWordHere.length; j++) {
         if (isTheWordHere[j] == false) return false;
-    }
+    }    */
     
     return true;
 }
@@ -1350,8 +1358,9 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
        var tmp2 = uploaderId.trim();
 
        if (compareVid.extractor_key === "Youtube") {
-        for (var hg = 0; hg < compareVid.uploader_id.length; hg++) {
-          var tmp1 = compareVid.uploader_id[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
+        // console.log(compareVid);
+        for (var hg = 0; hg < getUploaderId(compareVid).length; hg++) {
+          var tmp1 = getUploaderId(compareVid)[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
 
           if (tmp1.trim() === tmp2) {
             tmpCont = false;
@@ -1370,7 +1379,7 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
           continue;
        }
         
-       var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + compareVid.uploader_id + ' ' + compareVid.upload_date;
+       var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
        if (!(compareVid.description === undefined)) {
           compareStr += ' ' + compareVid.description;
        }
