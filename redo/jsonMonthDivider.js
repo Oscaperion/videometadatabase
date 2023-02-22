@@ -34,7 +34,7 @@ console.log(ignoreUsers);
 
 var toBeSortedList = [];
 
-for (var yy = 2023; yy >= 2004; yy--) {
+for (var yy = 2011; yy >= 2004; yy--) {
   for (var mm = 12; mm >= 1; mm--) {
     var mm_tmp = mm + '';
     if (mm < 10) {
@@ -67,8 +67,11 @@ for (var yy = 2023; yy >= 2004; yy--) {
                var tmpVid =  parsedVideos.videos[oi];
                //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
                var addForSure = true;
-               
-               if (tmpVid.extractor_key === "Youtube" && tmpVid.uploader_id === undefined) tmpVid.uploader_id = tmpVid.channel_id;
+
+               if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) { 
+                 console.log(tmpVid);
+                 tmpVid.uploader_id = tmpVid.channel_id;
+               }
                
                if (ignoreUsers.includes(tmpVid.uploader_id)) addForSure = false;
 
