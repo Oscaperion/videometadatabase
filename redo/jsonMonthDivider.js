@@ -96,7 +96,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
                                 var tmoo2 = checkingTags[tt].substring(checkingTags[tt].indexOf(checkke[pp][0]) + checkke[pp][0].length);
                                 checkingTags[tt] = tmoo1 + checkke[pp][1] + tmoo2;
                                 teeew = checkingTags[tt].indexOf(checkke[pp][0]);
-                                console.log("Patched Niconico tags");
+                                // console.log("Patched Niconico tags");
                              }
                           }
                        }
@@ -105,7 +105,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
                        break;
                      }
                   }
-                  console.log("Adding tags for " + tmpVid.id);
+                  // console.log("Adding tags for " + tmpVid.id);
                }
 
                
@@ -127,7 +127,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
                   if (uploaderFound) {
                      tmpVid["uId"] = uploader_id_tmp;
                      delete tmpVid["uploader_id"];
-                     console.log("Uploader order number: " + uploader_id_tmp);
+                     // console.log("Uploader order number: " + uploader_id_tmp);
                   }
 
                   delete tmpVid["channel_id"];
@@ -148,11 +148,11 @@ for (var yy = 2023; yy >= 2004; yy--) {
                   if (teyp2.length === 6) {
                       if (!(teyp2 === "_part1")) {
                           addForSure = false;
-                          console.log("Bilibili non page 1 video: " + tmpVid.id);
+                          //  console.log("Bilibili non page 1 video: " + tmpVid.id);
                       }
                   } else {
                      addForSure = false;
-                     console.log("Bilibili non page 1 video: " + tmpVid.id);
+                     // console.log("Bilibili non page 1 video: " + tmpVid.id);
                   }
 
                } else if (tmpVid.extractor_key === "BiliBili" && tmpVid.id.search("_p") > 0) {
@@ -162,20 +162,20 @@ for (var yy = 2023; yy >= 2004; yy--) {
                   if (teyp2.length === 3) {
                       if (!(teyp2 === "_p1")) {
                           addForSure = false;
-                          console.log("Bilibili non page 1 video: " + tmpVid.id);
+                          // console.log("Bilibili non page 1 video: " + tmpVid.id);
                       }
                   } else {
                      addForSure = false;
-                     console.log("Bilibili non page 1 video: " + tmpVid.id);
+                     // console.log("Bilibili non page 1 video: " + tmpVid.id);
                   }
 
                }
 
                if (addForSure) {
-                  console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
+                  // console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
                   toBeSortedList.push(tmpVid);
                } else {
-                  console.log("Ignoring: " + tmpVid.upload_date + " -- " + tmpVid.id + " (Blacklisted user)");
+                  // console.log("Ignoring: " + tmpVid.upload_date + " -- " + tmpVid.id + " (Blacklisted user)");
                }
            }
        }
