@@ -25,7 +25,7 @@ const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
      months.
 */
 var maxY = 202312;
-var minY = 202206;
+var minY = 200501;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -1357,8 +1357,8 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
        var tmpCont = true;
        var tmp2 = uploaderId.trim();
 
-       if (compareVid.extractor_key === "Youtube") {
-        // console.log(compareVid);
+       if (compareVid.extractor_key === "Youtube" ) {
+        if (getUploaderId(compareVid) === null) console.log(compareVid);
         for (var hg = 0; hg < getUploaderId(compareVid).length; hg++) {
           var tmp1 = getUploaderId(compareVid)[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
 

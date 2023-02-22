@@ -17,7 +17,7 @@ for (var j = 0; j < vids.length; j++) {
         for (var k = 0; k < ignoreUsers.length; k++) {
             if (checkTmp.uploader_id[i] === ignoreUsers[k]) {
               doIt = false;
-              console.log("Ignoring " + ignoreUsers[k]);
+              //console.log("Ignoring " + ignoreUsers[k]);
               break;
             }
         }
