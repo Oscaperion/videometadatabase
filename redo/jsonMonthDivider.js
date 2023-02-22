@@ -34,7 +34,7 @@ console.log(ignoreUsers);
 
 var toBeSortedList = [];
 
-for (var yy = 2011; yy >= 2004; yy--) {
+for (var yy = 2023; yy >= 2004; yy--) {
   for (var mm = 12; mm >= 1; mm--) {
     var mm_tmp = mm + '';
     if (mm < 10) {
@@ -69,7 +69,7 @@ for (var yy = 2011; yy >= 2004; yy--) {
                var addForSure = true;
 
                if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) { 
-                 console.log(tmpVid);
+                 // console.log(tmpVid);
                  tmpVid.uploader_id = tmpVid.channel_id;
                }
                
