@@ -1257,12 +1257,19 @@ function setSearchWords(searchWord) {
     //console.log(searchWordss[0]);
 }
 
-function youtubeUploaderFormer(uploaderName,uploaderArray) {
-     var returnStr = youtubeChannelLinkFormer(uploaderArray[0]);
-     returnStr += uploaderName + ' [<code>' + uploaderArray[0] + '</code>]</a>';
+function youtubeUploaderFormer(uploaderName,uploaderId) {
+     var tmpId = uploaderId;
      
-     for (var ku = 1; ku < uploaderArray.length; ku++) {
-        returnStr += ' ' + youtubeChannelLinkFormer(uploaderArray[ku]) + '[<code>' + uploaderArray[ku] + '</code>]</a>';
+     // In case there is only one ID and it hasn't been contained within an array, this will create an array for the next phase of the function.
+     if (!Array.isArray(tmpId)) {
+        tmpId = [uploaderId];
+     }
+
+     var returnStr = youtubeChannelLinkFormer(tmpId[0]);
+     returnStr += uploaderName + ' [<code>' + tmpId[0] + '</code>]</a>';
+     
+     for (var ku = 1; ku < tmpId.length; ku++) {
+        returnStr += ' ' + youtubeChannelLinkFormer(tmpId[ku]) + '[<code>' + tmpId[ku] + '</code>]</a>';
      }
      
      return returnStr;
