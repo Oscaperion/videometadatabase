@@ -1043,7 +1043,14 @@ function createVideoPreview(vidId,vidSite) {
     if (vidSite === 'Vimeo') return '<br/><br/>' + createVideoPreviewVimeo(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Kakao') return '<br/><br/>' + createVideoPreviewKakao(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Dailymotion') return '<br/><br/>' + createVideoPreviewDailymotion(vidId) + '<br/><br/>' + br;
+    // if (vidSite === 'BiliBili') return '<br/><br/>' + createVideoPreviewBilibili(vidId) + '<br/><br/>' + br;
     return '<br/><br/>';
+}
+
+// The player keeps autoplaying the videos, I'll try
+function createVideoPreviewBilibili(vidId) {
+    var embbee = '<iframe src="https://player.bilibili.com/player.html?aid=' + vidId + '&autoplay=false" width="640" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>';
+    return embbee;
 }
 
 function createVideoPreviewYoutube(vidId) {
@@ -1476,7 +1483,7 @@ var srvr = http.createServer(function (req, res) {
   htmlStrBegin += '<html>' + br;
 
   htmlStrBegin += '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">' + br;
-  htmlStrBegin += '<link rel="stylesheet" href="../assets/dark_theme_style.css">' + br;
+  htmlStrBegin += '<link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">' + br;
 
 
   var tiitle = '<title>YTPMV Metadata Archive</title>';
