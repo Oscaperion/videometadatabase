@@ -4,7 +4,7 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-const folderName =  'massJsonTesting';
+const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
 var videoList = '';
 
        /*
@@ -34,7 +34,7 @@ var ignoreBilibiliPlaylists = changeHere;
 
 
 //for (j = 1; j <= 25; j++) {
-for (var j = 38; j >= 38; j--) {
+for (var j = 39; j >= 39; j--) {
 //for (var j = 0; j >= 0; j--) {
 
 //for (var j = 1; j <= 28; j++) {
@@ -277,7 +277,7 @@ for (var j = 38; j >= 38; j--) {
     //var jsonifyData =  JSON.stringify({videos: toBeSortedList});
     //fs.writeFileSync('videoita.json', jsonifyData);
     //var nimii = 'YTPMV Metadata Archive JSON/videoita.json';
-    var nimii = 'YTPMV Metadata Archive JSON/split_parts/vids' + j + '.json';
+    var nimii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + j + '.json';
 
     fs.writeFileSync(nimii, JSON.stringify({videos: toBeSortedList}));
     //fs.writeFileSync('videoita.json', JSON.stringify({videos: sortedList}));
