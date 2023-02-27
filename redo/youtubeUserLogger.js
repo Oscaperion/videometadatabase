@@ -34,20 +34,12 @@ for (var orttt = 0; orttt < vids.videos.length; orttt++) {
 
      for (var j = 0; j < replll.length; j++) {
          if (vids.videos[orttt].channel_id === undefined) {
-            if (vids.videos[orttt].uploader_id.substring(0,2) === "UC" && vids.videos[orttt].uploader_id.length === 24) {
+            //if (vids.videos[orttt].uploader_id.substring(0,2) === "UC" && vids.videos[orttt].uploader_id.length === 24) {
                vids.videos[orttt].channel_id = vids.videos[orttt].uploader_id;
-            } else { /*
-               for (var f = 0; f < replll.length; f++) {
-                  for (var kj = 0; kj < replll[f].uploader_id.length; kj++) {
-                     if (replll[f].uploader_id[kj] === vids.videos[orttt].uploader_id) {
-                        doIt = false;
-                        break;
-                     }
-                  }
-                  if (!doIt) break;
-               }   */
+             /*
+            } else {
                doIt = false;
-            }
+            } */
          }
          if (!doIt) break;
 
