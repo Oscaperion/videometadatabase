@@ -12,7 +12,7 @@ const search2 = '</div>';  */
 
 var foundTags;
 
-var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids39.json', 'utf8'));
+var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids1.json', 'utf8'));
 //var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202210.json', 'utf8')) };
 
 var replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
@@ -34,12 +34,12 @@ for (var orttt = 0; orttt < vids.videos.length; orttt++) {
 
      for (var j = 0; j < replll.length; j++) {
          if (vids.videos[orttt].channel_id === undefined) {
-            //if (vids.videos[orttt].uploader_id.substring(0,2) === "UC" && vids.videos[orttt].uploader_id.length === 24) {
+            if (vids.videos[orttt].uploader_id.substring(0,2) === "UC" && vids.videos[orttt].uploader_id.length === 24) {
                vids.videos[orttt].channel_id = vids.videos[orttt].uploader_id;
-             /*
+
             } else {
                doIt = false;
-            } */
+            }
          }
          if (!doIt) break;
 

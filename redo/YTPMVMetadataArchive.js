@@ -14,6 +14,7 @@ if (cMonth < 10) cMonth = '0' + cMonth;
 var cYear = currentDate.getFullYear() + '';
 
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('youtubeUserList2.json', 'utf8'));
 
 const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 
@@ -307,7 +308,10 @@ const exceptionUsers2 = ['Rlcemaster3',
     */
 
 function getUploaderId(video) {
-   if (video.uploader_id !== undefined) return video.uploader_id;
+   if (video.uploader_id !== undefined) {
+       if (video.extractor_key === "Youtube") return [video.uploader_id];
+       else return video.uploader_id;
+   }
 
    return youtubeUserList[video.uId];
 }
@@ -746,7 +750,8 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        
        if (!searchingForUploaderToo) {
         // console.log(listedVideo);
-        var tret = listedVideo.uploader_id;
+        var tret = listedVideo.uploader_id;     
+        //console.log(tret);
         if (listedVideo.extractor_key === "Youtube") tret = getUploaderId(listedVideo)[0];
        videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
        videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
@@ -808,8 +813,11 @@ function isTheUserSame(videoInfo, uploaderName) {
         return false;
     }
     
-    for (var jkh = 0; jkh < getUploaderId(videoInfo).length; jkh++) {
-        if (isTheUserSame_String(getUploaderId(videoInfo)[jkh].trim(), uploaderName)) return true;
+    var tmpVid = getUploaderId(videoInfo);
+    //if (!Array.isArray(tmpVid)) tmpVid = [tmpVid];
+    
+    for (var jkh = 0; jkh < tmpVid.length; jkh++) {
+        if (isTheUserSame_String(tmpVid[jkh].trim(), uploaderName)) return true;
     }
 
     return false;
@@ -1258,18 +1266,19 @@ function setSearchWords(searchWord) {
 }
 
 function youtubeUploaderFormer(uploaderName,uploaderId) {
-     var tmpId = uploaderId;
+     //var tmpId = uploaderId;
      
      // In case there is only one ID and it hasn't been contained within an array, this will create an array for the next phase of the function.
+     /*
      if (!Array.isArray(tmpId)) {
         tmpId = [uploaderId];
-     }
+     } */
 
-     var returnStr = youtubeChannelLinkFormer(tmpId[0]);
-     returnStr += uploaderName + ' [<code>' + tmpId[0] + '</code>]</a>';
+     var returnStr = youtubeChannelLinkFormer(uploaderId[0]);
+     returnStr += uploaderName + ' [<code>' + uploaderId[0] + '</code>]</a>';
      
-     for (var ku = 1; ku < tmpId.length; ku++) {
-        returnStr += ' ' + youtubeChannelLinkFormer(tmpId[ku]) + '[<code>' + tmpId[ku] + '</code>]</a>';
+     for (var ku = 1; ku < uploaderId.length; ku++) {
+        returnStr += ' ' + youtubeChannelLinkFormer(uploaderId[ku]) + '[<code>' + uploaderId[ku] + '</code>]</a>';
      }
      
      return returnStr;
