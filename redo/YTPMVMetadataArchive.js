@@ -42,7 +42,6 @@ function forceGC() {
 /*
    These determine if the provided search word is used. Utilized to mitigate the issue,
      where queries involving shorter search words kept jamming the database.
-
    oneLetterSearchBugThreshold: If the search word's length is equal to or less than this
      value, the query will be ignored and the database showcases all videos in the
      database. If there are more than 1 search words and each of their length is equal to
@@ -85,10 +84,8 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
    These are used to keep track of what videos are being listed. These do not store any
      video metadata, just their overall order numbers/IDs (from the most to least recent).
      These values are then used to reference entries through the "searchVars" array.
-
    showcasedVideos: Once a query has been processed, this is where the IDs of matching
      videos will be stored for further processing.
-
    showcasingAllVideos: This will be filled with IDs of all entries in the database during
      the startup of the code and isn't meant to be edited afterwards. If a query deems
      that all entries should be showcased, this array will be passed on the
@@ -373,7 +370,6 @@ function getVideo(orderNumber) {
 
 /*
 var parsedVideos = null;
-
 fs.readFile('YTPMV-2020-06-03.json', 'utf8', (err, fileDat) => {
     if (err) {
     console.error(err);
@@ -572,14 +568,16 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
     }
     
     videoList += linkThing;
-    if (!oneLetterBugPrevented && !(searchWordss[0] === undefined)) {
+    //if (!oneLetterBugPrevented && !(searchWordss[0] === undefined)) {
+    if (searchWordss[0] !== '') {
        videoList += '<br/>Search word: "' + unableCodingInSearch(searchWord).trim() + '"';
-    } if (!oneLetterBugPrevented && (searchWordss[0] === undefined)) {
+    // } if (!oneLetterBugPrevented && (searchWordss[0] === undefined)) {
+    } if (searchWordss[0] === '') {
        videoList += '<br/>Showing all videos';
-    } if (oneLetterBugPrevented) {
+    } /* if (oneLetterBugPrevented) {
        videoList += '<br/>The search word "' + unableCodingInSearch(searchWord).trim() + '" had to be ignored to avoid site crashing, showing all videos';
        oneLetterBugPrevented = false;
-    }
+    }   */
     // TEST
     if (searchingForUploaderToo) {
     videoList += '<br/>Searched Uploader ID: "' + unableCodingInSearch(searchUploaderId) + '"';
@@ -1119,7 +1117,34 @@ var searchWordss = [];
 
 function createList(searchWord,checkMarks) {
 
-    setSearchWords(searchWord);
+    //setSearchWords(searchWord);
+
+    var tmppp = searchWord.toLowerCase().trim();
+    searchWordss = [];
+    
+    console.log(!tmppp.includes(' ') );
+
+    if (exactWordSearch || !tmppp.includes(' ') || tmppp.length === 0) {
+      console.log("Got in here" + [tmppp]);
+       searchWordss.push(tmppp);
+    console.log("uyt " + searchWordss);
+
+    }
+    else {
+      var tmppp2 = tmppp.split(" ");
+      console.log("Got in here too" + [tmppp2]);
+
+      console.log(tmppp2);
+
+        for (var k = 0; k < tmppp2.length; k++) {
+          var tmp5 = tmppp2[k] + "pptenshir__";
+             if (!(tmp5 === "pptenshir__")) searchWordss.push(tmppp2[k]);
+
+       }
+    }
+
+    // end
+
     console.log(searchWordss[0]);
     var runThis = true;
     var noCheckmarks = true;
@@ -1140,7 +1165,7 @@ function createList(searchWord,checkMarks) {
     // var tmpDread = searchWord.trim() + ' ';
     //if (tmpDread === ' ' && noCheckmarks) {
       
-    if (searchWordss[0] === undefined && noCheckmarks) {
+    if (searchWordss[0] === "" && noCheckmarks) {
         runThis = false;
          showcasedVideos = showcasingAllVideos;
        // showcasedVideos = null;
@@ -1217,7 +1242,7 @@ function createList(searchWord,checkMarks) {
     //lastSearchword = searchWord;
     //updateShowcase = false;
 }
-
+   /*
 function setSearchWords(searchWord) {
     var tmp4 = [];
     var tmppp = searchWord.toLowerCase().trim();
@@ -1264,6 +1289,7 @@ function setSearchWords(searchWord) {
     console.log(searchWordss);
     //console.log(searchWordss[0]);
 }
+*/
 
 function youtubeUploaderFormer(uploaderName,uploaderId) {
      //var tmpId = uploaderId;
@@ -1309,18 +1335,15 @@ function hasSearchWord(compareString) {               /*
 
     var tmp1 = compareString.toLowerCase().trim();
     /* var tmp2 = searchWord.toLowerCase().trim();
-
     var searchWords = tmp2.split(" ");
     var tmp3 = searchWords;
     var tmp4 = [];
-
     for (var k = 0; k < searchWords.length; k++) {
         var tmp5 = searchWords[k] + "pptenshi";
         if (!(tmp5 === "pptenshi")) tmp4.push(searchWords[k]);
     }
     
     searchWords = tmp4;
-
     //console.log(searchWords); 
     */
     //var isTheWordHere = [];
@@ -1519,7 +1542,6 @@ var srvr = http.createServer(function (req, res) {
   }
       /*
   if (q.pathname === '/YTPMV_Database/details.html') {
-
   } */
 
   htmlStrBegin += tiitle;
