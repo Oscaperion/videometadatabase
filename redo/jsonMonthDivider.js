@@ -11,6 +11,7 @@ const youtubeUserList1 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Met
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
 var ignoreUsers = [];
+/*
 for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
    var tmpArr = youtubeUserList1[ttu].uploader_id;
    var addUser = false;
@@ -20,15 +21,32 @@ for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
          break;
       }
    }
-   
+
    if (addUser) {
       for (var tti = 0; tti < tmpArr.length; tti++) {
          ignoreUsers.push(tmpArr[tti]);
       }
    }
-
-
 }
+*/
+
+for (var ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
+   var ter = ignoreUsersTmp[ttu];
+   var foundMoreIds = false;
+
+   for (var tty = 0; tty < youtubeUserList1.length; tty++) {
+      if (youtubeUserList1[tty].uploader_id.includes(ter)) {
+         foundMoreIds = true;
+         for (var ttz = 0; ttz < youtubeUserList1[tty].uploader_id.length; ttz++) {
+            ignoreUsers.push(youtubeUserList1[tty].uploader_id[ttz]);
+         }
+         break;
+      }
+   }
+   
+   if (!foundMoreIds) ignoreUsers.push(ter);
+}
+
 ignoreUsersTmp = null;
 console.log(ignoreUsers);
 
