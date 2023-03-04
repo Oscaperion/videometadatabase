@@ -14,7 +14,7 @@ if (cMonth < 10) cMonth = '0' + cMonth;
 var cYear = currentDate.getFullYear() + '';
 
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-//const youtubeUserList = JSON.parse(fs.readFileSync('youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
 const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 
@@ -158,15 +158,15 @@ var parsedVideos = [];
 var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
 
 var numm = 0;
-var y;
+//var y;
 //for (y = minY; y <= maxY; y++) {
-for (y = maxY; y >= minY; y--) {
-    
-   var terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+for (let y = maxY; y >= minY; y--) {
+
+   let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
    //var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {
-     var teray = fs.readFileSync(terappi, 'utf8');
+     let teray = fs.readFileSync(terappi, 'utf8');
      console.log('Check 1')  ;
      forceGC();
      console.log('Check 2')  ;
@@ -187,12 +187,12 @@ console.log('All metadata loaded! Sorting things out...')  ;
 
 var searchVars = [];
 var overaro = 0;
-for (y = 0; y < numm; y++) {
-   var perryPla;
+for (let y = 0; y < numm; y++) {
+   let perryPla;
 
    // for (perryPla = 0; perryPla < parsedVideos[y].videos.length; perryPla++) {
    for (perryPla = 0; perryPla < parsedVideos[y].length; perryPla++) {
-       var pusherian = {id: overaro, vids: y, subvid: perryPla};
+       let pusherian = {id: overaro, vids: y, subvid: perryPla};
        overaro++;
        //console.log(pusherian);
        searchVars.push (pusherian );
@@ -203,10 +203,10 @@ for (y = 0; y < numm; y++) {
 console.log("Total number of entries: " + overaro);
 
 //var otrpi;
-for (overaro = 0; overaro < searchVars.length; overaro++) {
-    showcasingAllVideos[overaro] = overaro;
+for (let overaroo = 0; overaroo < searchVars.length; overaroo++) {
+    showcasingAllVideos[overaroo] = overaroo;
 }
-overaro = null;
+//overaro = null;
 
 //var parsedVideos = JSON.parse(fs.readFileSync('YTPMV-2021-06-01.json', 'utf8'));
 //const parsedVideos = require('./YTPMV Metadata Archive JSON/YTPMV-2021-06-12.json');
@@ -316,8 +316,8 @@ function getUploaderId(video) {
 function dateWithinRange(videoDate) {
    if (videoDate.length != 8) return false;
 
-   var tmpRecent = dateQueried1;
-   var tmpOldest = dateQueried2;
+   let tmpRecent = dateQueried1;
+   let tmpOldest = dateQueried2;
 
    if (tmpRecent < tmpOldest) {
       tmpRecent = dateQueried2;
@@ -331,7 +331,7 @@ function dateWithinRange(videoDate) {
 
 function getVideo(orderNumber) {
     
-   var terpm = searchVars[orderNumber];
+   let terpm = searchVars[orderNumber];
    
    
    //console.log(orderNumber + ' -- ' + terpm);
@@ -384,25 +384,32 @@ fs.readFile('YTPMV-2020-06-03.json', 'utf8', (err, fileDat) => {
 });*/
 
 function addCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
-    var returnStr = '';
+    let returnStr = '';
+
     if (!(checkMarks[0] === undefined) || checkMarks[0] === 'true') {
        returnStr += '&Youtube=true';
     }   
+
     if (!(checkMarks[1] === undefined) || checkMarks[1] === 'true') {
        returnStr += '&Niconico=true';
     }
+
     if (!(checkMarks[2] === undefined) || checkMarks[2] === 'true') {
        returnStr += '&BiliBili=true';
     }
+
     if (!(checkMarks[3] === undefined) || checkMarks[3] === 'true') {
        returnStr += '&Twitter=true';
     }
+
     if (!(checkMarks[4] === undefined) || checkMarks[4] === 'true') {
        returnStr += '&Soundcloud=true';
     }
+
     if (!(checkMarks[5] === undefined) || checkMarks[5] === 'true') {
        returnStr += '&VK=true';
     }
+
     if (!(checkMarks[6] === undefined) || checkMarks[6] === 'true') {
        returnStr += '&Others=true';
     }
@@ -419,7 +426,7 @@ function addCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'T
 }
 
 function showList(searchWord, searchUploaderId,page,checkMarks) {
-    var searchingForUploaderToo = !(searchUploaderId === nullUploaderPlaceholder);
+    let searchingForUploaderToo = !(searchUploaderId === nullUploaderPlaceholder);
     //var newSearch = !(searchWord.toLowerCase().trim().localeCompare(lastSearchword.toLowerCase().trim()) == 0) || (!(searchUploaderId.toLowerCase().trim().localeCompare(lastCheckedUploader.toLowerCase().trim()) == 0) && searchingForUploaderToo);
     //console.log("Why doesn't this work");
     console.log('Searching: ' + searchWord);
@@ -436,9 +443,9 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        createList(searchWord,checkMarks);
     }
 
-    var videoList = '';
+    let videoList = '';
     
-    var searchWordTmp = 'search=' + searchWord.trim();
+    let searchWordTmp = 'search=' + searchWord.trim();
     // If the search word is an empty string, no search word is added to the page links
     /*
     if (searchWord.trim() === 'search=') {
@@ -446,25 +453,25 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
     } */
     
 
-    var totalPages = 1;
+    let totalPages = 1;
     while ((totalPages * videosPerPage) <= showcasedVideos.length) {
        totalPages++;
     }
     
-    var currentPage = page;
+    let currentPage = page;
     if (page > totalPages) currentPage = totalPages;
     if (page < 1) currentPage = 1;
 
-    var startValue = videosPerPage * (currentPage - 1);
-    var endValue = videosPerPage * currentPage;
+    let startValue = videosPerPage * (currentPage - 1);
+    let endValue = videosPerPage * currentPage;
     if (endValue > showcasedVideos.length) endValue = showcasedVideos.length;
 
+    let linkThing = '';
 
-    var linkThing = '';
     // Writing links on top of page
     if (totalPages > 1) {
          linkThing += '<hr/>';
-         var keepGoing = true;
+         let keepGoing = true;
 
          if (currentPage != 1) {
              linkThing += '<a href="results.html?' + searchWordTmp;
@@ -532,8 +539,8 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
          }
          
          if (keepGoing) {
-             var previousPage = currentPage - 1;
-             var nextPage = currentPage - 1 + 2;
+             let previousPage = currentPage - 1;
+             let nextPage = currentPage - 1 + 2;
              if (currentPage > 2) {
                 linkThing += '<a href="results.html?' + searchWordTmp;
                 if (searchingForUploaderToo) {
@@ -584,18 +591,18 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
     //videoList += '</div>';
 }
 
-    for (i = startValue; i < endValue; i++) {
+    for (let i = startValue; i < endValue; i++) {
        videoList += '<hr/><div>' + br;
        // console.log ("the bus is here?" + showcasedVideos[i].id);
       
-          var listedVideo = getVideo(showcasedVideos[i]);
-        
-        var titlePlaceh = '';
+        let listedVideo = getVideo(showcasedVideos[i]);
+
+        let titlePlaceh = '';
           
         
        
        if (listedVideo.extractor_key === "Twitter") {
-           var vidTmp2 = 'https://twitter.com/' + listedVideo.uploader_id + '/status/' + listedVideo.id;
+           let vidTmp2 = 'https://twitter.com/' + listedVideo.uploader_id + '/status/' + listedVideo.id;
            
            titlePlaceh = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code> (' + formatDuration(listedVideo.duration) +')' + br;
        } else {
@@ -606,23 +613,23 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        videoList += titlePlaceh;
 
        // Video link
-       var vidTmp = '';
+       let vidTmp = '';
        
        if (listedVideo.extractor_key === "Youtube") {
-           var vidTmp2 = 'https://www.youtube.com/watch?v=' + listedVideo.id;
+           let vidTmp2 = 'https://www.youtube.com/watch?v=' + listedVideo.id;
            
            vidTmp = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code>';
        }
        
        if (listedVideo.extractor_key === "Niconico") {
-           var vidTmp2 = 'https://www.nicovideo.jp/watch/' + listedVideo.id;
+           let vidTmp2 = 'https://www.nicovideo.jp/watch/' + listedVideo.id;
            
            vidTmp = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code>';
        }
        
        if (listedVideo.extractor_key === "BiliBili") {
-           var vidTmp2 = listedVideo.webpage_url;
-           var terraip = vidTmp2.indexOf('&');
+           let vidTmp2 = listedVideo.webpage_url;
+           let terraip = vidTmp2.indexOf('&');
            if (terraip != -1) vidTmp2 = vidTmp2.substring(0,terraip);
            terraip = vidTmp2.indexOf('?p=1');
            if (terraip != -1 && vidTmp2.substring(terraip).length == 4) vidTmp2 = vidTmp2.substring(0,terraip);
@@ -639,26 +646,26 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        
        if (listedVideo.extractor_key === "BiliBili" && listedVideo.webpage_url.search(listedVideo.id) == -1) {
          if (listedVideo.id.search("_part1") > 0) {
-           var teypi = listedVideo.id.indexOf("_part1");
-           var teyp2 = listedVideo.id.substring(0,teypi);
-           var teyp21 = listedVideo.id.substring(teypi); 
+           let teypi = listedVideo.id.indexOf("_part1");
+           let teyp2 = listedVideo.id.substring(0,teypi);
+           let teyp21 = listedVideo.id.substring(teypi);
            if (teyp21.length > 6) { 
-              var teyp3 = listedVideo.id.substring(teypi + 5); 
+              let teyp3 = listedVideo.id.substring(teypi + 5);
               videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '?p=' + teyp3 + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
            } else {
               videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '\" target=\"_blank\">av' + teyp2 + '</a>]</code>'; 
            }
          }
          else if (listedVideo.id.search("_part") > 0) {
-           var teypi = listedVideo.id.indexOf("_part");
-           var teyp2 = listedVideo.id.substring(0,teypi);
-           var teyp3 = listedVideo.id.substring(teypi + 5);
+           let teypi = listedVideo.id.indexOf("_part");
+           let teyp2 = listedVideo.id.substring(0,teypi);
+           let teyp3 = listedVideo.id.substring(teypi + 5);
            videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '?p=' + teyp3 + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
          }  
          else if (listedVideo.id.search("_p") > 0) {
-           var teypi = listedVideo.id.indexOf("_p");
-           var teyp2 = listedVideo.id.substring(0,teypi);
-           var teyp3 = listedVideo.id.substring(teypi + 2);
+           let teypi = listedVideo.id.indexOf("_p");
+           let teyp2 = listedVideo.id.substring(0,teypi);
+           let teyp3 = listedVideo.id.substring(teypi + 2);
            videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + teyp2 + '?p=' + teyp3 + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
          } else {
            videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + listedVideo.id + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
@@ -688,7 +695,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        
        videoList += '<br/><br/>' + br;
        
-       var uploader_Str = '';
+       let uploader_Str = '';
 
        if (listedVideo.extractor_key === 'BiliBili') {
           uploader_Str = '<a href=\"https://space.bilibili.com/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
@@ -729,14 +736,13 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
 
        
        if (!(listedVideo.tags === undefined)) {
-         var tagN;
-         var thereAreNoTags = true;
+         let thereAreNoTags = true;
          videoList += '<br/><br/><code><b>Tags:</b> ';
          try {
-         for (tagN = 0; tagN < listedVideo.tags.length; tagN++) {
-           thereAreNoTags = false;  
-           videoList += '<a href=\"results.html?search=' + listedVideo.tags[tagN] + '\">' + listedVideo.tags[tagN] + '</a> ';
-         }
+            for (let tagN = 0; tagN < listedVideo.tags.length; tagN++) {
+              thereAreNoTags = false;
+              videoList += '<a href=\"results.html?search=' + listedVideo.tags[tagN] + '\">' + listedVideo.tags[tagN] + '</a> ';
+            }
          } catch(err) {
             thereAreNoTags = true; 
          }
@@ -748,7 +754,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        
        if (!searchingForUploaderToo) {
         // console.log(listedVideo);
-        var tret = listedVideo.uploader_id;     
+        let tret = listedVideo.uploader_id;
         //console.log(tret);
         if (listedVideo.extractor_key === "Youtube") tret = getUploaderId(listedVideo)[0];
        videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
@@ -765,22 +771,22 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
 }
 
 function unableCodingInSearch(searchWord) {
-    var searchChar = '<';
-    var replaceCode = '&#60;';
+    let searchChar = '<';
+    let replaceCode = '&#60;';
 
     if (searchWord.indexOf(searchChar) == -1) {
         return searchWord;
     }
     
-    var temppo = searchWord;
+    let temppo = searchWord;
     
     while (temppo.indexOf(searchChar) != -1) {
-        var charPlace = temppo.indexOf(searchChar);
-        var tmp1 = '';
+        let charPlace = temppo.indexOf(searchChar);
+        let tmp1 = '';
         if (charPlace != 0) {
             tmp1 = temppo.substring(0,charPlace);
         }
-        var tmp2 = temppo.substring(charPlace + 1);
+        let tmp2 = temppo.substring(charPlace + 1);
         
         temppo = tmp1 + replaceCode + tmp2;
     }
@@ -795,9 +801,7 @@ function checkForAcrhiveOrgLink(videoInfo) {
     console.log(videoInfo.uploader);
     console.log(videoInfo.uploader_id); */
 
-    var exp;
-
-    for (exp = 0; exp < exceptionUsers.length; exp++) {
+    for (let exp = 0; exp < exceptionUsers.length; exp++) {
         if (isTheUserSame(videoInfo,exceptionUsers[exp])) {
             return true;
         }
@@ -811,11 +815,11 @@ function isTheUserSame(videoInfo, uploaderName) {
         return false;
     }
     
-    var tmpVid = getUploaderId(videoInfo);
+    let tmpVid = getUploaderId(videoInfo);
     //if (!Array.isArray(tmpVid)) tmpVid = [tmpVid];
     
-    for (var jkh = 0; jkh < tmpVid.length; jkh++) {
-        if (isTheUserSame_String(tmpVid[jkh].trim(), uploaderName)) return true;
+    for (let jkh = 0; jkh < tmpVid.length; jkh++) {
+       if (isTheUserSame_String(tmpVid[jkh].trim(), uploaderName)) return true;
     }
 
     return false;
@@ -826,10 +830,10 @@ function isTheUserSame_String(videoUploader, uploaderName) {
 }
 
 function formatDuration(justSeconds) {
-    var minute = 60;
-    
-    var mins = 0;
-    var secs = justSeconds;
+    let minute = 60;
+
+    let mins = 0;
+    let secs = justSeconds;
     
     while (secs >= minute) {
         mins++;
@@ -844,14 +848,14 @@ function formatDuration(justSeconds) {
         return mins + ':' + secs;
     }
     
-    var hours = 0;
+    let hours = 0;
     
     while (mins >= minute) {
         hours++;
         mins = mins - minute;
     }
     
-    var retStr = hours + ':';
+    let retStr = hours + ':';
     
     if (mins < 10) {
         retStr = retStr + '0';
@@ -869,19 +873,19 @@ function formatDuration(justSeconds) {
 }
 
 function addLinks(ogDescription, searchString) {
-    var editedDescription = ogDescription;
-    var linkPos = editedDescription.indexOf(searchString);
+    let editedDescription = ogDescription;
+    let linkPos = editedDescription.indexOf(searchString);
 
     if (linkPos > -1) {
         while (linkPos != -1) {
-            var tempp1 = editedDescription.indexOf(' ', linkPos);
-            var tempp2 = editedDescription.indexOf('\n', linkPos);
+            let tempp1 = editedDescription.indexOf(' ', linkPos);
+            let tempp2 = editedDescription.indexOf('\n', linkPos);
             //console.log(tempp1 + ' -- ' + tempp2);
-            var endOfLink = tempp1;
+            let endOfLink = tempp1;
             if ((tempp2 != -1 && tempp2 < tempp1) || (tempp2 > tempp1 && tempp1 == -1)) {
                 endOfLink = tempp2;
             }
-            var linkara = '';
+            let linkara = '';
             //console.log('End of link: ' + endOfLink);
 
             if (endOfLink == -1) { //(tempp1 == -1 && tempp2 == -1) {
@@ -891,16 +895,16 @@ function addLinks(ogDescription, searchString) {
             }
             //console.log(linkara);
 
-            var tempStr1 = editedDescription.substring(0,linkPos);
-            var tempStr2 = editedDescription.substring(endOfLink);
+            let tempStr1 = editedDescription.substring(0,linkPos);
+            let tempStr2 = editedDescription.substring(endOfLink);
 
-            var linkingPark = '<a href="' + linkara + '" target="_blank">' + linkara + '</a>';
-
+            let linkingPark = '<a href="' + linkara + '" target="_blank">' + linkara + '</a>';
+            let tarkLink;
 
             // If the link has an ID to a video on YouTube, Niconico or Bilibili, this will add a link to search the archive with that ID
             tarkLink = "youtube.com/watch?v=";
             if (linkara.indexOf(tarkLink) > -1) {
-                var temperar = linkara.substring((linkara.indexOf(tarkLink) + tarkLink.length));
+                let temperar = linkara.substring((linkara.indexOf(tarkLink) + tarkLink.length));
                 if (temperar.length > 11) {
                    temperar = temperar.substring(0, 11);
                 }
@@ -910,7 +914,7 @@ function addLinks(ogDescription, searchString) {
             
             tarkLink = "youtu.be/";
             if (linkara.indexOf(tarkLink) > -1) {
-                var temperar = linkara.substring((linkara.indexOf(tarkLink) + tarkLink.length));
+                let temperar = linkara.substring((linkara.indexOf(tarkLink) + tarkLink.length));
                 if (temperar.length > 11) {
                    temperar = temperar.substring(0, 11);
                 }
@@ -920,7 +924,7 @@ function addLinks(ogDescription, searchString) {
             
             tarkLink = "nico.ms/";
             if (linkara.indexOf(tarkLink) > -1) {
-                var temperar = linkara.substring((linkara.indexOf(tarkLink) + tarkLink.length));
+                let temperar = linkara.substring((linkara.indexOf(tarkLink) + tarkLink.length));
                 if (temperar.indexOf('?') > -1) {
                    temperar = temperar.substring(0, temperar.indexOf('?'));
                 }
@@ -997,7 +1001,7 @@ function addLinks(ogDescription, searchString) {
             if (endOfLink != -1) {
                 editedDescription += tempStr2;
             }
-            var temmie = linkPos;
+            let temmie = linkPos;
 
             linkPos = editedDescription.indexOf(searchString, (temmie + linkingPark.length));
         }
@@ -1007,7 +1011,7 @@ function addLinks(ogDescription, searchString) {
 }
 
 function editDescription(ogDescription, extractorKey) {
-    var editedDescription = ogDescription;
+    let editedDescription = ogDescription;
     
     if (ogDescription === null) {
         return "<code>[No description]</code>";
@@ -1020,7 +1024,7 @@ function editDescription(ogDescription, extractorKey) {
     }
 
     //var thereAreBrs = false;
-    var brPos = editedDescription.indexOf('\n');
+    let brPos = editedDescription.indexOf('\n');
 
     //console.log('brPos (1ST): ' + brPos);
 
@@ -1030,10 +1034,10 @@ function editDescription(ogDescription, extractorKey) {
 
     while (brPos != -1) {
         //console.log('brPos: ' + brPos);
-        var temp1 = editedDescription.substring(0,brPos);
-        var temp2 = editedDescription.substring(brPos);
+        let temp1 = editedDescription.substring(0,brPos);
+        let temp2 = editedDescription.substring(brPos);
         editedDescription = temp1 + '<br/>' + temp2;
-        var temp3 = brPos + 6;
+        let temp3 = brPos + 6;
         brPos = editedDescription.indexOf('\n', temp3);
     }
     
@@ -1049,53 +1053,54 @@ function createVideoPreview(vidId,vidSite) {
     if (vidSite === 'Vimeo') return '<br/><br/>' + createVideoPreviewVimeo(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Kakao') return '<br/><br/>' + createVideoPreviewKakao(vidId) + '<br/><br/>' + br;
     if (vidSite === 'Dailymotion') return '<br/><br/>' + createVideoPreviewDailymotion(vidId) + '<br/><br/>' + br;
+    // Autoplays the video as of now, so I've decided to disable this until I figure out how to stop it from doing that
     // if (vidSite === 'BiliBili') return '<br/><br/>' + createVideoPreviewBilibili(vidId) + '<br/><br/>' + br;
     return '<br/><br/>';
 }
 
-// The player keeps autoplaying the videos, I'll try
+// The player keeps autoplaying the videos, I'll try tweak this later
 function createVideoPreviewBilibili(vidId) {
-    var embbee = '<iframe src="https://player.bilibili.com/player.html?aid=' + vidId + '&autoplay=false" width="640" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>';
+    let embbee = '<iframe src="https://player.bilibili.com/player.html?aid=' + vidId + '&autoplay=false" width="640" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>';
     return embbee;
 }
 
 function createVideoPreviewYoutube(vidId) {
-    var embbee = '<iframe width="640" height="480" src="https://www.youtube.com/embed/' + vidId + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+    let embbee = '<iframe width="640" height="480" src="https://www.youtube.com/embed/' + vidId + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
     return embbee;
 }
 
 function createVideoPreviewNiconico(vidId) {
-    var embbee = '<iframe width="640" height="480" src="https://embed.nicovideo.jp/watch/' + vidId + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+    let embbee = '<iframe width="640" height="480" src="https://embed.nicovideo.jp/watch/' + vidId + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
     return embbee;
 }
 
 function createAudioPreviewSoundcloud(vidId) {
-    var embbee = '<iframe width="640" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/' + vidId + '&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>';
+    let embbee = '<iframe width="640" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/' + vidId + '&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>';
     return embbee;
 }
 
 function createVideoPreviewVimeo(vidId) {
-    var embbee = '<iframe src="https://player.vimeo.com/video/' + vidId + '" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+    let embbee = '<iframe src="https://player.vimeo.com/video/' + vidId + '" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
 
     return embbee;
 }
 
 function createVideoPreviewKakao(vidId) {
-    var embbee = '<iframe width="640" height="480" src="https://play-tv.kakao.com/embed/player/cliplink/' + vidId + '?service=player_share" allowfullscreen frameborder="0" scrolling="no" allow="autoplay; fullscreen; encrypted-media"></iframe>';
+    let embbee = '<iframe width="640" height="480" src="https://play-tv.kakao.com/embed/player/cliplink/' + vidId + '?service=player_share" allowfullscreen frameborder="0" scrolling="no" allow="autoplay; fullscreen; encrypted-media"></iframe>';
     
     return embbee;
 }
 
 function createVideoPreviewDailymotion(vidId) {
-    var embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>';
+    let embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>';
     
     return embbee;
 }
 
 function createVideoPreviewTwitter(vidId) {
-    var apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
-    var embbee = '';
-    var requ = new XMLHttpRequest_node();
+    let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
+    let embbee = '';
+    let requ = new XMLHttpRequest_node();
     requ.onreadystatechange = function() {
       if (requ.readyState == 4 && requ.status == 200){
         embbee = JSON.parse(requ.responseText).html;
@@ -1119,7 +1124,7 @@ function createList(searchWord,checkMarks) {
 
     //setSearchWords(searchWord);
 
-    var tmppp = searchWord.toLowerCase().trim();
+    let tmppp = searchWord.toLowerCase().trim();
     searchWordss = [];
     
     console.log(!tmppp.includes(' ') );
@@ -1131,13 +1136,13 @@ function createList(searchWord,checkMarks) {
 
     }
     else {
-      var tmppp2 = tmppp.split(" ");
+      let tmppp2 = tmppp.split(" ");
       console.log("Got in here too" + [tmppp2]);
 
       console.log(tmppp2);
 
-        for (var k = 0; k < tmppp2.length; k++) {
-          var tmp5 = tmppp2[k] + "pptenshir__";
+        for (let k = 0; k < tmppp2.length; k++) {
+          let tmp5 = tmppp2[k] + "pptenshir__";
              if (!(tmp5 === "pptenshir__")) searchWordss.push(tmppp2[k]);
 
        }
@@ -1146,10 +1151,10 @@ function createList(searchWord,checkMarks) {
     // end
 
     console.log(searchWordss[0]);
-    var runThis = true;
-    var noCheckmarks = true;
-    var checkMarkBoolean = [];
-    for (var pp = 0; pp < checkMarks.length; pp++) {
+    let runThis = true;
+    let noCheckmarks = true;
+    let checkMarkBoolean = [];
+    for (let pp = 0; pp < checkMarks.length; pp++) {
         if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
            checkMarkBoolean.push(false);
         } else {
@@ -1177,13 +1182,13 @@ function createList(searchWord,checkMarks) {
     
      showcasedVideos = [];
 
-     for (i = 0; i < searchVars.length; i++) {
+     for (let i = 0; i < searchVars.length; i++) {
        // var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
-       var compareVid =  parsedVideos[searchVars[i].vids][searchVars[i].subvid];
+       let compareVid =  parsedVideos[searchVars[i].vids][searchVars[i].subvid];
 
-       var ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
-       var isOther = true;
-       for (var plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+       let ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
+       let isOther = true;
+       for (let plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
 
            if (sitesList[plorar] === compareVid.extractor_key) {
               isOther = false;
@@ -1208,7 +1213,7 @@ function createList(searchWord,checkMarks) {
 
        else {
 
-       var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
+       let compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
        if (compareVid.extractor_key.indexOf("BiliBili") == 0) {
            compareStr += ' av' + compareVid.id + ' BV' + compareVid.id;
        }
@@ -1223,10 +1228,9 @@ function createList(searchWord,checkMarks) {
        }
        if (!(compareVid.tags === undefined)) {
           try {
-          var tagN;
-          for (tagN = 0; tagN < compareVid.tags.length; tagN++) {
+            for (let tagN = 0; tagN < compareVid.tags.length; tagN++) {
               compareStr += ' ' + compareVid.tags[tagN];
-          }
+            }
           } catch(err) {
               compareStr += ' ';
           }
@@ -1300,10 +1304,10 @@ function youtubeUploaderFormer(uploaderName,uploaderId) {
         tmpId = [uploaderId];
      } */
 
-     var returnStr = youtubeChannelLinkFormer(uploaderId[0]);
+     let returnStr = youtubeChannelLinkFormer(uploaderId[0]);
      returnStr += uploaderName + ' [<code>' + uploaderId[0] + '</code>]</a>';
-     
-     for (var ku = 1; ku < uploaderId.length; ku++) {
+
+     for (let ku = 1; ku < uploaderId.length; ku++) {
         returnStr += ' ' + youtubeChannelLinkFormer(uploaderId[ku]) + '[<code>' + uploaderId[ku] + '</code>]</a>';
      }
      
@@ -1315,7 +1319,7 @@ function youtubeChannelLinkFormer(youtubeId) {
 }
 
 function youtubeChannelURLFormer(youtubeId) {
-     var uploader_Str = "https://www.youtube.com/";
+     let uploader_Str = "https://www.youtube.com/";
      
      if (youtubeId.length === 24 && youtubeId.substring(0,2) === 'UC') {
         return uploader_Str + "channel/" + youtubeId;
@@ -1333,7 +1337,7 @@ function hasSearchWord(compareString) {               /*
     console.log(searchWordss[0]);
     if (searchWordss[0] === undefined) return true; */
 
-    var tmp1 = compareString.toLowerCase().trim();
+    let tmp1 = compareString.toLowerCase().trim();
     /* var tmp2 = searchWord.toLowerCase().trim();
     var searchWords = tmp2.split(" ");
     var tmp3 = searchWords;
@@ -1350,7 +1354,7 @@ function hasSearchWord(compareString) {               /*
 
     // var hasSearchWords = true;
 
-    for (var i = 0; i < searchWordss.length; i++) {
+    for (let i = 0; i < searchWordss.length; i++) {
         //isTheWordHere.push(tmp1.includes(searchWordss[i].trim()));
         if (tmp1.includes(searchWordss[i].trim()) === false) return false;
     }
@@ -1365,9 +1369,9 @@ function hasSearchWord(compareString) {               /*
 function createListForUploader(searchWord,uploaderId,checkMarks) {
     showcasedVideos = [];
     
-    var noCheckmarks = true;
-    var checkMarkBoolean = [];
-    for (var pp = 0; pp < checkMarks.length; pp++) {
+    let noCheckmarks = true;
+    let checkMarkBoolean = [];
+    for (let pp = 0; pp < checkMarks.length; pp++) {
         if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
            checkMarkBoolean.push(false);
         } else {
@@ -1379,13 +1383,13 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
     console.log(checkMarkBoolean); 
     console.log(noCheckmarks);*/
     
-    for (i = 0; i < searchVars.length; i++) {
+    for (let i = 0; i < searchVars.length; i++) {
        // var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
-       var compareVid =  parsedVideos[searchVars[i].vids][searchVars[i].subvid];
+       let compareVid =  parsedVideos[searchVars[i].vids][searchVars[i].subvid];
 
-       var ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
-       var isOther = true;
-       for (var plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+       let ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
+       let isOther = true;
+       for (let plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
 
            if (sitesList[plorar] === compareVid.extractor_key) {
               isOther = false;
@@ -1400,13 +1404,13 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
                 continue;
            }
        }
-       var tmpCont = true;
-       var tmp2 = uploaderId.trim();
+       let tmpCont = true;
+       let tmp2 = uploaderId.trim();
 
        if (compareVid.extractor_key === "Youtube" ) {
         if (getUploaderId(compareVid) === null) console.log(compareVid);
-        for (var hg = 0; hg < getUploaderId(compareVid).length; hg++) {
-          var tmp1 = getUploaderId(compareVid)[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
+        for (let hg = 0; hg < getUploaderId(compareVid).length; hg++) {
+          let tmp1 = getUploaderId(compareVid)[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
 
           if (tmp1.trim() === tmp2) {
             tmpCont = false;
@@ -1414,7 +1418,7 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
           }
         }
        } else {
-          var tmp1 = compareVid.uploader_id + ' ';
+          let tmp1 = compareVid.uploader_id + ' ';
           if (tmp1.trim() === tmp2) tmpCont = false;
        }
 
@@ -1425,14 +1429,13 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
           continue;
        }
         
-       var compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
+       let compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
        if (!(compareVid.description === undefined)) {
           compareStr += ' ' + compareVid.description;
        }
        if (!(compareVid.tags === undefined)) {
            try {
-          var tagN;
-          for (tagN = 0; tagN < compareVid.tags.length; tagN++) {
+          for (let tagN = 0; tagN < compareVid.tags.length; tagN++) {
               compareStr += ' ' + compareVid.tags[tagN];
           } 
                
@@ -1456,7 +1459,7 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
 
 function htmlStrIndex(querie) {
   // Alustetaan HTML-koodia index.html-sivua varten
-  var htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
+  let htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
  
   if ('/YTPMV_Database' === querie) {
      htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
@@ -1481,7 +1484,7 @@ function htmlStrIndex(querie) {
 
 function htmlStrForBot(querie) {
   // Alustetaan HTML-koodia index.html-sivua varten
-  var htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
+  let htmlStrIndex = '<hr/><p>' + br + 'Search for videos:' + br;
  
   if ('/YTPMV_Database' === querie) {
      htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
@@ -1505,7 +1508,7 @@ function htmlStrForBot(querie) {
 }
 
 var srvr = http.createServer(function (req, res) {
-  var q = url.parse(req.url, true);
+  let q = url.parse(req.url, true);
     
   console.log(q.pathname);
   console.log(q.query);
@@ -1518,15 +1521,15 @@ var srvr = http.createServer(function (req, res) {
   console.log(q.query.uploader_id);
   console.log(q.query.uploader_id === undefined); */
 
-  var htmlStrBegin = '<!DOCTYPE html>' + br;
+  let htmlStrBegin = '<!DOCTYPE html>' + br;
   htmlStrBegin += '<html>' + br;
 
   htmlStrBegin += '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">' + br;
   htmlStrBegin += '<link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">' + br;
 
 
-  var tiitle = '<title>YTPMV Metadata Archive</title>';
-  var pageNn = q.query.page;
+  let tiitle = '<title>YTPMV Metadata Archive</title>';
+  let pageNn = q.query.page;
   if (q.query.page === undefined) pageNn = "1";
   else  pageNn = pageNn.trim();
 
@@ -1553,7 +1556,7 @@ var srvr = http.createServer(function (req, res) {
 
 
   //  ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
-  var chekingmarkss = [q.query.Youtube, q.query.Niconico, q.query.BiliBili, q.query.Twitter, q.query.Soundcloud, q.query.VK, q.query.Others];
+  let chekingmarkss = [q.query.Youtube, q.query.Niconico, q.query.BiliBili, q.query.Twitter, q.query.Soundcloud, q.query.VK, q.query.Others];
   //console.log(chekingmarkss);
 
   exactWordSearch = false;
@@ -1561,12 +1564,12 @@ var srvr = http.createServer(function (req, res) {
      exactWordSearch = true;
   }
 
-  var searchingFor = q.query.search;
-  var searchWordPresent = !(q.query.search === undefined);
+  let searchingFor = q.query.search;
+  let searchWordPresent = !(q.query.search === undefined);
   if (!searchWordPresent) searchingFor = ' ';
 
-  var pageNumber = q.query.page;
-  var pageListed = !(q.query.page === undefined);
+  let pageNumber = q.query.page;
+  let pageListed = !(q.query.page === undefined);
   if (!pageListed) pageNumber = 1;
   if (pageListed) {
        if (!isFinite(pageNumber)) {
@@ -1579,15 +1582,15 @@ var srvr = http.createServer(function (req, res) {
 
 
 
-  var fromUploaderId = q.query.uploader_id;
-  var uploaderIdListed = !(q.query.uploader_id === undefined);
+  let fromUploaderId = q.query.uploader_id;
+  let uploaderIdListed = !(q.query.uploader_id === undefined);
   if (!uploaderIdListed) fromUploaderId = nullUploaderPlaceholder;
 
   const htmPage = '/YTPMV_Database';
 
   if ((htmPage + '/results.html') === q.pathname) {
      res.writeHead(200, {'Content-Type': 'text/html'});
-     var htmlStrSearch = '<hr/><p>' + br + 'Search for videos:' + br;
+     let htmlStrSearch = '<hr/><p>' + br + 'Search for videos:' + br;
         htmlStrSearch += '<form action="results.html" method="GET">';
         htmlStrSearch +=  br + '<input type="text" name="search"'
         if (!(searchingFor === undefined)) htmlStrSearch += ' value="' + searchingFor.trim() + '"';
@@ -1599,10 +1602,10 @@ var srvr = http.createServer(function (req, res) {
         }
         htmlStrSearch += ' /><label for="exactSearch">Exact word search</label>&nbsp;&#124;' + br;
 
-        var linkkeriino = q.search;
+        let linkkeriino = q.search;
         if (!(linkkeriino === null) && linkkeriino.indexOf('preview=') > 0) {
-           var inderr  = linkkeriino.indexOf('preview=');
-           var inderr2 = linkkeriino.indexOf('&', (inderr + 1));
+           let inderr  = linkkeriino.indexOf('preview=');
+           let inderr2 = linkkeriino.indexOf('&', (inderr + 1));
            if (inderr2 > 0) linkkeriino = linkkeriino.substring(0,inderr) + 'preview=' + !showVidPrev + linkkeriino.substring(inderr2);
            else linkkeriino = linkkeriino.substring(0,inderr) + 'preview=' + !showVidPrev;
         } else {
@@ -1618,9 +1621,8 @@ var srvr = http.createServer(function (req, res) {
 
         // Create a bunch of checkboxes
         htmlStrSearch += 'Exclude from search: ' + br;
-        var orep;
-        for (orep = 0; orep < sitesList.length; orep++) {
-           var tempww = chekingmarkss[orep];
+        for (let orep = 0; orep < sitesList.length; orep++) {
+           let tempww = chekingmarkss[orep];
            if (tempww === undefined || !(tempww === 'true')) {
               tempww = false;
            }
@@ -1639,11 +1641,11 @@ var srvr = http.createServer(function (req, res) {
      /*
      var tmperd = q.search;
      var tmperd2 = tmperd.indexOf(botCheckName + '=' + botCheckValue); */
-     var tmpppp = botCheckName + '=' + botCheckValue;
+     let tmpppp = botCheckName + '=' + botCheckValue;
      // console.log(q.query.search);
 
      if (q.search === null || (!(q.search === undefined) && q.search.indexOf(tmpppp) == -1)) {
-         var linkkir = q.search + '&' + tmpppp;
+         let linkkir = q.search + '&' + tmpppp;
          if (q.search === null) {
              linkkir = '?' + tmpppp;
          }

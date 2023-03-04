@@ -4,10 +4,9 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-var ignoreUsersTmp = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/ignoreChannels.json', 'utf8'));
-
+var ignoreUsersTmp = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
 const nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
-const youtubeUserList1 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+var youtubeUserList1 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
 var ignoreUsers = [];
@@ -30,14 +29,14 @@ for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
 }
 */
 
-for (var ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
-   var ter = ignoreUsersTmp[ttu];
-   var foundMoreIds = false;
+for (let ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
+   let ter = ignoreUsersTmp[ttu];
+   let foundMoreIds = false;
 
-   for (var tty = 0; tty < youtubeUserList1.length; tty++) {
+   for (let tty = 0; tty < youtubeUserList1.length; tty++) {
       if (youtubeUserList1[tty].uploader_id.includes(ter)) {
          foundMoreIds = true;
-         for (var ttz = 0; ttz < youtubeUserList1[tty].uploader_id.length; ttz++) {
+         for (let ttz = 0; ttz < youtubeUserList1[tty].uploader_id.length; ttz++) {
             ignoreUsers.push(youtubeUserList1[tty].uploader_id[ttz]);
          }
          break;
@@ -48,32 +47,33 @@ for (var ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
 }
 
 ignoreUsersTmp = null;
+youtubeUserList1 = null;
 console.log(ignoreUsers);
 
 var toBeSortedList = [];
 
-for (var yy = 2023; yy >= 2004; yy--) {
-  for (var mm = 12; mm >= 1; mm--) {
-    var mm_tmp = mm + '';
+for (let yy = 2023; yy >= 2004; yy--) {
+  for (let mm = 12; mm >= 1; mm--) {
+    let mm_tmp = mm + '';
     if (mm < 10) {
        mm_tmp  = '0' + mm;
     }
-    var mm_tmp2 = (mm + 1) + '';
+    let mm_tmp2 = (mm + 1) + '';
     if ((mm + 1) < 10) {
        mm_tmp2 = '0' + (mm + 1);
     }
 
-    var minDate = '' + yy + mm_tmp + '00';
-    var maxDate = '' + yy + mm_tmp2 + '00';
+    let minDate = '' + yy + mm_tmp + '00';
+    let maxDate = '' + yy + mm_tmp2 + '00';
     console.log("Videos from period: " + yy + mm_tmp);
 
-    for (var tu = 39; tu >= 0; tu--) {
+    for (let tu = 39; tu >= 0; tu--) {
         console.log("Checking vids" + tu);
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
-       var parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
-       var lrn = parsedVideos.videos.length;
-       for (var oi = 0; oi < lrn; oi++) {
+       let parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
+       let lrn = parsedVideos.videos.length;
+       for (let oi = 0; oi < lrn; oi++) {
            if (parsedVideos.videos[oi].extractor_key === "BiliBili" && parsedVideos.videos[oi].upload_date === undefined) {
               // console.log("Bilibili with undefined release date: not adding");
               continue;
@@ -82,9 +82,9 @@ for (var yy = 2023; yy >= 2004; yy--) {
            if (parsedVideos.videos[oi].upload_date > minDate && parsedVideos.videos[oi].upload_date < maxDate)
            {
              
-               var tmpVid =  parsedVideos.videos[oi];
+               let tmpVid =  parsedVideos.videos[oi];
                //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
-               var addForSure = true;
+               let addForSure = true;
 
                if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) { 
                  // console.log(tmpVid);
@@ -94,24 +94,24 @@ for (var yy = 2023; yy >= 2004; yy--) {
                if (ignoreUsers.includes(tmpVid.uploader_id)) addForSure = false;
 
                if (tmpVid.extractor_key === "Twitter") {
-                  var truId = tmpVid.webpage_url.substring(tmpVid.webpage_url.indexOf('/status/') + 8);
+                  let truId = tmpVid.webpage_url.substring(tmpVid.webpage_url.indexOf('/status/') + 8);
                   tmpVid.id = truId;
                   tmpVid.title = '';
                }
                
                if (tmpVid.extractor_key === "Niconico") {
-                  for (var p = 0; p < nicoTags.length; p++) {
+                  for (let p = 0; p < nicoTags.length; p++) {
                      if (nicoTags[p].id === tmpVid.id) {
-                       var checkingTags = nicoTags[p].tags;
+                       let checkingTags = nicoTags[p].tags;
 
-                       var checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
+                       let checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
 
-                       for (var tt = 0; tt < checkingTags.length; tt++) {
-                          for (var pp = 0; pp < checkke.length; pp++) {
-                             var teeew = checkingTags[tt].indexOf(checkke[pp][0]);
+                       for (let tt = 0; tt < checkingTags.length; tt++) {
+                          for (let pp = 0; pp < checkke.length; pp++) {
+                             let teeew = checkingTags[tt].indexOf(checkke[pp][0]);
                              while (teeew > -1) {
-                                var tmoo1 = checkingTags[tt].substring(0,checkingTags[tt].indexOf(checkke[pp][0]));
-                                var tmoo2 = checkingTags[tt].substring(checkingTags[tt].indexOf(checkke[pp][0]) + checkke[pp][0].length);
+                                let tmoo1 = checkingTags[tt].substring(0,checkingTags[tt].indexOf(checkke[pp][0]));
+                                let tmoo2 = checkingTags[tt].substring(checkingTags[tt].indexOf(checkke[pp][0]) + checkke[pp][0].length);
                                 checkingTags[tt] = tmoo1 + checkke[pp][1] + tmoo2;
                                 teeew = checkingTags[tt].indexOf(checkke[pp][0]);
                                 // console.log("Patched Niconico tags");
@@ -128,11 +128,11 @@ for (var yy = 2023; yy >= 2004; yy--) {
 
                
                if (tmpVid.extractor_key === "Youtube" && addForSure) {
-                  var uploader_id_tmp = -1 // tmpVid.uploader_id;
-                  var uploaderFound = false;
+                  let uploader_id_tmp = -1 // tmpVid.uploader_id;
+                  let uploaderFound = false;
 
-                  for (var i = 0; i < youtubeUserList.length; i++) {
-                     for (var j = 0; j < youtubeUserList[i].length; j++) {
+                  for (let i = 0; i < youtubeUserList.length; i++) {
+                     for (let j = 0; j < youtubeUserList[i].length; j++) {
                         if (tmpVid.uploader_id === youtubeUserList[i][j]) {
                            uploader_id_tmp = i;
                            uploaderFound = true;
@@ -160,8 +160,8 @@ for (var yy = 2023; yy >= 2004; yy--) {
                }
                
                if (tmpVid.extractor_key === "BiliBili" && tmpVid.id.search("_part") > 0) {
-                  var teypi = tmpVid.id.indexOf("_part");
-                  var teyp2 = tmpVid.id.substring(teypi);
+                  let teypi = tmpVid.id.indexOf("_part");
+                  let teyp2 = tmpVid.id.substring(teypi);
                   
                   if (teyp2.length === 6) {
                       if (!(teyp2 === "_part1")) {
@@ -174,8 +174,8 @@ for (var yy = 2023; yy >= 2004; yy--) {
                   }
 
                } else if (tmpVid.extractor_key === "BiliBili" && tmpVid.id.search("_p") > 0) {
-                  var teypi = tmpVid.id.indexOf("_p");
-                  var teyp2 = tmpVid.id.substring(teypi);
+                  let teypi = tmpVid.id.indexOf("_p");
+                  let teyp2 = tmpVid.id.substring(teypi);
 
                   if (teyp2.length === 3) {
                       if (!(teyp2 === "_p1")) {
@@ -190,10 +190,10 @@ for (var yy = 2023; yy >= 2004; yy--) {
                }
 
                if (addForSure) {
-                  // console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
+                  console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
                   toBeSortedList.push(tmpVid);
                } else {
-                  // console.log("Ignoring: " + tmpVid.upload_date + " -- " + tmpVid.id + " (Blacklisted user)");
+                  console.log("Ignoring: " + tmpVid.upload_date + " -- " + tmpVid.id);
                }
            }
        }
@@ -216,8 +216,8 @@ for (var yy = 2023; yy >= 2004; yy--) {
        nameB = nameB.title.toUpperCase();
                       */
                       
-       var nameA = (a.title + ' ' + a.id).toUpperCase();
-       var nameB = (b.title + ' ' + b.id).toUpperCase();
+       let nameA = (a.title + ' ' + a.id).toUpperCase();
+       let nameB = (b.title + ' ' + b.id).toUpperCase();
 
        if (nameA < nameB) {
           return -1; //nameA comes first
@@ -231,8 +231,8 @@ for (var yy = 2023; yy >= 2004; yy--) {
     console.log("Sorting 1");
     // Then by upload date
     toBeSortedList = toBeSortedList.sort(function(a,b) {
-       var nameA = a.upload_date ;
-       var nameB = b.upload_date ;
+       let nameA = a.upload_date ;
+       let nameB = b.upload_date ;
        
        if (nameA === undefined) nameA = "0";
        if (nameB === undefined) nameB = "0";
@@ -249,7 +249,7 @@ for (var yy = 2023; yy >= 2004; yy--) {
     console.log("Sorting 2");
 
     if (toBeSortedList.length > 0) {
-      var miii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + yy + mm_tmp + '.json';
+      let miii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + yy + mm_tmp + '.json';
       //fs.writeFileSync(miii, JSON.stringify({videos: toBeSortedList}));
       fs.writeFileSync(miii, JSON.stringify(toBeSortedList));
     } else {
