@@ -36,14 +36,48 @@ const search2 = '</div>';
 
 var foundTags;
 
-var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids13.json', 'utf8'));
+//var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids14.json', 'utf8'));
 //var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202206.json', 'utf8')) };
 
 var replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+console.log(replll);
 
 var orttt = 0;
 
-while (orttt < vids.videos.length) {
+for (let i = 0; i < replll.length; i++) {
+  if (replll[i].tags.length === 0) {
+    //console.log ("Dun");
+   let tmp = replll[i] ;
+   let tmp3 = checkVideo(tmp.id);
+   console.log(tmp.tags);
+   console.log(tmp3.tags);
+   }
+  
+}
+
+/*
+for (let i = 0; i < replll.length; i++) {
+  if (replll[i].tags.length > 0) {
+    //console.log ("Dun");
+   let tmp = replll[i] ;
+   let tmp2 = tmp.tags[tmp.tags.length - 1].trim();
+
+   // I noticed that some tags bugged out and only added a string filled with nothing but dots. This is to identify them.
+   // EDIT: It wasn't a bug, those videos actually had tags with nothing but dots ^_^;
+   while (tmp2.charAt(0) === '.') {
+      tmp2 = tmp2.substring(1).trim();
+   }
+
+   if (tmp2.length === 0) {
+      let tmp3 = checkVideo(tmp.id);
+      console.log(tmp.tags);
+      console.log(tmp3.tags);
+   }
+  }
+} */
+
+/*
+while (orttt < replll.videos.length) {
 //for (var i = 0; i < 500; i++) {
 
 //var ertt = 10 + (10 * opp);
@@ -71,10 +105,11 @@ while (orttt2 < 10 && orttt < vids.videos.length) {
 
        orttt++;
 }
+
 console.log("Temporary save");
 fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', JSON.stringify(replll));
 replll = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
-}
+}      */
 
 function checkVideo(videoId) {
    let teee = {};
@@ -119,5 +154,7 @@ function checkVideo(videoId) {
    teee['tags'] = foundTags;
    //console.log(teee);
 
-   replll.push(teee);
+   return teee;
+
+   //replll.push(teee);
 }

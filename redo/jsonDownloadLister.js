@@ -22,7 +22,7 @@ videoList += '<hr/>' + br;
         videoList += 'Release date: ' + parsedJSON.upload_date + '</div>' + br;       */
 //console.log('Started forming the server')  ;
 
-    var rString = '';
+var rString = '';
 var tu;
 for (tu = 39; tu >= 0; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
