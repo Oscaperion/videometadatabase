@@ -35,16 +35,19 @@ for (tu = 39; tu >= 0; tu--) {
 
     //for (i = 0; i < 100; i++) {
     for (i = 0; i < parsedVideos.videos.length; i++) {
-       var dewIt = true;
+       //var dewIt = true;
        
-       if (parsedVideos.videos[i].extractor_key === "BilibiliSpaceVideo") dewIt = false;
+       if (parsedVideos.videos[i].extractor_key === "BilibiliSpaceVideo") continue; // dewIt = false;
 
-       if (parsedVideos.videos[i].extractor_key === "YoutubeTab") dewIt = false;
+       if (parsedVideos.videos[i].extractor_key === "YoutubeTab") continue; // dewIt = false;
+       
+       let tmpId = parsedVideos.videos[i].id;
 
-       if (dewIt) {
-          var vidoId = parsedVideos.videos[i].extractor_key.toLowerCase() + ' ' + parsedVideos.videos[i].id;
-          rString += vidoId + '\n';
-       }
+       if (parsedVideos.videos[i].extractor_key === "BiliBili" && Array.isArray(parsedVideos.videos[i].id)) tmpId = parsedVideos.videos[i].id[0];
+
+       let vidoId = parsedVideos.videos[i].extractor_key.toLowerCase() + ' ' + tmpId;
+
+       rString += vidoId + '\n';
     }
 }
 

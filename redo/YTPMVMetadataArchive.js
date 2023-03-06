@@ -6,17 +6,20 @@ const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 /*
    Used to show, when the database was last updated.
 */
-var currentDate = new Date();
-var cDay = currentDate.getDate();
+var lastUpdated;
+{
+let currentDate = new Date();
+let cDay = currentDate.getDate();
 if (cDay < 10) cDay = '0' + cDay;
-var cMonth = currentDate.getMonth() + 1;
+let cMonth = currentDate.getMonth() + 1;
 if (cMonth < 10) cMonth = '0' + cMonth;
-var cYear = currentDate.getFullYear() + '';
+let cYear = currentDate.getFullYear() + '';
+lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
+}
 
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 
 /*
    These are used to process the JSON files that contain the entries for the database.
@@ -25,8 +28,8 @@ const lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-var maxY = 202312;
-var minY = 200501;
+const maxY = 202312;
+const minY = 202301;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -157,7 +160,10 @@ var parsedVideos = [];
 */
 var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
 
-var numm = 0;
+var searchVars = [];
+
+{
+let numm = 0;
 //var y;
 //for (y = minY; y <= maxY; y++) {
 for (let y = maxY; y >= minY; y--) {
@@ -185,13 +191,10 @@ forceGC();
 
 console.log('All metadata loaded! Sorting things out...')  ;
 
-var searchVars = [];
-var overaro = 0;
+let overaro = 0;
 for (let y = 0; y < numm; y++) {
-   let perryPla;
-
    // for (perryPla = 0; perryPla < parsedVideos[y].videos.length; perryPla++) {
-   for (perryPla = 0; perryPla < parsedVideos[y].length; perryPla++) {
+   for (let perryPla = 0; perryPla < parsedVideos[y].length; perryPla++) {
        let pusherian = {id: overaro, vids: y, subvid: perryPla};
        overaro++;
        //console.log(pusherian);
@@ -202,22 +205,19 @@ for (let y = 0; y < numm; y++) {
 
 console.log("Total number of entries: " + overaro);
 
-//var otrpi;
-for (let overaroo = 0; overaroo < searchVars.length; overaroo++) {
-    showcasingAllVideos[overaroo] = overaroo;
+for (let qers = 0; qers < searchVars.length; qers++) {
+    showcasingAllVideos[qers] = qers;
 }
-//overaro = null;
-
-//var parsedVideos = JSON.parse(fs.readFileSync('YTPMV-2021-06-01.json', 'utf8'));
-//const parsedVideos = require('./YTPMV Metadata Archive JSON/YTPMV-2021-06-12.json');
 
 mostRecentDate = parsedVideos[0][0].upload_date;
-var dateTmp = parsedVideos.length - 1;
+let dateTmp = parsedVideos.length - 1;
 dateTmp = parsedVideos[dateTmp];
 leastRecentDate = dateTmp[dateTmp.length - 1].upload_date;
-dateTmp = null;
+
 dateQueried1 = mostRecentDate;
 dateQueried1 = leastRecentDate;
+
+}
 
 console.log('M ' + mostRecentDate + ' & L ' + leastRecentDate);
 console.log('Loaded! Carbage collecting...');
@@ -628,22 +628,40 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        }
        
        if (listedVideo.extractor_key === "BiliBili") {
+           let vidTmp2 = listedVideo.id;
+           if (!Array.isArray(listedVideo.id)) vidTmp2 = [listedVideo.id];
+
+           let vidTmp3 = 'https://www.bilibili.com/video/' + vidTmp2[0];
+           
+           vidTmp = '<code><a href=\"' + vidTmp3 + '\" target=\"_blank\">' + vidTmp3 + '</a>';
+           
+           for (let i = 1; i < vidTmp2.length; i++) {
+               vidTmp += ' / <a href=\"https://www.bilibili.com/video/' + vidTmp2[i] + '\" target=\"_blank\">' + vidTmp2[i] + '</a>';
+           }
+
+           vidTmp += '</code>';
+       }
+         
+       /*
+       if (listedVideo.extractor_key === "BiliBili") {
            let vidTmp2 = listedVideo.webpage_url;
            let terraip = vidTmp2.indexOf('&');
            if (terraip != -1) vidTmp2 = vidTmp2.substring(0,terraip);
            terraip = vidTmp2.indexOf('?p=1');
            if (terraip != -1 && vidTmp2.substring(terraip).length == 4) vidTmp2 = vidTmp2.substring(0,terraip);
-           
-           
+
+
            vidTmp = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code>';
-       }
+       } 
+       */
        
        if (vidTmp === '' && !(listedVideo.extractor_key === "Twitter")) {
           vidTmp = '<code><a href=\"' + listedVideo.webpage_url + '\" target=\"_blank\">' + listedVideo.webpage_url + '</a></code>';
        }
        
        videoList += vidTmp;
-       
+         
+       /*
        if (listedVideo.extractor_key === "BiliBili" && listedVideo.webpage_url.search(listedVideo.id) == -1) {
          if (listedVideo.id.search("_part1") > 0) {
            let teypi = listedVideo.id.indexOf("_part1");
@@ -671,6 +689,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
            videoList += '&nbsp;<code>[<a href=\"https://www.bilibili.com/video/av' + listedVideo.id + '\" target=\"_blank\">av' + listedVideo.id + '</a>]</code>';
          }
        }
+       */
 
        // This will determine if a link to a supposed Archive.org reupload will be added
        if (checkForAcrhiveOrgLink(listedVideo))  {
@@ -1097,10 +1116,10 @@ function createVideoPreviewDailymotion(vidId) {
     return embbee;
 }
 
+const requ = new XMLHttpRequest_node();
 function createVideoPreviewTwitter(vidId) {
     let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
     let embbee = '';
-    let requ = new XMLHttpRequest_node();
     requ.onreadystatechange = function() {
       if (requ.readyState == 4 && requ.status == 200){
         embbee = JSON.parse(requ.responseText).html;
@@ -1130,16 +1149,16 @@ function createList(searchWord,checkMarks) {
     console.log(!tmppp.includes(' ') );
 
     if (exactWordSearch || !tmppp.includes(' ') || tmppp.length === 0) {
-      console.log("Got in here" + [tmppp]);
+      //console.log("Got in here" + [tmppp]);
        searchWordss.push(tmppp);
-    console.log("uyt " + searchWordss);
+      //console.log("uyt " + searchWordss);
 
     }
     else {
       let tmppp2 = tmppp.split(" ");
-      console.log("Got in here too" + [tmppp2]);
+      //console.log("Got in here too" + [tmppp2]);
 
-      console.log(tmppp2);
+      //console.log(tmppp2);
 
         for (let k = 0; k < tmppp2.length; k++) {
           let tmp5 = tmppp2[k] + "pptenshir__";
@@ -1214,18 +1233,11 @@ function createList(searchWord,checkMarks) {
        else {
 
        let compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
-       if (compareVid.extractor_key.indexOf("BiliBili") == 0) {
-           compareStr += ' av' + compareVid.id + ' BV' + compareVid.id;
-       }
-       
-       if (compareVid.extractor_key.search("BiliBili") >= 0 && compareVid.webpage_url.search(compareVid.id) == -1) {
-           //var temort = compareVid.webpage_url.indexOf("BV");
-           //compareStr += compareVid.webpage_url.substring(temort);
-           compareStr += compareVid.webpage_url.substring(compareVid.webpage_url.indexOf("BV"));
-       }
+
        if (!(compareVid.description === undefined)) {
           compareStr += ' ' + compareVid.description;
        }
+       
        if (!(compareVid.tags === undefined)) {
           try {
             for (let tagN = 0; tagN < compareVid.tags.length; tagN++) {

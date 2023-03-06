@@ -29,7 +29,7 @@ var changeHere = false;
 
 //var j = 29;
 var readTwitterVids = changeHere;
-var ignoreBilibiliPlaylists = changeHere;
+//var ignoreBilibiliPlaylists = changeHere;
 
 
 
@@ -47,6 +47,7 @@ for (var j = 39; j >= 39; j--) {
      if (file.localeCompare('desktop.ini') != 0) {
 
 
+        let willBeAdded = true;
 
         //console.log(file);
         var filePath = dirName + '\\' + file;
@@ -56,32 +57,136 @@ for (var j = 39; j >= 39; j--) {
         var parsedJSON = JSON.parse(fs.readFileSync(filePath, 'utf8'));
                   /*
         if (ext_key.indexOf("NiconicoPlaylist") > -1) {
-           continue;
+           return;
         }
 
         if (ext_key.indexOf("NiconicoUser") > -1) {
-           continue;
+           return;
         }       */
 
         var uPage = parsedJSON.uploader_url;
+        var vidId = parsedJSON.id;
 
         //console.log(uPage);
 
         var tmp1 = parsedJSON.extractor_key;
         if (uPage === undefined) {
-           if (tmp1.indexOf("Niconico") > -1) {
+           if (tmp1 === "Niconico") {
               uPage = 'https://www.nicovideo.jp/user/' + parsedJSON.uploader_id;
-           } 
-           if (tmp1.indexOf("BiliBili") > -1) {
-              uPage = 'https://space.bilibili.com/' + parsedJSON.uploader_id;
            }
-           if (tmp1.indexOf("Youtube") > -1) {
+           if (tmp1 === "BiliBili") {
+              if (parsedJSON.upload_date === undefined) {
+                 return;
+              }
+              
+              if (vidId.includes("_")) {
+                 let tmp1 = vidId.indexOf("_");
+                 
+                 let tmp2 = vidId.substring(tmp1);
+
+                 let tmp3 = (tmp2 === "_part1" || tmp2 === "_p1");
+
+                 if (!tmp3) {
+                   console.log("Bilibili page (" + vidId + ") that is not page 1: not adding");
+                   return;
+                 }
+              }
+
+              uPage = 'https://space.bilibili.com/' + parsedJSON.uploader_id;
+              let idTmp = [parsedJSON.webpage_url_basename];
+              let testRun = true;
+              let idsFound = false;
+
+              if (parsedJSON._old_archive_ids !== undefined) {
+                 idTmp = [];
+
+                 let tmp1 = parsedJSON._old_archive_ids[0].substring(8).trim();
+                 let tmp2 = tmp1.indexOf('_');
+                 // The value should be saved as follows: "_old_archive_ids": ["bilibili 907944915_part1"]
+                 // And what I want to extract into tmp1 is "907944915_part1"
+                         /*
+                 if (tmp1.substring(tmp2) !== "_part1") {
+                    return;
+                 }     */
+                 
+                 let tmp3 = parsedJSON.id;
+                 if (tmp3.includes('_')) tmp3 = parsedJSON.id.substring(0,parsedJSON.id.indexOf('_'));
+
+                 testRun = false;
+                 idsFound = true;
+
+                 idTmp.push(tmp3);
+                 idTmp.push("av" + tmp1.substring(0,tmp2));
+              }
+              
+              if (!idsFound && parsedJSON.bv_id !== undefined) {
+                 idTmp = [];
+                 
+                 let tmp1 = parsedJSON.id;
+                 let tmp2 = tmp1.indexOf('_');
+                 // Example: "id": "103373_part1", "bv_id": "BV1Zx411c7s5"
+                           /*
+                 if (tmp1.substring(tmp2) !== "_part1") {
+                    return;
+                 }       */
+
+                 testRun = false;
+                 idsFound = true;
+
+                 let testtt = "This is here to crash the code for testing purposes lol";
+
+                 let tmp3 = parsedJSON.bv_id;
+                 if (tmp3.includes('_')) tmp3 = parsedJSON.bv_id.substring(0,parsedJSON.bv_id.indexOf('_'));
+
+                 idTmp.push(tmp3);
+                 idTmp.push("av" + tmp1.substring(0,tmp2));
+              }
+                  /*
+              if (!idsFound && parsedJSON.webpage_url_basename.substring(0,2) === 'BV' && parsedJSON.webpage_url_basename.substring(2) !== parsedJSON.id) {
+                 idTmp = [];
+
+                 let tmpAv = "av" + parsedJSON.id;
+                 if (parsedJSON.id.includes("_")) {
+                    let tmpp2 = parsedJSON.id.substring(0, parsedJSON.id.indexOf("_"));
+                    tmpAv = "av" + tmpp2;
+                 }
+
+                 testRun = false;
+                 idsFound = true;
+                 idTmp.push(parsedJSON.webpage_url_basename);
+                 idTmp.push(tmpAv);
+              }
+
+              if (!idsFound && parsedJSON.webpage_url_basename.substring(0,2) === 'av' && parsedJSON.webpage_url_basename.substring(2) === parsedJSON.id) {
+                 idTmp = [];
+
+                 let tmpAv = "av" + parsedJSON.id;
+                 if (parsedJSON.id.includes("_")) {
+                    let tmpp2 = parsedJSON.id.substring(0, parsedJSON.id.indexOf("_"));
+                    tmpAv = "av" + tmpp2;
+                 }
+
+                 testRun = false;
+                 idsFound = true;
+                 idTmp.push(parsedJSON.webpage_url_basename);
+                 idTmp.push(tmpAv);
+              }  */
+              
+              if (testRun) {
+                 console.log("Check this ID: " + parsedJSON.id);
+                 console.log(testtt);
+              }
+
+              console.log("Bilibili IDs: " + idTmp);
+              vidId = idTmp;
+           }
+           if (tmp1 === "Youtube") {
               uPage = 'https://www.youtube.com/user/' + parsedJSON.uploader_id;
            }
-           if (tmp1.indexOf("Dailymotion") > -1) {
+           if (tmp1 === "Dailymotion") {
               uPage = 'https://www.dailymotion.com/' + parsedJSON.uploader;
            }
-           if (tmp1.indexOf("VK") > -1) {
+           if (tmp1 === "VK") {
               uPage = 'https://vk.com/videos' + parsedJSON.uploader_id;
            }
            if (tmp1 === "Kakao") {
@@ -100,7 +205,7 @@ for (var j = 39; j >= 39; j--) {
 
         var newVideoInfo = {
             upload_date: parsedJSON.upload_date,
-            id: parsedJSON.id,
+            id: vidId,
             webpage_url: webbUrl,
             title: parsedJSON.title,
             uploader: parsedJSON.uploader,
@@ -115,82 +220,95 @@ for (var j = 39; j >= 39; j--) {
 
         console.log(newVideoInfo.id + ' -- ' + dirName);
 
-        var willBeAdded = true;
         
         if (!readTwitterVids) {
            if (newVideoInfo.extractor_key === "Twitter") {
               console.log("Not adding Twitter videos currently");
-              willBeAdded = false;
+              return;
+              //willBeAdded = false;
            }
         }
 
         if (newVideoInfo.extractor_key === "VKUserVideos") {
            console.log("VKUserVideos: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
 
         if (newVideoInfo.extractor_key === "NiconicoUser") {
            console.log("NiconicoUser: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
 
         if (newVideoInfo.extractor_key === "NiconicoPlaylist") {
            console.log("NiconicoPlaylist: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
 
         if (newVideoInfo.extractor_key === "BilibiliChannel") {
            console.log("BilibiliChannel: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
 
-        if (ignoreBilibiliPlaylists) {
+        //if (ignoreBilibiliPlaylists) {
            if (newVideoInfo.extractor_key === "BiliBili" && newVideoInfo.upload_date === undefined) {
               console.log("Bilibili with undefined release date: not adding");
-              willBeAdded = false;
+              return;
+              //willBeAdded = false;
            }
-           
-           else if (newVideoInfo.extractor_key === "BiliBili" && newVideoInfo.id.indexOf("_p") > -1 && ((newVideoInfo.id.indexOf("_part1") == -1 || newVideoInfo.id.substring(newVideoInfo.id.indexOf("_part1")).length > 6) && (newVideoInfo.id.indexOf("_p1") == -1 || newVideoInfo.id.substring(newVideoInfo.id.indexOf("_p1")).length > 3))) {
+
+           if (newVideoInfo.extractor_key === "BiliBili" && newVideoInfo.id.indexOf("_p") > -1 && ((newVideoInfo.id.indexOf("_part1") == -1 || newVideoInfo.id.substring(newVideoInfo.id.indexOf("_part1")).length > 6) && (newVideoInfo.id.indexOf("_p1") == -1 || newVideoInfo.id.substring(newVideoInfo.id.indexOf("_p1")).length > 3))) {
               console.log("Bilibili page that is not page 1: not adding");
-              willBeAdded = false;
+              return;
+              //willBeAdded = false;
            }
-        }
+        //}
         
 
         
         if (newVideoInfo.extractor_key === "Niconico" && newVideoInfo.upload_date === undefined) {
            console.log("Niconico with undefined release date: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
         
         if (newVideoInfo.extractor_key === "YoutubeTab") {
            console.log("YoutubeTab: not adding");
-           willBeAdded = false;
-        }       
+           return;
+           //willBeAdded = false;
+        }
         
         if (newVideoInfo.extractor_key === "YoutubeSearchURL") {
            console.log("YoutubeSearchURL: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
         
         if (newVideoInfo.extractor_key === "NicovideoSearchURL") {
            console.log("NicovideoSearchURL: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
         
         if (newVideoInfo.extractor_key === "SoundcloudUser") {
            console.log("SoundcloudUser: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
         
         if (newVideoInfo.extractor_key === "SoundcloudSet") {
            console.log("SoundcloudSet: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
 
         if (newVideoInfo.extractor_key === "VimeoUser") {
            console.log("VimeoUser: not adding");
-           willBeAdded = false;
+           return;
+           //willBeAdded = false;
         }
 
         //if (!(newVideoInfo.extractor_key.indexOf("NiconicoUser") < 0 || newVideoInfo.extractor_key.indexOf("NiconicoPlaylist") < 0)) {
