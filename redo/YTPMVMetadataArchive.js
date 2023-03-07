@@ -29,7 +29,7 @@ const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Meta
      months.
 */
 const maxY = 202312;
-const minY = 202301;
+const minY = 200401;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -1116,8 +1116,8 @@ function createVideoPreviewDailymotion(vidId) {
     return embbee;
 }
 
-const requ = new XMLHttpRequest_node();
 function createVideoPreviewTwitter(vidId) {
+    let requ = new XMLHttpRequest_node();
     let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
     let embbee = '';
     requ.onreadystatechange = function() {
@@ -1129,6 +1129,7 @@ function createVideoPreviewTwitter(vidId) {
     requ.open("GET", apiLink, false);
     requ.send(null);
     requ.abort();
+    requ = null;
     
     embbee = embbee.trim();
     
@@ -1237,7 +1238,7 @@ function createList(searchWord,checkMarks) {
        if (!(compareVid.description === undefined)) {
           compareStr += ' ' + compareVid.description;
        }
-       
+
        if (!(compareVid.tags === undefined)) {
           try {
             for (let tagN = 0; tagN < compareVid.tags.length; tagN++) {

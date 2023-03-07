@@ -141,8 +141,8 @@ for (var j = 39; j >= 39; j--) {
                  idTmp.push(tmp3);
                  idTmp.push("av" + tmp1.substring(0,tmp2));
               }
-                  /*
-              if (!idsFound && parsedJSON.webpage_url_basename.substring(0,2) === 'BV' && parsedJSON.webpage_url_basename.substring(2) !== parsedJSON.id) {
+
+              if (!idsFound && (parsedJSON.webpage_url_basename.substring(0,2) === 'BV' || parsedJSON.webpage_url_basename.substring(0,2) === 'bv') && parsedJSON.webpage_url_basename.substring(2) !== parsedJSON.id) {
                  idTmp = [];
 
                  let tmpAv = "av" + parsedJSON.id;
@@ -150,31 +150,56 @@ for (var j = 39; j >= 39; j--) {
                     let tmpp2 = parsedJSON.id.substring(0, parsedJSON.id.indexOf("_"));
                     tmpAv = "av" + tmpp2;
                  }
+                 
+                 let tmpBv = parsedJSON.webpage_url_basename;
+                 if (parsedJSON.webpage_url_basename.substring(0,2) === 'bv') {
+                    tmpBv = "BV" + parsedJSON.webpage_url_basename.substring(2);
+                 }
 
                  testRun = false;
                  idsFound = true;
-                 idTmp.push(parsedJSON.webpage_url_basename);
+                 idTmp.push(tmpBv);
                  idTmp.push(tmpAv);
               }
 
-              if (!idsFound && parsedJSON.webpage_url_basename.substring(0,2) === 'av' && parsedJSON.webpage_url_basename.substring(2) === parsedJSON.id) {
+              if (!idsFound && parsedJSON.webpage_url_basename.substring(0,2) === 'av' && parsedJSON.id.includes(parsedJSON.webpage_url_basename.substring(2))) {
                  idTmp = [];
-
-                 let tmpAv = "av" + parsedJSON.id;
-                 if (parsedJSON.id.includes("_")) {
-                    let tmpp2 = parsedJSON.id.substring(0, parsedJSON.id.indexOf("_"));
-                    tmpAv = "av" + tmpp2;
+                 
+                 let tmpStr = parsedJSON.webpage_url_basename;
+                 if (tmpStr.includes("_")) {
+                    tmpStr = parsedJSON.webpage_url_basename.substring(0, parsedJSON.webpage_url_basename.indexOf("_"));
                  }
 
+                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/' + parsedJSON.webpage_url_basename + '/\n');
                  testRun = false;
                  idsFound = true;
-                 idTmp.push(parsedJSON.webpage_url_basename);
-                 idTmp.push(tmpAv);
-              }  */
+                 idTmp.push(tmpStr.trim());
+              }
+              
+              if (!idsFound && (parsedJSON.webpage_url_basename.substring(0,2) === 'BV' || parsedJSON.webpage_url_basename.substring(0,2) === 'bv') && parsedJSON.id.includes(parsedJSON.webpage_url_basename.substring(2))) {
+                 idTmp = [];
+                 
+                 let tmpStr = parsedJSON.webpage_url_basename;
+                 if (tmpStr.includes("_")) {
+                    tmpStr = parsedJSON.webpage_url_basename.substring(0, parsedJSON.webpage_url_basename.indexOf("_"));
+                 }
+                 
+                 if (tmpStr.substring(0,2) === 'bv') {
+                    tmpStr = "BV" + tmpStr.substring(2);
+                 }
+
+                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/' + parsedJSON.webpage_url_basename + '/\n');
+                 testRun = false;
+                 idsFound = true;
+                 idTmp.push(tmpStr.trim());
+              }
               
               if (testRun) {
                  console.log("Check this ID: " + parsedJSON.id);
                  console.log(testtt);
+                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/av' + parsedJSON.id + '/\n');
+                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/BV' + parsedJSON.id + '/\n');
+                 return;
               }
 
               console.log("Bilibili IDs: " + idTmp);
