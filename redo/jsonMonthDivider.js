@@ -56,7 +56,7 @@ console.log(ignoreUsers);
 var toBeSortedList = [];
 
 var startChecking = false;
-var startCheckpoint = "202212";
+var startCheckpoint = "202303";
 
 for (let yy = 2023; yy >= 2004; yy--) {
   for (let mm = 12; mm >= 1; mm--) {
@@ -82,7 +82,7 @@ for (let yy = 2023; yy >= 2004; yy--) {
     let maxDate = '' + yy + mm_tmp2 + '00';
     console.log("Videos from period: " + yy + mm_tmp);
 
-    for (let tu = 1; tu >= 0; tu--) {
+    for (let tu = 39; tu >= 0; tu--) {
         console.log("Checking vids" + tu);
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
@@ -196,7 +196,6 @@ for (let yy = 2023; yy >= 2004; yy--) {
                   console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
                   let tmp_id = tmpVid.id;
                   if (Array.isArray(tmpVid.id)) tmp_id = tmpVid.id[0];
-                  if ("BV1Vv4y1z7Ky" === tmp_id) console.log("It's jere!");
                   if (!gatheredIds.includes(tmp_id)) {
                      toBeSortedList.push(tmpVid);
                   } else {
