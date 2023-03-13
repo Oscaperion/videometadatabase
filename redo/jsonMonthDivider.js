@@ -82,7 +82,7 @@ for (let yy = 2023; yy >= 2004; yy--) {
     let maxDate = '' + yy + mm_tmp2 + '00';
     console.log("Videos from period: " + yy + mm_tmp);
 
-    for (let tu = 39; tu >= 0; tu--) {
+    for (let tu = 40; tu >= 0; tu--) {
         console.log("Checking vids" + tu);
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
