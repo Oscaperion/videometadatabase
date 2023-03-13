@@ -34,7 +34,7 @@ var readTwitterVids = changeHere;
 
 
 //for (j = 1; j <= 25; j++) {
-for (var j = 39; j >= 39; j--) {
+for (var j = 40; j >= 40; j--) {
 //for (var j = 0; j >= 0; j--) {
 
 //for (var j = 1; j <= 28; j++) {
@@ -346,25 +346,12 @@ for (var j = 39; j >= 39; j--) {
   });
   
   var i;
+  
+     /*
     console.log('Rearranging the list');
     
     // First, we sort by title
     toBeSortedList = toBeSortedList.sort(function(a,b) {
-       /*
-       var nameA = a.title.toUpperCase(); // ignore upper and lowercase
-       var nameB = b.title.toUpperCase(); // ignore upper and lowercase
-       */
-                    /*
-       var nameA = a;
-       var nameB = b;
-
-       if (nameA === undefined) nameA = "undefined";
-       if (nameB === undefined) nameB = "undefined";
-
-       nameA = nameA.title.toUpperCase();
-       nameB = nameB.title.toUpperCase();
-                      */
-                      
        var nameA = (a.title + ' ' + a.id).toUpperCase();
        var nameB = (b.title + ' ' + b.id).toUpperCase();
 
@@ -393,8 +380,10 @@ for (var j = 39; j >= 39; j--) {
           return -1; // nameA comes first
        }
        return 0;  // names must be equal
-
     });
+    */
+
+
           /*
     // Original method
     //var tmp1 = toBeSortedList;
