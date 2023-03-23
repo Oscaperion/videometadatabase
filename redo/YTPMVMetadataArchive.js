@@ -20,6 +20,8 @@ lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
+const reuploadShowing = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json', 'utf8'));
+//const reuploadShowing = JSON.parse(fs.readFileSync('vidJson2/reuploads.json', 'utf8'));
 
 /*
    These are used to process the JSON files that contain the entries for the database.
@@ -660,7 +662,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
        }
        
        videoList += vidTmp;
-         
+
        /*
        if (listedVideo.extractor_key === "BiliBili" && listedVideo.webpage_url.search(listedVideo.id) == -1) {
          if (listedVideo.id.search("_part1") > 0) {
@@ -1065,15 +1067,30 @@ function editDescription(ogDescription, extractorKey) {
 
 function createVideoPreview(vidId,vidSite) {
     if (!showVidPrev) return '<br/><br/>';
-    if (vidSite === 'Youtube') return '<br/><br/>' + createVideoPreviewYoutube(vidId) + '<br/><br/>' + br;
-    if (vidSite === 'Niconico') return '<br/><br/>' + createVideoPreviewNiconico(vidId) + '<br/><br/>' + br;
-    if (vidSite === 'Twitter') return '<br/>' + createVideoPreviewTwitter(vidId) + br;
-    if (vidSite === 'Soundcloud') return '<br/><br/>' + createAudioPreviewSoundcloud(vidId) + '<br/><br/>' + br;
-    if (vidSite === 'Vimeo') return '<br/><br/>' + createVideoPreviewVimeo(vidId) + '<br/><br/>' + br;
-    if (vidSite === 'Kakao') return '<br/><br/>' + createVideoPreviewKakao(vidId) + '<br/><br/>' + br;
-    if (vidSite === 'Dailymotion') return '<br/><br/>' + createVideoPreviewDailymotion(vidId) + '<br/><br/>' + br;
+    
+    //reuploadShowing
+    
+    let tmpId = vidId;
+    let tmpSite = vidSite;
+    let tmpStr = '<br/><br/>';
+    
+    if (reuploadShowing.some(entry => entry.id === vidId)) {
+       let tmp1 = reuploadShowing.find(entry => entry.id === vidId);
+
+       tmpId = tmp1.reup;
+       tmpSite = tmp1.reup_site;
+       tmpStr += `<code><b>NOTE:</b> Original upload deleted! The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
+    }
+
+    if (tmpSite === 'Youtube') return tmpStr + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Niconico') return tmpStr + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Twitter') return '<br/>' + createVideoPreviewTwitter(tmpId) + br;
+    if (tmpSite === 'Soundcloud') return tmpStr + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Vimeo') return tmpStr + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Kakao') return tmpStr + createVideoPreviewKakao(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Dailymotion') return tmpStr + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + br;
     // Autoplays the video as of now, so I've decided to disable this until I figure out how to stop it from doing that
-    // if (vidSite === 'BiliBili') return '<br/><br/>' + createVideoPreviewBilibili(vidId) + '<br/><br/>' + br;
+    // if (tmpSite === 'BiliBili') return tmpStr + createVideoPreviewBilibili(tmpId) + '<br/><br/>' + br;
     return '<br/><br/>';
 }
 
