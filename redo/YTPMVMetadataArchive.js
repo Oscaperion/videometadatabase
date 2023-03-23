@@ -160,7 +160,16 @@ var parsedVideos = [];
    NOTE: If values are edited here, you need to manually change other functions to match
      the edits made to this array.
 */
-var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+//var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+
+var sitesList = [ {'site': 'Youtube',    'isIgnored':'false'},
+                  {'site': 'Niconico',   'isIgnored':'false'},
+                  {'site': 'BiliBili',   'isIgnored':'false'},
+                  {'site': 'Twitter',    'isIgnored':'false'},
+                  {'site': 'Soundcloud', 'isIgnored':'false'},
+                  {'site': 'VK',         'isIgnored':'false'},
+                  {'site': 'Kakao',      'isIgnored':'false'},
+                  {'site': 'Others',     'isIgnored':'false'}];
 
 var searchVars = [];
 
@@ -201,7 +210,7 @@ for (let y = 0; y < numm; y++) {
        overaro++;
        //console.log(pusherian);
        searchVars.push (pusherian );
-       
+
    }
 }
 
@@ -332,7 +341,7 @@ function dateWithinRange(videoDate) {
 }
 
 function getVideo(orderNumber) {
-    
+
    let terpm = searchVars[orderNumber];
    
    
@@ -385,12 +394,17 @@ fs.readFile('YTPMV-2020-06-03.json', 'utf8', (err, fileDat) => {
   }
 });*/
 
-function addCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+//function addCheckmarks() {   // ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
+function addCheckmarks() {
     let returnStr = '';
-
+    
+    for (let i = 0; i < sitesList.length; i++) {
+       if (sitesList[i].isIgnored) returnStr += '&' + sitesList[i].site + '=true';
+    }
+             /*
     if (!(checkMarks[0] === undefined) || checkMarks[0] === 'true') {
        returnStr += '&Youtube=true';
-    }   
+    }
 
     if (!(checkMarks[1] === undefined) || checkMarks[1] === 'true') {
        returnStr += '&Niconico=true';
@@ -414,7 +428,7 @@ function addCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'T
 
     if (!(checkMarks[6] === undefined) || checkMarks[6] === 'true') {
        returnStr += '&Others=true';
-    }
+    }      */
     
     if (exactWordSearch) {
        returnStr += '&exactSearch=true';
@@ -427,7 +441,7 @@ function addCheckmarks(checkMarks) {   // ['Youtube', 'Niconico', 'BiliBili', 'T
     return returnStr;
 }
 
-function showList(searchWord, searchUploaderId,page,checkMarks) {
+function showList(searchWord, searchUploaderId,page) {
     let searchingForUploaderToo = !(searchUploaderId === nullUploaderPlaceholder);
     //var newSearch = !(searchWord.toLowerCase().trim().localeCompare(lastSearchword.toLowerCase().trim()) == 0) || (!(searchUploaderId.toLowerCase().trim().localeCompare(lastCheckedUploader.toLowerCase().trim()) == 0) && searchingForUploaderToo);
     //console.log("Why doesn't this work");
@@ -439,10 +453,10 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
 
 
     if (searchingForUploaderToo) {
-       createListForUploader(searchWord,searchUploaderId,checkMarks);
+       createListForUploader(searchWord,searchUploaderId);
     }
     else {
-       createList(searchWord,checkMarks);
+       createList(searchWord);
     }
 
     let videoList = '';
@@ -482,7 +496,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
              if (searchingForUploaderToo) {
                  linkThing += '&uploader_id=' + searchUploaderId;
              }
-             linkThing += addCheckmarks(checkMarks);
+             linkThing += addCheckmarks();
              linkThing += '&page=1';
              linkThing += '&' + botCheckName + '=' + botCheckValue;
              linkThing += '">&#171;&nbsp;1</a> &#9674; ' + br;
@@ -495,7 +509,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
                 if (searchingForUploaderToo) {
                  linkThing += '&uploader_id=' + searchUploaderId;
                 }
-                linkThing += addCheckmarks(checkMarks);
+                linkThing += addCheckmarks();
                 linkThing += '&page=2';
                 linkThing += '&' + botCheckName + '=' + botCheckValue;
                 linkThing += '">2&nbsp;&#187;</a>' + br;
@@ -506,7 +520,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
                 if (searchingForUploaderToo) {
                    linkThing += '&uploader_id=' + searchUploaderId;
                 }
-                linkThing += addCheckmarks(checkMarks);
+                linkThing += addCheckmarks();
                 linkThing += '&page=2';
                 linkThing += '&' + botCheckName + '=' + botCheckValue;
                 linkThing += '">2&nbsp;&#155;</a> &#9674; ' + br;
@@ -514,7 +528,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
                 if (searchingForUploaderToo) {
                    linkThing += '&uploader_id=' + searchUploaderId;
                 }
-                linkThing += addCheckmarks(checkMarks);
+                linkThing += addCheckmarks();
                 linkThing += '&page=' + totalPages;
                 linkThing += '&' + botCheckName + '=' + botCheckValue;
                 linkThing +='">' + totalPages + '&nbsp;&#187;</a>' + br;
@@ -532,7 +546,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
              if (searchingForUploaderToo) {
                  linkThing += '&uploader_id=' + searchUploaderId;
              }
-             linkThing += addCheckmarks(checkMarks);
+             linkThing += addCheckmarks();
              linkThing += '&page=' + (totalPages - 1);
              linkThing += '&' + botCheckName + '=' + botCheckValue;
              linkThing += '">&#139;&nbsp;' + (totalPages - 1) + '</a> &#9674; ' + br;
@@ -548,7 +562,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
                 if (searchingForUploaderToo) {
                     linkThing += '&uploader_id=' + searchUploaderId;
                 }
-                linkThing += addCheckmarks(checkMarks);
+                linkThing += addCheckmarks();
                 linkThing += '&page=' + previousPage;
                 linkThing += '&' + botCheckName + '=' + botCheckValue;
                 linkThing +='">&#139;&nbsp;' + previousPage + '</a> &#9674; ' + br;
@@ -559,7 +573,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
                 if (searchingForUploaderToo) {
                     linkThing += '&uploader_id=' + searchUploaderId;
                 }
-                linkThing += addCheckmarks(checkMarks);
+                linkThing += addCheckmarks();
                 linkThing += '&page=' + nextPage;
                 linkThing += '&' + botCheckName + '=' + botCheckValue;
                 linkThing += '">' + nextPage + '&nbsp;&#155;</a> &#9674; ' + br;
@@ -569,7 +583,7 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
                     linkThing += '&uploader_id=' + searchUploaderId;
                 }
 
-             linkThing += addCheckmarks(checkMarks);
+             linkThing += addCheckmarks();
              linkThing += '&page=' + totalPages;
              linkThing += '&' + botCheckName + '=' + botCheckValue;
              linkThing += '">' + totalPages + '&nbsp;&#187;</a>' + br;
@@ -778,8 +792,8 @@ function showList(searchWord, searchUploaderId,page,checkMarks) {
         let tret = listedVideo.uploader_id;
         //console.log(tret);
         if (listedVideo.extractor_key === "Youtube") tret = getUploaderId(listedVideo)[0];
-       videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
-       videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + tret + addCheckmarks(checkMarks) + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
+       videoList += br + '<br/><br/><a href="results.html?' + botCheckName + '=' + botCheckValue + '&uploader_id=' + tret + addCheckmarks() + '">Search more videos from <code>' + listedVideo.uploader + '</code></a><br/>' + br;
+       videoList += '<a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + searchWord + '&uploader_id=' + tret + addCheckmarks() + '">Search more videos from <code>' + listedVideo.uploader + '</code> with the current search word</a>';
        }
        
        videoList += '</div>';
@@ -997,7 +1011,7 @@ function addLinks(ogDescription, searchString) {
                 if (temperar.indexOf(')') > -1) {
                    temperar = temperar.substring(0, temperar.indexOf(')'));
                 }
-                
+
                 linkingPark = linkingPark + '&nbsp;<code><a href="results.html?' + botCheckName + '=' + botCheckValue + '&search=' + temperar + '">[Search with this ID]</a></code>';
             }
             
@@ -1082,13 +1096,13 @@ function createVideoPreview(vidId,vidSite) {
        tmpStr += `<code><b>NOTE:</b> Original upload deleted! The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
     }
 
-    if (tmpSite === 'Youtube') return tmpStr + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Niconico') return tmpStr + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Twitter') return '<br/>' + createVideoPreviewTwitter(tmpId) + br;
-    if (tmpSite === 'Soundcloud') return tmpStr + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Vimeo') return tmpStr + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Kakao') return tmpStr + createVideoPreviewKakao(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Dailymotion') return tmpStr + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Youtube') return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Niconico') return tmpStr  + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Twitter') return tmpStr  + createVideoPreviewTwitter(tmpId) + br;
+    if (tmpSite === 'Soundcloud') return tmpStr  + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Vimeo') return tmpStr  + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Kakao') return tmpStr  + createVideoPreviewKakao(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Dailymotion') return tmpStr  + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + br;
     // Autoplays the video as of now, so I've decided to disable this until I figure out how to stop it from doing that
     // if (tmpSite === 'BiliBili') return tmpStr + createVideoPreviewBilibili(tmpId) + '<br/><br/>' + br;
     return '<br/><br/>';
@@ -1155,9 +1169,32 @@ function createVideoPreviewTwitter(vidId) {
     return embbee;
 }
 
+function optimizeSearching(searchArray) {
+    // Rearranging the array from shortest string to longest
+    let tmp1 = searchArray.sort((a, b) => a.length - b.length);
+    let tmp2 = [];
+
+    for (let k = 0; k < tmp1.length; k++) {
+       let includeStr = true;
+       
+       for (let m = tmp1.length - 1; m > k; m--) {
+          if (tmp1[m].includes(tmp1[k])) {
+             includeStr = false;
+             break;
+          }
+       }
+       
+       if (includeStr) tmp2.push(tmp1[k]);
+    }
+    
+    return tmp2.sort((a, b) => b.length - a.length);
+}
+
+
 var searchWordss = [];
 
-function createList(searchWord,checkMarks) {
+//function createList(searchWord,checkMarks) {
+function createList(searchWord) {
 
     //setSearchWords(searchWord);
 
@@ -1179,8 +1216,9 @@ function createList(searchWord,checkMarks) {
       //console.log(tmppp2);
 
         for (let k = 0; k < tmppp2.length; k++) {
-          let tmp5 = tmppp2[k] + "pptenshir__";
-             if (!(tmp5 === "pptenshir__")) searchWordss.push(tmppp2[k]);
+          if (tmppp2[k].length !== 0) searchWordss.push(tmppp2[k]);
+          //let tmp5 = tmppp2[k] + "pptenshir__";
+          //   if (!(tmp5 === "pptenshir__")) searchWordss.push(tmppp2[k]);
 
        }
     }
@@ -1190,15 +1228,24 @@ function createList(searchWord,checkMarks) {
     console.log(searchWordss[0]);
     let runThis = true;
     let noCheckmarks = true;
+    for (let pp = 0; pp < sitesList.length; pp++) {
+       if (sitesList[pp].isIgnored) {
+          noCheckmarks = false;
+          break;
+       }
+    }
+    /*
     let checkMarkBoolean = [];
     for (let pp = 0; pp < checkMarks.length; pp++) {
-        if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
+        if (checkMarks[pp] === undefined || checkMarks[pp] !== 'true') {
            checkMarkBoolean.push(false);
         } else {
            checkMarkBoolean.push(true);
            noCheckmarks = false;
         }
-    }   /*
+    }
+    */
+    /*
     console.log(checkMarks);
     console.log(checkMarkBoolean); 
     console.log(noCheckmarks);*/
@@ -1216,7 +1263,9 @@ function createList(searchWord,checkMarks) {
     }
     
     if (runThis) {
-    
+     if (searchWordss.length > 1) searchWordss = optimizeSearching(searchWordss);
+     console.log(searchWordss);
+
      showcasedVideos = [];
 
      for (let i = 0; i < searchVars.length; i++) {
@@ -1225,17 +1274,18 @@ function createList(searchWord,checkMarks) {
 
        let ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
        let isOther = true;
-       for (let plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+       //for (let plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+       for (let plorar = 0; plorar < sitesList.length; plorar++) {
 
-           if (sitesList[plorar] === compareVid.extractor_key) {
+           if (sitesList[plorar].site === compareVid.extractor_key) {
               isOther = false;
-              if (checkMarkBoolean[plorar]) {
+              if (sitesList[plorar].isIgnored) {
                 ignoreRest = true;
                 continue;
               }
            }
 
-           if (sitesList[plorar] === 'Others' && checkMarkBoolean[plorar] && isOther) {
+           if (sitesList[plorar].site === 'Others' && sitesList[plorar].isIgnored && isOther) {
                 ignoreRest = true;
                 continue;
            }
@@ -1396,22 +1446,26 @@ function hasSearchWord(compareString) {               /*
     return true;
 }
 
-function createListForUploader(searchWord,uploaderId,checkMarks) {
+//function createListForUploader(searchWord,uploaderId,checkMarks) {
+function createListForUploader(searchWord,uploaderId) {
     showcasedVideos = [];
     
     let noCheckmarks = true;
-    let checkMarkBoolean = [];
-    for (let pp = 0; pp < checkMarks.length; pp++) {
+    //let checkMarkBoolean = [];
+    //for (let pp = 0; pp < checkMarks.length; pp++) {
+    for (let pp = 0; pp < sitesList.length; pp++) {
+        /*
         if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
            checkMarkBoolean.push(false);
         } else {
            checkMarkBoolean.push(true);
            noCheckmarks = false;
+        } */
+        if (sitesList[pp].isIgnored) {
+           noCheckmarks = false;
+           break;
         }
-    }   /*
-    console.log(checkMarks);
-    console.log(checkMarkBoolean); 
-    console.log(noCheckmarks);*/
+    }
     
     for (let i = 0; i < searchVars.length; i++) {
        // var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
@@ -1419,17 +1473,17 @@ function createListForUploader(searchWord,uploaderId,checkMarks) {
 
        let ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
        let isOther = true;
-       for (let plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
+       for (let plorar = 0; plorar < sitesList.length; plorar++) {
 
-           if (sitesList[plorar] === compareVid.extractor_key) {
+           if (sitesList[plorar].site === compareVid.extractor_key) {
               isOther = false;
-              if (checkMarkBoolean[plorar]) {
+              if (sitesList[plorar].isIgnored) {
                 ignoreRest = true;
                 continue;
               }
            }
 
-           if (sitesList[plorar] === 'Others' && checkMarkBoolean[plorar] && isOther) {
+           if (sitesList[plorar].site === 'Others' && sitesList[plorar].isIgnored && isOther) {
                 ignoreRest = true;
                 continue;
            }
@@ -1586,7 +1640,15 @@ var srvr = http.createServer(function (req, res) {
 
 
   //  ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
-  let chekingmarkss = [q.query.Youtube, q.query.Niconico, q.query.BiliBili, q.query.Twitter, q.query.Soundcloud, q.query.VK, q.query.Others];
+  //let chekingmarkss = [q.query.Youtube, q.query.Niconico, q.query.BiliBili, q.query.Twitter, q.query.Soundcloud, q.query.VK, q.query.Others];
+  // let chekingmarkss = [];
+  
+  for (let oppan = 0; oppan < sitesList.length; oppan++) {
+     //let tmpoo = q.query[sitesList[oppan].site];
+     if (q.query[sitesList[oppan].site] === 'true') sitesList[oppan].isIgnored = true;
+     else sitesList[oppan].isIgnored = false;
+     //chekingmarkss.push(q.query[sitesList[oppan].site]);
+  }
   //console.log(chekingmarkss);
 
   exactWordSearch = false;
@@ -1652,15 +1714,17 @@ var srvr = http.createServer(function (req, res) {
         // Create a bunch of checkboxes
         htmlStrSearch += 'Exclude from search: ' + br;
         for (let orep = 0; orep < sitesList.length; orep++) {
-           let tempww = chekingmarkss[orep];
-           if (tempww === undefined || !(tempww === 'true')) {
+           let tempww = sitesList[orep].isIgnored; //chekingmarkss[orep];
+           if (!tempww) {
+           //if (tempww === undefined || !(tempww === 'true')) {
               tempww = false;
            }
-           htmlStrSearch += '<input type="checkbox" id="' + sitesList[orep] + '" name="' + sitesList[orep] + '" value="true"';
-           if (tempww === 'true') {
+           htmlStrSearch += '<input type="checkbox" id="' + sitesList[orep].site + '" name="' + sitesList[orep].site + '" value="true"';
+           //if (tempww === 'true') {
+           if (tempww) {
               htmlStrSearch += ' checked="yes"';
            }
-           htmlStrSearch += '><label for="' + sitesList[orep] + '">&nbsp;' + sitesList[orep] + '</label>' + br;
+           htmlStrSearch += '><label for="' + sitesList[orep].site + '">&nbsp;' + sitesList[orep].site + '</label>' + br;
         }
 
 
@@ -1684,7 +1748,7 @@ var srvr = http.createServer(function (req, res) {
      
      else {
 
-        res.write('<div>' + showList(searchingFor, fromUploaderId, pageNumber, chekingmarkss) + '</div>');
+        res.write('<div>' + showList(searchingFor, fromUploaderId, pageNumber) + '</div>');
      }
         res.write(/* br + '<!-- Links to videos on archive.org removed due to request by vxbinaca (2022/05/26) -->' + */ br + '</body></html>');
      
