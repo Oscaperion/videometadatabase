@@ -805,6 +805,29 @@ function showList(searchWord, searchUploaderId,page) {
     return videoList;
 }
 
+function hasSearchWords(vidId,searchArray) {
+   let tmpVid = parsedVideos[searchVars[vidId].vids][searchVars[vidId].subvid];
+   let tmpStr = "";
+
+   if (tmpVid.uId !== undefined && tmpVid.extractor_key === "Youtube") {
+      tmpStr += youtubeUserList[tmpVid.uId].join(" ");
+      //delete tmpVid["uId"];
+   }
+
+   if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr += tmpVid.tags.join(" ");
+                                     /*
+   delete tmpVid["extractor_key"];
+   delete tmpVid["duration"];      */
+   
+   tmpStr += Object.values(tmpVid).join(" ");
+   tmpStr = tmpStr.toLowerCase();
+   
+   //console.log("Teesttt:  " + parsedVideos[searchVars[vidId].vids][searchVars[vidId].subvid].extractor_key);
+   
+   // We assume that searchArray was provided already in lowercase
+   return searchArray.every(str => tmpStr.includes(str));
+}
+
 function unableCodingInSearch(searchWord) {
     let searchChar = '<';
     let replaceCode = '&#60;';
@@ -812,7 +835,7 @@ function unableCodingInSearch(searchWord) {
     if (searchWord.indexOf(searchChar) == -1) {
         return searchWord;
     }
-    
+
     let temppo = searchWord;
     
     while (temppo.indexOf(searchChar) != -1) {
@@ -1046,13 +1069,14 @@ function addLinks(ogDescription, searchString) {
 }
 
 function editDescription(ogDescription, extractorKey) {
+   console.log("Wait what? " + extractorKey);
     let editedDescription = ogDescription;
     
     if (ogDescription === null) {
         return "<code>[No description]</code>";
     }
     
-    if (extractorKey.indexOf("Niconico") == -1) {
+    if (extractorKey !== "Niconico") {
         //editedDescription = addLinks(editedDescription,'https://');
         //editedDescription = addLinks(editedDescription,'http://');
         editedDescription = addLinks(editedDescription,'http');
@@ -1298,29 +1322,7 @@ function createList(searchWord) {
        //console.log("Elira Pendora");
        //console.log(searchWordss[0]);
 
-       else {
-
-       let compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
-
-       if (!(compareVid.description === undefined)) {
-          compareStr += ' ' + compareVid.description;
-       }
-
-       if (!(compareVid.tags === undefined)) {
-          try {
-            for (let tagN = 0; tagN < compareVid.tags.length; tagN++) {
-              compareStr += ' ' + compareVid.tags[tagN];
-            }
-          } catch(err) {
-              compareStr += ' ';
-          }
-       }
-
-       if (hasSearchWord(compareStr)) {
-       // if (compareStr.toLowerCase().trim().indexOf(searchWord.toLowerCase().trim()) > -1) {
-          showcasedVideos.push(i);
-       }
-       }
+       else if (hasSearchWords(i,searchWordss)) { showcasedVideos.push(i); }
      }
     }
     //lastSearchword = searchWord;
@@ -1412,43 +1414,36 @@ function youtubeChannelURLFormer(youtubeId) {
      return uploader_Str + "user/" + youtubeId;
 }
 
-function hasSearchWord(compareString) {               /*
-    // In case there's no search word and if at least one site is excluded, this should skip the comparison process
-    console.log(searchWordss[0]);
-    if (searchWordss[0] === undefined) return true; */
-
-    let tmp1 = compareString.toLowerCase().trim();
-    /* var tmp2 = searchWord.toLowerCase().trim();
-    var searchWords = tmp2.split(" ");
-    var tmp3 = searchWords;
-    var tmp4 = [];
-    for (var k = 0; k < searchWords.length; k++) {
-        var tmp5 = searchWords[k] + "pptenshi";
-        if (!(tmp5 === "pptenshi")) tmp4.push(searchWords[k]);
-    }
-    
-    searchWords = tmp4;
-    //console.log(searchWords); 
-    */
-    //var isTheWordHere = [];
-
-    // var hasSearchWords = true;
-
-    for (let i = 0; i < searchWordss.length; i++) {
-        //isTheWordHere.push(tmp1.includes(searchWordss[i].trim()));
-        if (tmp1.includes(searchWordss[i].trim()) === false) return false;
-    }
-           /*
-    for (var j = 0; j < isTheWordHere.length; j++) {
-        if (isTheWordHere[j] == false) return false;
-    }    */
-    
-    return true;
-}
-
 //function createListForUploader(searchWord,uploaderId,checkMarks) {
 function createListForUploader(searchWord,uploaderId) {
     showcasedVideos = [];
+    
+    let tmppp = searchWord.toLowerCase().trim();
+    searchWordss = [];
+    
+    console.log(!tmppp.includes(' ') );
+
+    if (exactWordSearch || !tmppp.includes(' ') || tmppp.length === 0) {
+      //console.log("Got in here" + [tmppp]);
+       searchWordss.push(tmppp);
+      //console.log("uyt " + searchWordss);
+
+    }
+    else {
+      let tmppp2 = tmppp.split(" ");
+      //console.log("Got in here too" + [tmppp2]);
+
+      //console.log(tmppp2);
+
+        for (let k = 0; k < tmppp2.length; k++) {
+          if (tmppp2[k].length !== 0) searchWordss.push(tmppp2[k]);
+          //let tmp5 = tmppp2[k] + "pptenshir__";
+          //   if (!(tmp5 === "pptenshir__")) searchWordss.push(tmppp2[k]);
+
+       }
+    }
+    
+    searchWordss = optimizeSearching(searchWordss); 
     
     let noCheckmarks = true;
     //let checkMarkBoolean = [];
@@ -1508,28 +1503,12 @@ function createListForUploader(searchWord,uploaderId) {
 
        if (tmpCont) continue;
        
-       if (searchWord.trim().length == 0) {
+       if (searchWordss.length == 0) {
           showcasedVideos.push(i);
           continue;
        }
-        
-       let compareStr =  compareVid.title + ' ' + compareVid.id + ' ' + compareVid.uploader + ' ' + getUploaderId(compareVid) + ' ' + compareVid.upload_date;
-       if (!(compareVid.description === undefined)) {
-          compareStr += ' ' + compareVid.description;
-       }
-       if (!(compareVid.tags === undefined)) {
-           try {
-          for (let tagN = 0; tagN < compareVid.tags.length; tagN++) {
-              compareStr += ' ' + compareVid.tags[tagN];
-          } 
-               
-           } catch(err) {
-              compareStr += ' '; 
-           }
-           
-       }
 
-       if (compareStr.toLowerCase().trim().indexOf(searchWord.toLowerCase().trim()) > -1) {
+       else if (hasSearchWords(i,searchWordss)) {
           showcasedVideos.push(i);
        }
     }
