@@ -31,7 +31,8 @@ const reuploadShowing = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Meta
      months.
 */
 const maxY = 202312;
-const minY = 200401;
+//const minY = 200401;
+const minY = 201601;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -96,8 +97,9 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
      that all entries should be showcased, this array will be passed on the
      "showcasedVideos" array for further processing.
 */
-var showcasedVideos;
-var showcasingAllVideos = [];
+var showcasedVideos = [];
+var showAllVideos = true;
+//var showcasingAllVideos = [];
 
 /*
    In case an uploader ID hasn't been specified in an entry, this string is used as a
@@ -150,7 +152,7 @@ var showVidPrev = false;
      array, which should be used to access the array since there is a chance that the 
      entries are not in the intended order within "parsedVideos".
 */
-var parsedVideos = [];
+const parsedVideos = [];
 
 /*
    This is used as part of a method to determine, whether or not to exclude particular 
@@ -171,7 +173,7 @@ var sitesList = [ {'site': 'Youtube',    'isIgnored':'false'},
                   {'site': 'Kakao',      'isIgnored':'false'},
                   {'site': 'Others',     'isIgnored':'false'}];
 
-var searchVars = [];
+//var searchVars = [];
 
 {
 let numm = 0;
@@ -182,7 +184,14 @@ for (let y = maxY; y >= minY; y--) {
    let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
    //var terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
-   try {
+   try {                         
+     parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
+     forceGC();
+     console.log('Loaded!')  ;
+     numm++;
+     console.log('numm value: ' + numm)  ;
+
+     /*
      let teray = fs.readFileSync(terappi, 'utf8');
      console.log('Check 1')  ;
      forceGC();
@@ -193,7 +202,7 @@ for (let y = maxY; y >= minY; y--) {
      console.log('Loaded!')  ;
      numm++;
      
-     console.log('numm value: ' + numm)  ;
+     console.log('numm value: ' + numm)  ;  */
    } catch(e) {
      console.log("Oh wait, that doesn't exist");
    }
@@ -202,6 +211,7 @@ forceGC();
 
 console.log('All metadata loaded! Sorting things out...')  ;
 
+/*
 let overaro = 0;
 for (let y = 0; y < numm; y++) {
    // for (perryPla = 0; perryPla < parsedVideos[y].videos.length; perryPla++) {
@@ -212,18 +222,17 @@ for (let y = 0; y < numm; y++) {
        searchVars.push (pusherian );
 
    }
-}
+}  */
 
-console.log("Total number of entries: " + overaro);
+console.log("Total number of entries: " + parsedVideos.length);
 
+/*
 for (let qers = 0; qers < searchVars.length; qers++) {
     showcasingAllVideos[qers] = qers;
-}
+}  */
 
-mostRecentDate = parsedVideos[0][0].upload_date;
-let dateTmp = parsedVideos.length - 1;
-dateTmp = parsedVideos[dateTmp];
-leastRecentDate = dateTmp[dateTmp.length - 1].upload_date;
+mostRecentDate = parsedVideos[0].upload_date;
+leastRecentDate = parsedVideos[parsedVideos.length - 1].upload_date;
 
 dateQueried1 = mostRecentDate;
 dateQueried1 = leastRecentDate;
@@ -315,6 +324,18 @@ const exceptionUsers2 = ['Rlcemaster3',
     'UClobvUCGR2VUkBlN0ax570g'];// pongayu
     */
 
+function getVideoPosition(i) {
+   if (showAllVideos) return i;
+
+   return showcasedVideos[i];
+}
+
+function getVideoListLength() {
+   if (showAllVideos) return parsedVideos.length;
+   
+   return showcasedVideos.length;
+}
+
 function getUploaderId(video) {
    if (video.uploader_id !== undefined) {
        if (video.extractor_key === "Youtube") return [video.uploader_id];
@@ -340,15 +361,18 @@ function dateWithinRange(videoDate) {
    return false;
 }
 
+/*
 function getVideo(orderNumber) {
 
    let terpm = searchVars[orderNumber];
-   
-   
+
+
    //console.log(orderNumber + ' -- ' + terpm);
    // return parsedVideos[terpm.vids].videos[terpm.subvid];
    return parsedVideos[terpm.vids][terpm.subvid];
-} 
+}
+*/
+
 /*
 function getVideo(orderNumber) {
     
@@ -401,34 +425,6 @@ function addCheckmarks() {
     for (let i = 0; i < sitesList.length; i++) {
        if (sitesList[i].isIgnored) returnStr += '&' + sitesList[i].site + '=true';
     }
-             /*
-    if (!(checkMarks[0] === undefined) || checkMarks[0] === 'true') {
-       returnStr += '&Youtube=true';
-    }
-
-    if (!(checkMarks[1] === undefined) || checkMarks[1] === 'true') {
-       returnStr += '&Niconico=true';
-    }
-
-    if (!(checkMarks[2] === undefined) || checkMarks[2] === 'true') {
-       returnStr += '&BiliBili=true';
-    }
-
-    if (!(checkMarks[3] === undefined) || checkMarks[3] === 'true') {
-       returnStr += '&Twitter=true';
-    }
-
-    if (!(checkMarks[4] === undefined) || checkMarks[4] === 'true') {
-       returnStr += '&Soundcloud=true';
-    }
-
-    if (!(checkMarks[5] === undefined) || checkMarks[5] === 'true') {
-       returnStr += '&VK=true';
-    }
-
-    if (!(checkMarks[6] === undefined) || checkMarks[6] === 'true') {
-       returnStr += '&Others=true';
-    }      */
     
     if (exactWordSearch) {
        returnStr += '&exactSearch=true';
@@ -459,6 +455,11 @@ function showList(searchWord, searchUploaderId,page) {
        createList(searchWord);
     }
 
+    //forceGC();
+
+     //console.log(showcasedVideos);
+     //console.log(getVideoPosition());
+
     let videoList = '';
     
     let searchWordTmp = 'search=' + searchWord.trim();
@@ -470,17 +471,17 @@ function showList(searchWord, searchUploaderId,page) {
     
 
     let totalPages = 1;
-    while ((totalPages * videosPerPage) <= showcasedVideos.length) {
+    while ((totalPages * videosPerPage) <= getVideoListLength()) {
        totalPages++;
     }
-    
+
     let currentPage = page;
     if (page > totalPages) currentPage = totalPages;
     if (page < 1) currentPage = 1;
 
     let startValue = videosPerPage * (currentPage - 1);
     let endValue = videosPerPage * currentPage;
-    if (endValue > showcasedVideos.length) endValue = showcasedVideos.length;
+    if (endValue > getVideoListLength()) endValue = getVideoListLength();
 
     let linkThing = '';
 
@@ -611,7 +612,7 @@ function showList(searchWord, searchUploaderId,page) {
        videoList += '<hr/><div>' + br;
        // console.log ("the bus is here?" + showcasedVideos[i].id);
       
-        let listedVideo = getVideo(showcasedVideos[i]);
+        let listedVideo = parsedVideos[getVideoPosition(i)];
 
         let titlePlaceh = '';
           
@@ -806,7 +807,7 @@ function showList(searchWord, searchUploaderId,page) {
 }
 
 function hasSearchWords(vidId,searchArray) {
-   let tmpVid = parsedVideos[searchVars[vidId].vids][searchVars[vidId].subvid];
+   let tmpVid = parsedVideos[vidId];
    let tmpStr = "";
 
    if (tmpVid.uId !== undefined && tmpVid.extractor_key === "Youtube") {
@@ -1069,7 +1070,7 @@ function addLinks(ogDescription, searchString) {
 }
 
 function editDescription(ogDescription, extractorKey) {
-   console.log("Wait what? " + extractorKey);
+    //console.log("Wait what? " + extractorKey);
     let editedDescription = ogDescription;
     
     if (ogDescription === null) {
@@ -1280,7 +1281,9 @@ function createList(searchWord) {
       
     if (searchWordss[0] === "" && noCheckmarks) {
         runThis = false;
-         showcasedVideos = showcasingAllVideos;
+        
+        showAllVideos = true;
+        // showcasedVideos = showcasingAllVideos;
        // showcasedVideos = null;
        //console.log( showcasedVideos);
         console.log('Showing all videos!');
@@ -1290,11 +1293,13 @@ function createList(searchWord) {
      if (searchWordss.length > 1) searchWordss = optimizeSearching(searchWordss);
      console.log(searchWordss);
 
+     showAllVideos = false;
+
      showcasedVideos = [];
 
-     for (let i = 0; i < searchVars.length; i++) {
+     for (let i = 0; i < parsedVideos.length; i++) {
        // var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
-       let compareVid =  parsedVideos[searchVars[i].vids][searchVars[i].subvid];
+       let compareVid =  parsedVideos[i];
 
        let ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
        let isOther = true;
@@ -1416,11 +1421,30 @@ function youtubeChannelURLFormer(youtubeId) {
 
 //function createListForUploader(searchWord,uploaderId,checkMarks) {
 function createListForUploader(searchWord,uploaderId) {
-    showcasedVideos = [];
-    
     let tmppp = searchWord.toLowerCase().trim();
     searchWordss = [];
-    
+    let userVids = [];
+
+    for (let pp = 0; pp < parsedVideos.length; pp++) {
+       if (parsedVideos[pp].uId !== undefined && parsedVideos[pp].extractor_key === "Youtube") {
+          //let uploaderIdTmp = parsedVideos[pp].uId;
+          let tmer = false;
+          for (let pe = 0; pe < youtubeUserList[parsedVideos[pp].uId].length; pe++) {
+              if (youtubeUserList[parsedVideos[pp].uId][pe] === uploaderId) {
+                  tmer = true;
+                  userVids.push(pp);
+                  break;
+              }
+          }
+          if (tmer) continue;
+       } else {
+          if (uploaderId === parsedVideos[pp].uploader_id) {
+             userVids.push(pp);
+             continue;
+          }
+       }
+    }
+
     console.log(!tmppp.includes(' ') );
 
     if (exactWordSearch || !tmppp.includes(' ') || tmppp.length === 0) {
@@ -1442,32 +1466,69 @@ function createListForUploader(searchWord,uploaderId) {
 
        }
     }
-    
-    searchWordss = optimizeSearching(searchWordss); 
-    
+
+    // end
+
+    console.log(searchWordss[0]);
+    let runThis = true;
     let noCheckmarks = true;
-    //let checkMarkBoolean = [];
-    //for (let pp = 0; pp < checkMarks.length; pp++) {
     for (let pp = 0; pp < sitesList.length; pp++) {
-        /*
-        if (checkMarks[pp] === undefined || !(checkMarks[pp] === 'true')) {
+       if (sitesList[pp].isIgnored) {
+          noCheckmarks = false;
+          break;
+       }
+    }
+    /*
+    let checkMarkBoolean = [];
+    for (let pp = 0; pp < checkMarks.length; pp++) {
+        if (checkMarks[pp] === undefined || checkMarks[pp] !== 'true') {
            checkMarkBoolean.push(false);
         } else {
            checkMarkBoolean.push(true);
            noCheckmarks = false;
-        } */
-        if (sitesList[pp].isIgnored) {
-           noCheckmarks = false;
-           break;
         }
     }
+    */
+    /*
+    console.log(checkMarks);
+    console.log(checkMarkBoolean); 
+    console.log(noCheckmarks);*/
+
+    // This is here in case someone provides an empty string which prompts the database to show all videos. This avoids running the comparison check needlessly
+    // var tmpDread = searchWord.trim() + ' ';
+    //if (tmpDread === ' ' && noCheckmarks) {
+      
+    if (searchWordss[0] === "" && noCheckmarks) {
+        runThis = false;
+        
+        showAllVideos = false;
+        
+        showcasedVideos = userVids;
+        
+        console.log(userVids);
+        // showcasedVideos = showcasingAllVideos;
+       // showcasedVideos = null;
+       //console.log( showcasedVideos);
+        console.log('Showing all videos!');
+    }
     
-    for (let i = 0; i < searchVars.length; i++) {
+    if (runThis) {
+     //console.log(userVids);
+
+     if (searchWordss.length > 1) searchWordss = optimizeSearching(searchWordss);
+     console.log(searchWordss);
+     
+     showAllVideos = false;
+
+     showcasedVideos = [];
+
+     for (let i = 0; i < userVids.length; i++) {
        // var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
-       let compareVid =  parsedVideos[searchVars[i].vids][searchVars[i].subvid];
+       let compareVid =  parsedVideos[userVids[i]];
 
        let ignoreRest = false; // sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'VK', 'Others'];
        let isOther = true;
+       //for (let plorar = 0; plorar < checkMarkBoolean.length; plorar++) {
        for (let plorar = 0; plorar < sitesList.length; plorar++) {
 
            if (sitesList[plorar].site === compareVid.extractor_key) {
@@ -1483,38 +1544,17 @@ function createListForUploader(searchWord,uploaderId) {
                 continue;
            }
        }
-       let tmpCont = true;
-       let tmp2 = uploaderId.trim();
-
-       if (compareVid.extractor_key === "Youtube" ) {
-        if (getUploaderId(compareVid) === null) console.log(compareVid);
-        for (let hg = 0; hg < getUploaderId(compareVid).length; hg++) {
-          let tmp1 = getUploaderId(compareVid)[hg] + ' '; // Seems like some saved uploader_id values are undefined or something similar, VITAL that there is an empty string to not make the site glitch out
-
-          if (tmp1.trim() === tmp2) {
-            tmpCont = false;
-            break;
-          }
-        }
-       } else {
-          let tmp1 = compareVid.uploader_id + ' ';
-          if (tmp1.trim() === tmp2) tmpCont = false;
-       }
-
-       if (tmpCont) continue;
        
-       if (searchWordss.length == 0) {
-          showcasedVideos.push(i);
-          continue;
-       }
+       if (ignoreRest === true) continue;
 
-       else if (hasSearchWords(i,searchWordss)) {
-          showcasedVideos.push(i);
-       }
+       // In case there's no search word and if at least one site is excluded, this should skip the comparison process and just add the video on the list
+       if (searchWordss[0] === undefined) showcasedVideos.push(userVids[i]);
+       //console.log("Elira Pendora");
+       //console.log(searchWordss[0]);
+
+       else if (hasSearchWords(userVids[i],searchWordss)) { showcasedVideos.push(userVids[i]); }
+     }
     }
-    //lastSearchword = searchWord;
-    //lastCheckedUploader = uploaderId;
-    //updateShowcase = false;
 }
 
 //console.log('List done');
@@ -1536,7 +1576,7 @@ function htmlStrIndex(querie) {
   } else {
      htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
   } */
- 
+
   htmlStrIndex +=  br + '<input type="text" name="search" />&nbsp;' + br;
   htmlStrIndex += '<input type="submit" value="Search" />' + br;
   htmlStrIndex += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + br;
@@ -1728,6 +1768,8 @@ var srvr = http.createServer(function (req, res) {
      else {
 
         res.write('<div>' + showList(searchingFor, fromUploaderId, pageNumber) + '</div>');
+        showcasedVideos = [];
+        forceGC();
      }
         res.write(/* br + '<!-- Links to videos on archive.org removed due to request by vxbinaca (2022/05/26) -->' + */ br + '</body></html>');
      
@@ -1745,7 +1787,7 @@ var srvr = http.createServer(function (req, res) {
 
      res.end();
   }
-  
+                                                       
   else {
       console.log('Tried to get to: ' +  q.pathname);
       res.writeHead(404, {'Content-Type': 'text/html'});

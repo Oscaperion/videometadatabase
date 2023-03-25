@@ -34,7 +34,7 @@ var readTwitterVids = changeHere;
 
 
 //for (j = 1; j <= 25; j++) {
-for (var j = 40; j >= 40; j--) {
+for (var j = 41; j >= 41; j--) {
 //for (var j = 0; j >= 0; j--) {
 
 //for (var j = 1; j <= 28; j++) {
