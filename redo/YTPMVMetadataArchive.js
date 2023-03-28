@@ -166,9 +166,16 @@ var sitesList = [ {'site': 'Youtube',    'isIgnored':false},
                   {'site': 'Twitter',    'isIgnored':false},
                   {'site': 'Soundcloud', 'isIgnored':false},
                   {'site': 'VK',         'isIgnored':false},
-                  {'site': 'Kakao',      'isIgnored':false},
-                  {'site': 'Others',     'isIgnored':false}];
-
+                  {'site': 'Kakao',      'isIgnored':false}];
+                  //{'site': 'Others',     'isIgnored':false}];
+                  
+const otherSitePlaceholder = "Others";
+{
+  let terr = {};
+  terr["site"] = otherSitePlaceholder;
+  terr["isIgnored"] = false;
+  sitesList.push(terr);
+}
 //var searchVars = [];
 
 {
@@ -1195,7 +1202,7 @@ function createVideoPreviewTwitter(vidId) {
     
     embbee = embbee.trim();
     
-    if (embbee === '') embbee = '<br/>';
+    if (embbee === '') embbee = '<br/>[No video preview. The tweet seem to have been deleted.]<br/>';
 
     return embbee;
 }
@@ -1303,7 +1310,7 @@ function createList(searchWord) {
 
      // showcasedVideos = [];
 
-     let otherSitesIgnored = sitesList.find(entti => entti.site === 'Others').isIgnored;
+     let otherSitesIgnored = sitesList.find(entti => entti.site === otherSitePlaceholder).isIgnored;
 
      showcasedVideos = parsedVideos.map((ent, i) => {
        //let temppVid = parsedVideos[i];
@@ -1315,7 +1322,7 @@ function createList(searchWord) {
        if (hasSearchWords(i,searchWordss)) {
          return i;
        }
-      }).filter(i => i !== undefined);
+      }).filter(val => val !== undefined);
 
 
      /*
@@ -1445,6 +1452,8 @@ function youtubeChannelURLFormer(youtubeId) {
 function createListForUploader(searchWord,uploaderId) {
     let tmppp = searchWord.toLowerCase().trim();
     searchWordss = [];
+
+    /*
     let userVids = [];
 
     for (let pp = 0; pp < parsedVideos.length; pp++) {
@@ -1465,7 +1474,23 @@ function createListForUploader(searchWord,uploaderId) {
              continue;
           }
        }
-    }
+    }  */
+
+    let userVids = [];
+    parsedVideos.filter((ent, i) => {
+        if (ent.uId !== undefined && ent.extractor_key === "Youtube" && youtubeUserList[ent.uId].includes(uploaderId)) { 
+          userVids.push(i);
+          return false;
+        }
+
+        if (ent.uploader_id === uploaderId) {
+          userVids.push(i);
+          return false;
+        }
+
+        return false;
+    });
+    //.map((ent, i) => i);
 
     console.log(!tmppp.includes(' ') );
 
@@ -1561,7 +1586,7 @@ function createListForUploader(searchWord,uploaderId) {
               }
            }
 
-           if (sitesList[plorar].site === 'Others' && sitesList[plorar].isIgnored && isOther) {
+           if (sitesList[plorar].site === otherSitePlaceholder && sitesList[plorar].isIgnored && isOther) {
                 ignoreRest = true;
                 continue;
            }
