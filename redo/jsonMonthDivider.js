@@ -76,7 +76,8 @@ for (let kii = 41; kii >= 0; kii--) {
 var toBeSortedList = [];
 
 var startChecking = false;
-var startCheckpoint = "202303";
+var startCheckpoint = "202312";
+//var startCheckpoint = "202005";
 
 for (let yy = 2023; yy >= 2004; yy--) {
   for (let mm = 12; mm >= 1; mm--) {
@@ -101,6 +102,7 @@ for (let yy = 2023; yy >= 2004; yy--) {
     let minDate = '' + yy + mm_tmp + '00';
     let maxDate = '' + yy + mm_tmp2 + '00';
     console.log("Videos from period: " + yy + mm_tmp);
+    gatheredIds = [];
 
     for (let tu = 0; tu < vidds.length; tu++) {
     //for (let tu = 41; tu >= 0; tu--) {
