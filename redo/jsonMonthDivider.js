@@ -4,7 +4,20 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-const nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+var nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+//nicoTags.push(...JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
+{
+
+  let nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
+  for (let i = 0; i < nicoTags.length; i++) {
+     let tmpTaag = nicoTags2.find(ent => ent.id === nicoTags[i].id);
+     if (tmpTaag !== undefined) {
+        nicoTags[i] = tmpTaag;
+     }
+  }
+
+}
+
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
 var gatheredIds = [];
@@ -53,6 +66,13 @@ for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
 
 console.log(ignoreUsers);
 
+var vidds = [];
+
+for (let kii = 41; kii >= 0; kii--) {
+   let tmppp = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + kii + '.json'), 'utf8')).videos;
+   vidds.push(tmppp);
+}
+
 var toBeSortedList = [];
 
 var startChecking = false;
@@ -82,30 +102,35 @@ for (let yy = 2023; yy >= 2004; yy--) {
     let maxDate = '' + yy + mm_tmp2 + '00';
     console.log("Videos from period: " + yy + mm_tmp);
 
-    for (let tu = 41; tu >= 0; tu--) {
+    for (let tu = 0; tu < vidds.length; tu++) {
+    //for (let tu = 41; tu >= 0; tu--) {
         console.log("Checking vids" + tu);
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
-       let parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
-       let lrn = parsedVideos.videos.length;
+       //let parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8')).videos;
+       
+       //let parsedVideos = vidds[tu];
+       if (vidds[tu].some(ent => ent.upload_date > minDate && ent.upload_date < maxDate) === false) continue;
+       let parsedVideos = vidds[tu].filter(ent => ent.upload_date > minDate && ent.upload_date < maxDate);
+       let lrn = parsedVideos.length;
        for (let oi = 0; oi < lrn; oi++) {
-           if (parsedVideos.videos[oi].extractor_key === "BiliBili" && parsedVideos.videos[oi].upload_date === undefined) {
+           if (parsedVideos[oi].extractor_key === "BiliBili" && parsedVideos[oi].upload_date === undefined) {
               // console.log("Bilibili with undefined release date: not adding");
               continue;
            }
 
-           if (parsedVideos.videos[oi].upload_date > minDate && parsedVideos.videos[oi].upload_date < maxDate)
+           //if (parsedVideos[oi].upload_date > minDate && parsedVideos.videos[oi].upload_date < maxDate)
            {
-             
-               let tmpVid =  parsedVideos.videos[oi];
+
+               let tmpVid =  parsedVideos[oi];
                //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
                let addForSure = true;
 
-               if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) { 
+               if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) {
                   // console.log(tmpVid);
                   tmpVid.uploader_id = tmpVid.channel_id;
                }
-               
+
                if (ignoreUsers.includes(tmpVid.uploader_id)) addForSure = false;
 
                if (tmpVid.extractor_key === "Twitter") {
@@ -113,8 +138,31 @@ for (let yy = 2023; yy >= 2004; yy--) {
                   tmpVid.id = truId;
                   tmpVid.title = '';
                }
-               
+
                if (tmpVid.extractor_key === "Niconico") {
+                  let tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
+                  if (tmpTags !== undefined) {
+                      let checkingTags = tmpTags.tags;
+
+                       let checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
+
+                       for (let tt = 0; tt < checkingTags.length; tt++) {
+                          for (let pp = 0; pp < checkke.length; pp++) {
+                             let teeew = checkingTags[tt].indexOf(checkke[pp][0]);
+                             while (teeew > -1) {
+                                let tmoo1 = checkingTags[tt].substring(0,checkingTags[tt].indexOf(checkke[pp][0]));
+                                let tmoo2 = checkingTags[tt].substring(checkingTags[tt].indexOf(checkke[pp][0]) + checkke[pp][0].length);
+                                checkingTags[tt] = tmoo1 + checkke[pp][1] + tmoo2;
+                                teeew = checkingTags[tt].indexOf(checkke[pp][0]);
+                                // console.log("Patched Niconico tags");
+                             }
+                          }
+                       }
+
+                       tmpVid["tags"] = checkingTags;
+                  }
+
+                  /*
                   for (let p = 0; p < nicoTags.length; p++) {
                      if (nicoTags[p].id === tmpVid.id) {
                        let checkingTags = nicoTags[p].tags;
@@ -137,11 +185,11 @@ for (let yy = 2023; yy >= 2004; yy--) {
                        tmpVid["tags"] = checkingTags;
                        break;
                      }
-                  }
+                  }  */
                   // console.log("Adding tags for " + tmpVid.id);
                }
 
-               
+
                if (tmpVid.extractor_key === "Youtube" && addForSure) {
                   let uploader_id_tmp = -1 // tmpVid.uploader_id;
                   let uploaderFound = false;
@@ -156,7 +204,7 @@ for (let yy = 2023; yy >= 2004; yy--) {
                      }
                      if (uploaderFound) break;
                   }
-                  
+
                   if (uploaderFound) {
                      tmpVid["uId"] = uploader_id_tmp;
                      delete tmpVid["uploader_id"];
@@ -170,12 +218,12 @@ for (let yy = 2023; yy >= 2004; yy--) {
                if (tmpVid.extractor_key === "Youtube" || tmpVid.extractor_key === "Niconico" || tmpVid.extractor_key === "Twitter") {
                   delete tmpVid["webpage_url"];
                } */
-               
+
                if (tmpVid.extractor_key === "Youtube" || tmpVid.extractor_key === "BiliBili" || tmpVid.extractor_key === "Niconico" || tmpVid.extractor_key === "Twitter") {
                   delete tmpVid["uploader_url"];
                   delete tmpVid["webpage_url"];
                }
-               
+
                if (tmpVid.extractor_key === "BiliBili") {
                   let tmpId = tmpVid.id;
                   if (Array.isArray(tmpVid.id)) tmpId = tmpVid.id[0];

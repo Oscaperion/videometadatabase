@@ -31,8 +31,7 @@ const reuploadShowing = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Meta
      months.
 */
 const maxY = 202312;
-//const minY = 200401;
-const minY = 201601;
+const minY = 200401;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -182,7 +181,7 @@ let numm = 0;
 for (let y = maxY; y >= minY; y--) {
 
    let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   //var terappi = 'vidJson2/vids' + y + '.json';
+   //let terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {                         
      parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
@@ -1500,12 +1499,12 @@ function createListForUploader(searchWord,uploaderId) {
       
     if (searchWordss[0] === "" && noCheckmarks) {
         runThis = false;
-        
+
         showAllVideos = false;
         
         showcasedVideos = userVids;
         
-        console.log(userVids);
+        //console.log(userVids);
         // showcasedVideos = showcasingAllVideos;
        // showcasedVideos = null;
        //console.log( showcasedVideos);
