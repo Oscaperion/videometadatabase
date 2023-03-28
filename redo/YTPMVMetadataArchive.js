@@ -156,21 +156,18 @@ const parsedVideos = [];
 /*
    This is used as part of a method to determine, whether or not to exclude particular 
      sites from search results. Compares this list to the "extractor_key" values of the 
-     entries, aside from the last option. The "Others" option include every other site,
+     entries, aside from the last option. The "Others" option covers every other site,
      that hasn't been listed.
-   NOTE: If values are edited here, you need to manually change other functions to match
-     the edits made to this array.
 */
-//var sitesList = ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
 
-var sitesList = [ {'site': 'Youtube',    'isIgnored':'false'},
-                  {'site': 'Niconico',   'isIgnored':'false'},
-                  {'site': 'BiliBili',   'isIgnored':'false'},
-                  {'site': 'Twitter',    'isIgnored':'false'},
-                  {'site': 'Soundcloud', 'isIgnored':'false'},
-                  {'site': 'VK',         'isIgnored':'false'},
-                  {'site': 'Kakao',      'isIgnored':'false'},
-                  {'site': 'Others',     'isIgnored':'false'}];
+var sitesList = [ {'site': 'Youtube',    'isIgnored':false},
+                  {'site': 'Niconico',   'isIgnored':false},
+                  {'site': 'BiliBili',   'isIgnored':false},
+                  {'site': 'Twitter',    'isIgnored':false},
+                  {'site': 'Soundcloud', 'isIgnored':false},
+                  {'site': 'VK',         'isIgnored':false},
+                  {'site': 'Kakao',      'isIgnored':false},
+                  {'site': 'Others',     'isIgnored':false}];
 
 //var searchVars = [];
 
@@ -814,12 +811,22 @@ function hasSearchWords(vidId,searchArray) {
       //delete tmpVid["uId"];
    }
 
-   if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr += tmpVid.tags.join(" ");
+   if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr += ' ' + tmpVid.tags.join(" ");
+
+   /*
+   if (Array.isArray(tmpVid.id)) tmpStr += ' ' +  tmpVid.id.join(" ") + ' ';
+   else tmpStr += ' ' + tmpVid.id + ' '; */
+
+
+   let excludedValues = ["uId","extractor_key","duration","tags"];
+   let tmpComp = Object.entries(tmpVid)
+     .filter(([key]) => !excludedValues.includes(key))
+     .map(([key, value]) => value);
                                      /*
    delete tmpVid["extractor_key"];
    delete tmpVid["duration"];      */
    
-   tmpStr += Object.values(tmpVid).join(" ");
+   tmpStr += ' ' + tmpComp.join(" ");
    tmpStr = tmpStr.toLowerCase();
    
    //console.log("Teesttt:  " + parsedVideos[searchVars[vidId].vids][searchVars[vidId].subvid].extractor_key);
@@ -1287,15 +1294,31 @@ function createList(searchWord) {
        //console.log( showcasedVideos);
         console.log('Showing all videos!');
     }
-    
+
     if (runThis) {
      if (searchWordss.length > 1) searchWordss = optimizeSearching(searchWordss);
      console.log(searchWordss);
 
      showAllVideos = false;
 
-     showcasedVideos = [];
+     // showcasedVideos = [];
 
+     let otherSitesIgnored = sitesList.find(entti => entti.site === 'Others').isIgnored;
+
+     showcasedVideos = parsedVideos.map((ent, i) => {
+       //let temppVid = parsedVideos[i];
+       {
+          let tmpExt = sitesList.find(entti => entti.site === parsedVideos[i].extractor_key);
+          if ((tmpExt === undefined && otherSitesIgnored) || (tmpExt !== undefined && tmpExt.isIgnored)) return undefined;
+       }
+
+       if (hasSearchWords(i,searchWordss)) {
+         return i;
+       }
+      }).filter(i => i !== undefined);
+
+
+     /*
      for (let i = 0; i < parsedVideos.length; i++) {
        // var compareVid =  parsedVideos[searchVars[i].vids].videos[searchVars[i].subvid];
        let compareVid =  parsedVideos[i];
@@ -1318,7 +1341,7 @@ function createList(searchWord) {
                 continue;
            }
        }
-       
+
        if (ignoreRest === true) continue;
 
        // In case there's no search word and if at least one site is excluded, this should skip the comparison process and just add the video on the list
@@ -1327,7 +1350,7 @@ function createList(searchWord) {
        //console.log(searchWordss[0]);
 
        else if (hasSearchWords(i,searchWordss)) { showcasedVideos.push(i); }
-     }
+     }      */
     }
     //lastSearchword = searchWord;
     //updateShowcase = false;
