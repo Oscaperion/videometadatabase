@@ -814,21 +814,31 @@ function hasSearchWords(vidId,searchArray) {
    let tmpStr = "";
 
    if (tmpVid.uId !== undefined && tmpVid.extractor_key === "Youtube") {
-      tmpStr += youtubeUserList[tmpVid.uId].join(" ");
+      tmpStr += youtubeUserList[tmpVid.uId].join(" ") + " ";
       //delete tmpVid["uId"];
    }
 
-   if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr += ' ' + tmpVid.tags.join(" ");
+   if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr +=  tmpVid.tags.join(" ") + ' ';
 
    /*
    if (Array.isArray(tmpVid.id)) tmpStr += ' ' +  tmpVid.id.join(" ") + ' ';
    else tmpStr += ' ' + tmpVid.id + ' '; */
 
-
    let excludedValues = ["uId","extractor_key","duration","tags"];
+   
+   /*
+   let tmpComp = [];
+
+   Object.entries(tmpVid).forEach(ent => {
+      if (!excludedValues.includes(ent[0])) {
+         tmpComp.push(ent[1]);
+      }
+   });     */
+
+
    let tmpComp = Object.entries(tmpVid)
-     .filter(([key]) => !excludedValues.includes(key))
-     .map(([key, value]) => value);
+     .filter(ent => !excludedValues.includes(ent[0]))
+     .map(ent => ent[1]);
                                      /*
    delete tmpVid["extractor_key"];
    delete tmpVid["duration"];      */
