@@ -36,7 +36,7 @@ const search2 = '</div>';
 
 var foundTags;
 
-var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids21.json', 'utf8'));
+var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids20.json', 'utf8'));
 //var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202206.json', 'utf8')) };
 
 var replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
@@ -64,7 +64,7 @@ while (orttt2 < 10 && orttt < vids.videos.length) {
      if (doIt) {
        checkVideo(vids.videos[orttt].id);
        orttt2++;
-       orttt++;
+       //orttt++;
      }
 //console.log("bAbba" + orttt2);
   }

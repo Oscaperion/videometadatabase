@@ -17,11 +17,22 @@ let cYear = currentDate.getFullYear() + '';
 lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 }
 
-const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-const reuploadShowing = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json', 'utf8'));
-//const reuploadShowing = JSON.parse(fs.readFileSync('vidJson2/reuploads.json', 'utf8'));
+//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+const reuploadListLoc = 'vidJson2/reuploads.json';
+var reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+
+fs.watchFile(reuploadListLoc, (curr,prev) => {
+    try {
+        console.log("Hoperiino");
+        reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+        forceGC();
+    } catch (error) {
+        console.log ("Noperiino");
+    }
+});
 
 /*
    These are used to process the JSON files that contain the entries for the database.
@@ -184,8 +195,8 @@ let numm = 0;
 //for (y = minY; y <= maxY; y++) {
 for (let y = maxY; y >= minY; y--) {
 
-   let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   //let terappi = 'vidJson2/vids' + y + '.json';
+   //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   let terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {                         
      parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
