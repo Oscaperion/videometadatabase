@@ -17,17 +17,31 @@ let cYear = currentDate.getFullYear() + '';
 lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 }
 
-//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
-const reuploadListLoc = 'vidJson2/reuploads.json';
+const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+//const reuploadListLoc = 'vidJson2/reuploads.json';
 var reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+
+const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+//const twitterUserLoc = 'vidJson2/twitterUserList.json';
+var twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 fs.watchFile(reuploadListLoc, (curr,prev) => {
     try {
-        console.log("Hoperiino");
+        console.log("Hoperiino"); 
         reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+        forceGC();
+    } catch (error) {
+        console.log ("Noperiino");
+    }
+});
+
+fs.watchFile(twitterUserLoc, (curr,prev) => {
+    try {
+        console.log("Hoperiino"); 
+        twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
         forceGC();
     } catch (error) {
         console.log ("Noperiino");
@@ -195,8 +209,8 @@ let numm = 0;
 //for (y = minY; y <= maxY; y++) {
 for (let y = maxY; y >= minY; y--) {
 
-   //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   let terappi = 'vidJson2/vids' + y + '.json';
+   let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   //let terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {                         
      parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
@@ -634,7 +648,8 @@ function showList(searchWord, searchUploaderId,page) {
        
        if (listedVideo.extractor_key === "Twitter") {
            let vidTmp2 = 'https://twitter.com/' + listedVideo.uploader_id + '/status/' + listedVideo.id;
-           
+
+
            titlePlaceh = '<code><a href=\"' + vidTmp2 + '\" target=\"_blank\">' + vidTmp2 + '</a></code> (' + formatDuration(listedVideo.duration) +')' + br;
        } else {
            
@@ -756,7 +771,20 @@ function showList(searchWord, searchUploaderId,page) {
        }
        
        if (listedVideo.extractor_key === 'Twitter') {
-          uploader_Str = '<a href=\"https://twitter.com/' + listedVideo.uploader_id + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
+           let upTmp = listedVideo.uploader_id;
+
+           {
+             let tmpTwt =  twitterUserList.find(ent => {
+                 if (ent.handle.includes(listedVideo.uploader_id)) return true;
+                 return false;
+             });
+
+             //console.log(tmpTwt);
+
+             if (tmpTwt !== undefined) upTmp = 'i/user/' + tmpTwt.id;
+           }
+
+          uploader_Str = '<a href=\"https://twitter.com/' + upTmp + '\" target=\"_blank\">' + listedVideo.uploader + ' [<code>' + listedVideo.uploader_id + '</code>]</a>';
        }
        
        if (listedVideo.extractor_key === 'Youtube') {
@@ -1500,13 +1528,30 @@ function createListForUploader(searchWord,uploaderId) {
     let userVids = [];
     parsedVideos.filter((ent, i) => {
         if (ent.uId !== undefined && ent.extractor_key === "Youtube" && youtubeUserList[ent.uId].includes(uploaderId)) { 
-          userVids.push(i);
-          return false;
+           userVids.push(i);
+           return false;
+        }
+
+        if (ent.extractor_key === "Twitter") {
+           let tmpTwt = twitterUserList.find(entri => {
+              if (entri.id === ent.uploader_id || entri.handle.includes(ent.uploader_id)) return true;
+              return false;
+           });
+
+           if (tmpTwt !== undefined) {
+              let tmpTwt2 = tmpTwt.handle;
+              tmpTwt2.push(tmpTwt.id);
+              if (tmpTwt2.includes(uploaderId)) {
+                 //console.log("It works!");
+                 userVids.push(i);
+                 return false;
+              }
+           }
         }
 
         if (ent.uploader_id === uploaderId) {
-          userVids.push(i);
-          return false;
+           userVids.push(i);
+           return false;
         }
 
         return false;
