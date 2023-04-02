@@ -3,11 +3,14 @@ var path = require('path');
 var fs = require('fs');
 const url = require('url');
 const http = require('http');
+console.log("Amane");
 
+var nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
 var nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 //nicoTags.push(...JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
+/*
 {
-
+     console.log("Kanata");
   let nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
   for (let i = 0; i < nicoTags.length; i++) {
      let tmpTaag = nicoTags2.find(ent => ent.id === nicoTags[i].id);
@@ -16,8 +19,10 @@ var nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Arch
      }
   }
 
-}
+     console.log("is");
+}   */
 
+     console.log("Kanata");
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
 var gatheredIds = [];
@@ -71,6 +76,13 @@ var vidds = [];
 for (let kii = 41; kii >= 0; kii--) {
    let tmppp = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + kii + '.json'), 'utf8')).videos;
    vidds.push(tmppp);
+   console.log(kii);
+        
+   if (kii === 1) {
+      let tmpppe = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json'), 'utf8'));
+      vidds.push(tmpppe);
+      console.log("Yay");
+   }
 }
 
 var toBeSortedList = [];
@@ -142,7 +154,8 @@ for (let yy = 2023; yy >= 2004; yy--) {
                }
 
                if (tmpVid.extractor_key === "Niconico") {
-                  let tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
+                  let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
+                  if (tmpTags === undefined) tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
                   if (tmpTags !== undefined) {
                       let checkingTags = tmpTags.tags;
 
