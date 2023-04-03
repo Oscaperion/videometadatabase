@@ -1,0 +1,6 @@
+ | tee -filePath ..\big-chungus2.txt
+
+cd ..
+Get-Content .\big-chungus2.txt | Set-Content -Encoding utf8 big-chungus-utf8.txt
+node readCommandFeed.js
+node checkArchiveForVideos.js
