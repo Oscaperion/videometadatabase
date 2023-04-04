@@ -17,15 +17,15 @@ let cYear = currentDate.getFullYear() + '';
 lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 }
 
-const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
-//const reuploadListLoc = 'vidJson2/reuploads.json';
+//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+const reuploadListLoc = 'vidJson2/reuploads.json';
 var reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
-const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
-//const twitterUserLoc = 'vidJson2/twitterUserList.json';
+//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+const twitterUserLoc = 'vidJson2/twitterUserList.json';
 var twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 fs.watchFile(reuploadListLoc, (curr,prev) => {
@@ -209,8 +209,8 @@ let numm = 0;
 //for (y = minY; y <= maxY; y++) {
 for (let y = maxY; y >= minY; y--) {
 
-   let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   //let terappi = 'vidJson2/vids' + y + '.json';
+   //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   let terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {                         
      parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
@@ -856,6 +856,15 @@ function hasSearchWords(vidId,searchArray) {
       tmpStr += youtubeUserList[tmpVid.uId].join(" ") + " ";
       //delete tmpVid["uId"];
    }
+   
+   if (tmpVid.extractor_key === "Twitter") {
+           let tmpTwt = twitterUserList.find(entri => {
+              if (entri.id === tmpVid.uploader_id || entri.handle.includes(tmpVid.uploader_id)) return true;
+              return false;
+           });
+
+           if (tmpTwt !== undefined) tmpStr += tmpTwt.id + " " + tmpTwt.handle.join(" ") + " ";
+   }
 
    if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr +=  tmpVid.tags.join(" ") + ' ';
 
@@ -1248,7 +1257,44 @@ function createVideoPreviewTwitter(vidId) {
     requ.send(null);
     requ.abort();
     requ = null;
+
+    embbee = embbee.trim();
+
+    if (embbee === '') embbee = '<br/>[No video preview. The tweet seem to have been deleted.]<br/>';
+
+    return embbee;
+}
+
+/* 
+   Tried to see if I could have the user's browser fetch the JSON instead of the server.
+     Doesn't seem to work like this, need to look other ways
+*/
+function createVideoPreviewTwitter_new(vidId) {
+    //let requ = new XMLHttpRequest_node();
+    let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
+    let embbee = "<script>fetch('" + apiLink + "')";
+    embbee += `.then(response => response.json())
+    .then(data => {
+      // Use the JSON data
+      document.getElementById('${vidId}').innerHTML = data.html;
+    })
+    .catch(error => console.error(error));
+
+    </script>
     
+    <div id="${vidId}"></div>`;
+    /*
+    requ.onreadystatechange = function() {
+      if (requ.readyState == 4 && requ.status == 200){
+        embbee = JSON.parse(requ.responseText).html;
+        console.log("JSON succesfully fetched from Twitter's site");
+       }
+    };
+    requ.open("GET", apiLink, false);
+    requ.send(null);
+    requ.abort();
+    requ = null;  */
+
     embbee = embbee.trim();
     
     if (embbee === '') embbee = '<br/>[No video preview. The tweet seem to have been deleted.]<br/>';
@@ -1768,7 +1814,7 @@ var srvr = http.createServer(function (req, res) {
 
   htmlStrBegin += '<body>' + br;
   //htmlStrBegin += '<div><h2>Node.js demo - YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="https://www.dropbox.com/s/tr9lgsviaf812l8/" target="_blank">Download JSON File</a></div>' + br;
-  htmlStrBegin += '<div><h2>YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="' + dropboxLink + '" target="_blank">Download JSON File</a><br/><br/>See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)</div>' + br;
+  htmlStrBegin += '<div><h2>YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="' + dropboxLink + '" target="_blank">Download JSON File</a><br/><br/>See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124; <a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>' + br;
 
 
   //  ['Youtube', 'Niconico', 'BiliBili', 'Twitter', 'Soundcloud', 'VK', 'Others'];
