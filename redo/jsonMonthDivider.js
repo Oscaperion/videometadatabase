@@ -5,8 +5,10 @@ const url = require('url');
 const http = require('http');
 console.log("Amane");
 
-var nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
-var nicoTags = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+//var tagsList  = [];
+const nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
+const nicoTags  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 //nicoTags.push(...JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
 /*
 {
@@ -259,6 +261,9 @@ for (let yy = 2023; yy >= 2004; yy--) {
                   console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
                   let tmp_id = tmpVid.id;
                   if (Array.isArray(tmpVid.id)) tmp_id = tmpVid.id[0];
+                  
+                  if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpVid.tags = optimizeTags(tmpVid.tags);
+
                   if (!gatheredIds.includes(tmp_id)) {
                      toBeSortedList.push(tmpVid);
                   } else {
@@ -339,3 +344,16 @@ for (let yy = 2023; yy >= 2004; yy--) {
     toBeSortedList = [];
 }
     }
+    
+    
+function optimizeTags(tagsArray) {
+   let tmpTags = [];
+
+   for (let k = 0; k < tagsArray.length; k++) {
+      let tmpIndex = tagsList.findIndex(ent => ent === tagsArray[k].toLowerCase().trim());
+      if (tmpIndex >= 0) tmpTags.push(tmpIndex);
+      else tmpTags.push(tagsArray[k]);
+   }
+   
+   return tmpTags;
+}
