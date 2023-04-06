@@ -17,15 +17,19 @@ let cYear = currentDate.getFullYear() + '';
 lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
 }
 
-//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+//const tagsList = [];
+const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+//const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
-//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
-const reuploadListLoc = 'vidJson2/reuploads.json';
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+
+const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+//const reuploadListLoc = 'vidJson2/reuploads.json';
 var reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
-//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
-const twitterUserLoc = 'vidJson2/twitterUserList.json';
+const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+//const twitterUserLoc = 'vidJson2/twitterUserList.json';
 var twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 fs.watchFile(reuploadListLoc, (curr,prev) => {
@@ -56,7 +60,7 @@ fs.watchFile(twitterUserLoc, (curr,prev) => {
      months.
 */
 const maxY = 202312;
-const minY = 200401;
+const minY = 202301;
 
 /*
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
@@ -209,8 +213,8 @@ let numm = 0;
 //for (y = minY; y <= maxY; y++) {
 for (let y = maxY; y >= minY; y--) {
 
-   //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-   let terappi = 'vidJson2/vids' + y + '.json';
+   let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+   //let terappi = 'vidJson2/vids' + y + '.json';
    console.log('Loading ' + terappi)  ;
    try {                         
      parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
@@ -818,8 +822,10 @@ function showList(searchWord, searchUploaderId,page) {
          videoList += '<br/><br/><code><b>Tags:</b> ';
          try {
             for (let tagN = 0; tagN < listedVideo.tags.length; tagN++) {
+              let tmpTag = listedVideo.tags[tagN];
+              if (typeof tmpTag !== "string") tmpTag = tagsList[tmpTag];
               thereAreNoTags = false;
-              videoList += '<a href=\"results.html?search=' + listedVideo.tags[tagN] + '\">' + listedVideo.tags[tagN] + '</a> ';
+              videoList += '<a href=\"results.html?search=' + tmpTag + '\">' + tmpTag + '</a> ';
             }
          } catch(err) {
             thereAreNoTags = true; 
@@ -866,7 +872,14 @@ function hasSearchWords(vidId,searchArray) {
            if (tmpTwt !== undefined) tmpStr += tmpTwt.id + " " + tmpTwt.handle.join(" ") + " ";
    }
 
-   if (tmpVid.tags !== undefined && tmpVid.tags !== null) tmpStr +=  tmpVid.tags.join(" ") + ' ';
+   if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) {
+      for (let poi = 0; poi < tmpVid.tags.length; poi++) {
+         let tmpTag = tmpVid.tags[poi];
+         if (typeof tmpTag !== "string") tmpTag = tagsList[tmpTag]
+
+         tmpStr += tmpTag + ' ';
+      }
+   }
 
    /*
    if (Array.isArray(tmpVid.id)) tmpStr += ' ' +  tmpVid.id.join(" ") + ' ';
