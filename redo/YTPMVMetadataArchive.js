@@ -102,7 +102,7 @@ console.log('Loading metadata...')  ;
 /*
    Determines how many entries are being shown per page.
 */
-const videosPerPage = 20;
+const videosPerPage = 15;
 
 /*
    Link to an external Dropbox repository that has a backup of the JSON files used for
