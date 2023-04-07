@@ -72,29 +72,32 @@ for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
 }
 
 console.log(ignoreUsers);
-
+       /*
 var vidds = [];
 
-for (let kii = 41; kii >= 0; kii--) {
+for (let kii = 41; kii >= 1; kii--) {
    let tmppp = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + kii + '.json'), 'utf8')).videos;
    vidds.push(tmppp);
    console.log(kii);
-        
+
+
    if (kii === 1) {
       let tmpppe = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json'), 'utf8'));
       vidds.push(tmpppe);
       console.log("Yay");
    }
-}
+}    */
 
-var toBeSortedList = [];
+//var toBeSortedList = [];
 
 var startChecking = false;
-var startCheckpoint = "202312";
+var startCheckpoint = "202304";
 //var startCheckpoint = "202005";
 
 for (let yy = 2023; yy >= 2004; yy--) {
   for (let mm = 12; mm >= 1; mm--) {
+    //forceGC();
+    let toBeSortedList = [];
     let mm_tmp = mm + '';
     if (mm < 10) {
        mm_tmp  = '0' + mm;
@@ -118,16 +121,19 @@ for (let yy = 2023; yy >= 2004; yy--) {
     console.log("Videos from period: " + yy + mm_tmp);
     gatheredIds = [];
 
-    for (let tu = 0; tu < vidds.length; tu++) {
-    //for (let tu = 41; tu >= 0; tu--) {
-        console.log("Checking vids" + tu);
+    //for (let tu = 0; tu < vidds.length; tu++) {
+    for (let tu = 41; tu >= -1; tu--) {
+       console.log("Checking vids" + tu);
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
-       //let parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8')).videos;
-       
+       let parsedVideos = [];
+       if (tu === 0) parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json'), 'utf8'));
+       if (tu === -1) parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids0.json'), 'utf8')).videos;
+       if (tu > 0) parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8')).videos;
+
        //let parsedVideos = vidds[tu];
-       if (vidds[tu].some(ent => ent.upload_date > minDate && ent.upload_date < maxDate) === false) continue;
-       let parsedVideos = vidds[tu].filter(ent => ent.upload_date > minDate && ent.upload_date < maxDate);
+       if (parsedVideos.some(ent => ent.upload_date > minDate && ent.upload_date < maxDate) === false) continue;
+       parsedVideos = parsedVideos.filter(ent => ent.upload_date > minDate && ent.upload_date < maxDate);
        let lrn = parsedVideos.length;
        for (let oi = 0; oi < lrn; oi++) {
            if (parsedVideos[oi].extractor_key === "BiliBili" && parsedVideos[oi].upload_date === undefined) {
@@ -155,11 +161,13 @@ for (let yy = 2023; yy >= 2004; yy--) {
                   tmpVid.title = '';
                }
 
+               let tmpTagss = [];
+
                if (tmpVid.extractor_key === "Niconico") {
                   let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
                   if (tmpTags === undefined) tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
                   if (tmpTags !== undefined) {
-                      let checkingTags = tmpTags.tags;
+                       let checkingTags = tmpTags.tags;
 
                        let checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
 
@@ -175,37 +183,17 @@ for (let yy = 2023; yy >= 2004; yy--) {
                              }
                           }
                        }
+                       if (checkingTags.length > 0) checkingTags = optimizeTags(checkingTags);
 
-                       tmpVid["tags"] = checkingTags;
+                       tmpTagss = checkingTags;
                   }
-
-                  /*
-                  for (let p = 0; p < nicoTags.length; p++) {
-                     if (nicoTags[p].id === tmpVid.id) {
-                       let checkingTags = nicoTags[p].tags;
-
-                       let checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
-
-                       for (let tt = 0; tt < checkingTags.length; tt++) {
-                          for (let pp = 0; pp < checkke.length; pp++) {
-                             let teeew = checkingTags[tt].indexOf(checkke[pp][0]);
-                             while (teeew > -1) {
-                                let tmoo1 = checkingTags[tt].substring(0,checkingTags[tt].indexOf(checkke[pp][0]));
-                                let tmoo2 = checkingTags[tt].substring(checkingTags[tt].indexOf(checkke[pp][0]) + checkke[pp][0].length);
-                                checkingTags[tt] = tmoo1 + checkke[pp][1] + tmoo2;
-                                teeew = checkingTags[tt].indexOf(checkke[pp][0]);
-                                // console.log("Patched Niconico tags");
-                             }
-                          }
-                       }
-
-                       tmpVid["tags"] = checkingTags;
-                       break;
-                     }
-                  }  */
                   // console.log("Adding tags for " + tmpVid.id);
                }
+               if (tmpVid.extractor_key !== "Niconico") {
+                  if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
+               }
 
+               tmpVid["tags"] = tmpTagss;
 
                if (tmpVid.extractor_key === "Youtube" && addForSure) {
                   let uploader_id_tmp = -1 // tmpVid.uploader_id;
@@ -261,8 +249,8 @@ for (let yy = 2023; yy >= 2004; yy--) {
                   console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
                   let tmp_id = tmpVid.id;
                   if (Array.isArray(tmpVid.id)) tmp_id = tmpVid.id[0];
-                  
-                  if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpVid.tags = optimizeTags(tmpVid.tags);
+
+
 
                   if (!gatheredIds.includes(tmp_id)) {
                      toBeSortedList.push(tmpVid);
@@ -341,11 +329,11 @@ for (let yy = 2023; yy >= 2004; yy--) {
     } else {
       console.log("Nothing found on " + yy + mm_tmp);
     }
-    toBeSortedList = [];
+    //toBeSortedList = [];
 }
     }
-    
-    
+
+
 function optimizeTags(tagsArray) {
    let tmpTags = [];
 
@@ -356,4 +344,13 @@ function optimizeTags(tagsArray) {
    }
    
    return tmpTags;
+}
+
+function forceGC() {
+   if (global.gc) {
+      global.gc();
+      console.log('Cleaning!');
+   } else {
+      console.warn('No GC hook! Start your program as `node --expose-gc file.js`.');
+   }
 }
