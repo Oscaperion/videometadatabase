@@ -113,7 +113,9 @@ for (let tu = 41; tu >= -1; tu--) {
        }
 }
 
-readFileJ(pathsS[pathCurrent]);
+for (let jj = 0; jj < pathsS.length; jj++) {
+   readFileJ(pathsS[jj]);
+}
                                              /*
        let tmmpArray = readFile(filepath,minDate,maxDate);
        toBeSortedList.push(...tmmpArray);  */
@@ -191,6 +193,41 @@ function listId(id_entry) {
 }
 
 function readFileJ(pathh) {
+    let tmpArray = JSON.parse(fs.readFileSync(pathh, 'utf8'));
+    if (!pathh.includes("finnredo")) tmpArray = tmpArray.videos;
+    
+    for (let iop = 0; iop < tmpArray.length; iop++) {
+       let tmppVid = entryEditor(tmpArray[iop]); 
+
+       if (tmppVid !== undefined /* && tmppVid.upload_date !== undefined */ ) {
+          if ( !ignoreUsers.includes(tmppVid.uploader_id)) {
+
+               console.log(pathh);
+               //console.log(tmppVid);
+               let  monthThmp = tmppVid.upload_date.substring(0,6);
+
+               if (allEntries[monthThmp]) {
+                  if (allEntries[monthThmp].findIndex(ent => ent.id === tmppVid.id) === -1) {
+
+                     console.log("Adding to " + monthThmp);
+                     allEntries[monthThmp].push(tmppVid);
+                     //listId(tmppVid.id);
+                  } else {
+                     console.log ("Already in " + monthThmp);
+                  }
+               }
+               else {
+                  console.log("Initializing " + monthThmp);
+                  allEntries[monthThmp] = [tmppVid] ;
+                  //listId(tmppVid.id);
+               }
+
+          }
+       }
+    }
+}
+
+function readFileJStream(pathh) {
    //let tmpArray = [];
    let stream = fs.createReadStream(pathh, { encoding: 'utf8' });
    console.log(pathh);
@@ -230,7 +267,6 @@ function readFileJ(pathh) {
    });
 
    parser.on('error', err => {
-      // handle error
       console.error(err);
    });
    
@@ -241,13 +277,9 @@ function readFileJ(pathh) {
        } else {
           writeFiles();
        }
-
-      //console.log(allEntries);
    });
 
    stream.pipe(parser);
-
-   //return tmpArray;
 }
 
 function writeFiles() {
