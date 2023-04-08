@@ -92,7 +92,7 @@ var allEntries = {};
 var pathsS = [];
 var pathCurrent = 0;
 
-for (let tu = 41; tu >= 41; tu--) {
+for (let tu = 41; tu >= -1; tu--) {
 
     //for (let tu = 0; tu < vidds.length; tu++) {
     //for (let tu = 41; tu >= -1; tu--) {
@@ -202,20 +202,29 @@ function readFileJ(pathh) {
    parser.on('data', function(data) {
       //console.log(data);
       let tmppVid = entryEditor(data);
-      if (tmppVid !== undefined) {
-         if (!ignoreUsers.includes(tmppVid.uploader_id) || !gatheredIds.includes(tmppVid.id)) {
-            console.log(pathh);
-            //console.log(tmppVid);
-            if (allEntries[tmppVid.upload_date.substring(0,6)]) {
-               console.log("Adding to " + tmppVid.upload_date.substring(0,6));
-               allEntries[tmppVid.upload_date.substring(0,6)].push(tmppVid);
-               listId(tmppVid.id);
-            }
-            else {
-               console.log("Initializing " + tmppVid.upload_date.substring(0,6));
-               allEntries[tmppVid.upload_date.substring(0,6)] = [tmppVid] ;
-               listId(tmppVid.id);
-            }
+      if (tmppVid !== undefined /* && tmppVid.upload_date !== undefined */ ) {
+         if ( !ignoreUsers.includes(tmppVid.uploader_id)) {
+
+               console.log(pathh);
+               //console.log(tmppVid);
+               let  monthThmp = tmppVid.upload_date.substring(0,6);
+
+               if (allEntries[monthThmp]) {
+                  if (allEntries[monthThmp].findIndex(ent => ent.id === tmppVid.id) === -1) {
+
+                     console.log("Adding to " + monthThmp);
+                     allEntries[monthThmp].push(tmppVid);
+                     //listId(tmppVid.id);
+                  } else {
+                     console.log ("Already in " + monthThmp);
+                  }
+               }
+               else {
+                  console.log("Initializing " + monthThmp);
+                  allEntries[monthThmp] = [tmppVid] ;
+                  //listId(tmppVid.id);
+               }
+
          }
       }
    });
@@ -257,8 +266,8 @@ function writeFiles() {
           return 1;
        });
        
-       fs.writeFileSync('F:/test/' + valueNames[i] + '.json', JSON.stringify(entTmp));
-       //console.log(valueNames[i] + ": " + entTmp[0].upload_date);
+       fs.writeFileSync('F:/test/vids' + valueNames[i] + '.json', JSON.stringify(entTmp));
+       console.log(valueNames[i] + ": " + entTmp[0].upload_date);
    }
 }
 
@@ -266,7 +275,8 @@ function entryEditor(entry) {
    //let parsedVideos = vidds[tu];
    //if (entry.upload_date > minDate && entry.upload_date < maxDate) return undefined;
 
-   if (entry.extractor_key === "BiliBili" && entry.upload_date === undefined) {
+   if (entry.upload_date === undefined) {
+   //if (entry.extractor_key === "BiliBili" && entry.upload_date === undefined) {
       // console.log("Bilibili with undefined release date: not adding");
       return undefined;
    }
