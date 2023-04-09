@@ -26,7 +26,7 @@ const nicoTags  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata A
      console.log("Kanata");
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
-var gatheredIds = [];
+//var gatheredIds = [];
 
 var ignoreUsers = [];
 /*
@@ -113,58 +113,40 @@ for (let tu = 41; tu >= -1; tu--) {
        }
 }
 
+/*
 for (let jj = 0; jj < pathsS.length; jj++) {
    readFileJ(pathsS[jj]);
+} */
+
+var gatheredIds = [];
+
+for (let mont = 201905; mont >= 200601; mont--) {
+   let tmpMo = [];
+   gatheredIds = [];
+
+   for (let jj = 0; jj < pathsS.length; jj++) {
+      console.log ("Fuyo " + pathsS[jj] + " " + mont);
+      let tmpMo2 = readFileMonthly(pathsS[jj],mont);
+
+      tmpMo.push(...tmpMo2);
+   }
+   
+   tmpMo.sort((a,b) => {
+      //let titleA = a.title + a.id;
+      //if (a.extractor_key === "Twitter") titleA = a.id;
+      //let titleB = b.title + b.id;
+      //if (b.extractor_key === "Twitter") titleB = b.id;
+      
+      if (a.upload_date + a.title + a.id > b.upload_date + b.title + b.id) return -1
+      return 1;
+   });
+   
+   fs.writeFileSync('F:/test/vids' + mont + '.json', JSON.stringify(tmpMo));
+   
+   let moont = mont + '';
+
+   if (moont.substring(4) === '01' ) mont = mont - 88;
 }
-                                             /*
-       let tmmpArray = readFile(filepath,minDate,maxDate);
-       toBeSortedList.push(...tmmpArray);  */
-    // }
-        /*
-    // First, we sort by title
-    toBeSortedList = toBeSortedList.sort(function(a,b) {
-
-       let nameA = (a.title + ' ' + a.id).toUpperCase();
-       let nameB = (b.title + ' ' + b.id).toUpperCase();
-
-       if (nameA < nameB) {
-          return -1; //nameA comes first
-       }
-       if (nameA > nameB) {
-          return 1; // nameB comes first
-       }
-       return 0;  // names must be equal
-
-    });
-    console.log("Sorting 1");
-    // Then by upload date
-    toBeSortedList = toBeSortedList.sort(function(a,b) {
-       let nameA = a.upload_date ;
-       let nameB = b.upload_date ;
-       
-       if (nameA === undefined) nameA = "0";
-       if (nameB === undefined) nameB = "0";
-
-       if (nameA < nameB) {
-          return 1; //nameB comes first
-       }
-       if (nameA > nameB) {
-          return -1; // nameA comes first
-       }
-       return 0;  // names must be equal
-
-    });
-    console.log("Sorting 2");
-
-    if (toBeSortedList.length > 0) {
-      let miii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + yy + mm_tmp + '.json';
-      //fs.writeFileSync(miii, JSON.stringify({videos: toBeSortedList}));
-      fs.writeFileSync(miii, JSON.stringify(toBeSortedList));
-    } else {
-      console.log("Nothing found on " + yy + mm_tmp);
-    }
-    //toBeSortedList = [];
-                           */
 
 function optimizeTags(tagsArray) {
    let tmpTags = [];
@@ -174,7 +156,7 @@ function optimizeTags(tagsArray) {
       if (tmpIndex >= 0) tmpTags.push(tmpIndex);
       else tmpTags.push(tagsArray[k]);
    }
-   
+
    return tmpTags;
 }
 
@@ -192,12 +174,43 @@ function listId(id_entry) {
    else gatheredIds.push(id_entry);
 }
 
+function readFileMonthly(pathh,targetMonth) {
+    let tmpArray = JSON.parse(fs.readFileSync(pathh, 'utf8'));
+    if (!pathh.includes('finnredo')) tmpArray = tmpArray.videos;
+    let tmpTarg = '' + targetMonth;
+    let tmpRet = [];
+    let tmpPos = tmpArray.findIndex(ent => ( (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) ));
+
+    if (tmpPos === -1)  return tmpRet;
+
+
+    for (let iop = 0; iop < tmpArray.length; iop++) {
+       let tmppVid = entryEditor(tmpArray[iop],tmpTarg);
+
+       if (tmppVid === undefined) continue;
+
+       let monthThmp = tmppVid.upload_date.substring(0,6);
+
+       /*
+       if (tmpTarg !== monthThmp) {
+          console.log(tmppVid.id + " doesn't fit upload month");
+          continue;
+       }      */
+         console.log(pathh);
+         console.log("Adding to " + monthThmp);
+         //gatheredIds.push(tmppVid.id);
+         tmpRet.push(tmppVid);
+         listId(tmppVid.id);
+    }
+    return tmpRet;
+}
+
 function readFileJ(pathh) {
     let tmpArray = JSON.parse(fs.readFileSync(pathh, 'utf8'));
     if (!pathh.includes("finnredo")) tmpArray = tmpArray.videos;
     
     for (let iop = 0; iop < tmpArray.length; iop++) {
-       let tmppVid = entryEditor(tmpArray[iop]); 
+       let tmppVid = entryEditor(tmpArray[iop]);
 
        if (tmppVid !== undefined /* && tmppVid.upload_date !== undefined */ ) {
           if ( !ignoreUsers.includes(tmppVid.uploader_id)) {
@@ -303,15 +316,23 @@ function writeFiles() {
    }
 }
 
-function entryEditor(entry) {
+function entryEditor(entry,targetMonth) {
    //let parsedVideos = vidds[tu];
    //if (entry.upload_date > minDate && entry.upload_date < maxDate) return undefined;
+   {
+     if (ignoreUsers.includes(entry.uploader_id)) return undefined;
+     let tttmp_id = entry.id;
+     if (Array.isArray(entry.id)) tttmp_id = entry.id[0];
+     if (gatheredIds.includes(tttmp_id)) return undefined;
+   }
 
-   if (entry.upload_date === undefined) {
+   if (entry.upload_date === undefined || entry.upload_date === null) {
    //if (entry.extractor_key === "BiliBili" && entry.upload_date === undefined) {
       // console.log("Bilibili with undefined release date: not adding");
       return undefined;
    }
+   //console.log(entry.upload_date.substring(0,6) + " --- " + targetMonth + (entry.upload_date.substring(0,6) === targetMonth));
+   if (entry.upload_date.substring(0,6) !== targetMonth) return undefined;
 
    //if (parsedVideos[oi].upload_date > minDate && parsedVideos.videos[oi].upload_date < maxDate)
    {

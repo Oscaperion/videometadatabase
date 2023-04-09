@@ -102,7 +102,10 @@ var minY = 1;
     //let terappi = 'vidJson2/vids' + y + '.json';
     console.log('Loading ' + terappi)  ;
     try {
-       parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8'))["videos"]);
+       let fileTmp = JSON.parse(fs.readFileSync(terappi, 'utf8'))["videos"];
+       
+
+       parsedVideos.push(...fileTmp.map(ent => ent.tags));
        console.log('Loaded!')  ;
     } catch(e) {
        console.error(`${e.name}: ${e.message}`);
@@ -114,10 +117,10 @@ var minY = 1;
   //let gatheredIds = [];
 
   for (let x = 0; x < parsedVideos.length; x++) {
-    let tmp1 = parsedVideos[x].tags;
+    let tmp1 = parsedVideos[x];
 
     if (tmp1 === undefined || tmp1 === null || tmp1.length === 0 /* || gatheredIds.includes(parsedVideos[x].id) */ ) continue;
-    console.log(x + " / " + parsedVideos.length + " -- Handling: " + parsedVideos[x].upload_date + " --- " + parsedVideos[x].id) ;
+    console.log(x + " / " + parsedVideos.length ); // + " -- Handling: " + parsedVideos[x].upload_date + " --- " + parsedVideos[x].id) ;
     //gatheredIds.push(parsedVideos[x].id);
 
     //tagsAll.push(...tmp1);
