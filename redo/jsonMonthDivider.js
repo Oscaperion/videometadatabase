@@ -4,6 +4,9 @@ var fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
+const maxMonth = 202304;
+const minMonth = 200601;
+
 const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
 //var tagsList  = [];
 const nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
@@ -120,7 +123,7 @@ for (let jj = 0; jj < pathsS.length; jj++) {
 
 var gatheredIds = [];
 
-for (let mont = 201905; mont >= 200601; mont--) {
+for (let mont = maxMonth; mont >= minMonth; mont--) {
    let tmpMo = [];
    gatheredIds = [];
 
@@ -140,9 +143,9 @@ for (let mont = 201905; mont >= 200601; mont--) {
       if (a.upload_date + a.title + a.id > b.upload_date + b.title + b.id) return -1
       return 1;
    });
-   
-   fs.writeFileSync('F:/test/vids' + mont + '.json', JSON.stringify(tmpMo));
-   
+
+   fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont + '.json', JSON.stringify(tmpMo));
+
    let moont = mont + '';
 
    if (moont.substring(4) === '01' ) mont = mont - 88;
@@ -184,12 +187,16 @@ function readFileMonthly(pathh,targetMonth) {
     if (tmpPos === -1)  return tmpRet;
 
 
-    for (let iop = 0; iop < tmpArray.length; iop++) {
-       let tmppVid = entryEditor(tmpArray[iop],tmpTarg);
+    //for (let iop = 0; iop < tmpArray.length; iop++) {
+    while (tmpPos !== -1) {
+       let tmppVid = entryEditor(tmpArray[tmpPos],tmpTarg);
 
-       if (tmppVid === undefined) continue;
+       if (tmppVid === undefined) {
+          tmpPos = tmpArray.findIndex((ent,ind) => ( (ind > tmpPos) && (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) ));
+          continue;
+       }
 
-       let monthThmp = tmppVid.upload_date.substring(0,6);
+       //let monthThmp = tmppVid.upload_date.substring(0,6);
 
        /*
        if (tmpTarg !== monthThmp) {
@@ -197,10 +204,11 @@ function readFileMonthly(pathh,targetMonth) {
           continue;
        }      */
          console.log(pathh);
-         console.log("Adding to " + monthThmp);
+         console.log("Adding to " + tmpTarg);
          //gatheredIds.push(tmppVid.id);
          tmpRet.push(tmppVid);
          listId(tmppVid.id);
+         tmpPos = tmpArray.findIndex((ent,ind) => ( (ind > tmpPos) && (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) ));
     }
     return tmpRet;
 }
