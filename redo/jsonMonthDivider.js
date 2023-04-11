@@ -4,7 +4,7 @@ var fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
-const maxMonth = 202304;
+const maxMonth = 202312;
 const minMonth = 200601;
 
 const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
@@ -30,6 +30,7 @@ const nicoTags  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata A
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
 //var gatheredIds = [];
+
 
 var ignoreUsers = [];
 /*
@@ -116,6 +117,32 @@ for (let tu = 41; tu >= -1; tu--) {
        }
 }
 
+var monthCheck = {};
+
+for (let tr = 0; tr < pathsS.length; tr++) {
+   let tmoe = JSON.parse(fs.readFileSync(pathsS[tr], 'utf8'));
+   if (!pathsS[tr].includes("finnredo")) tmoe = tmoe.videos;
+   
+   for (let wer = maxMonth; wer >= minMonth; wer--) {
+      let tmpsstr = wer + "_" + tr;
+      let tmmw  = tmoe.findIndex(ent => ent.upload_date !== undefined && ent.upload_date.substring(0,6) === ('' + wer) );
+      let tmmw2 = true;
+      if (tmmw === -1) tmmw2 = false;
+
+      monthCheck[tmpsstr] = tmmw2;
+      
+      console.log(tmpsstr + " -> " + tmmw2);
+
+      if ((wer + '').substring(4) === '01' ) wer = wer - 88;
+   }
+   // console.log(tr);
+
+   //maxMonth
+   //minMonth
+}
+
+console.log(monthCheck);
+
 /*
 for (let jj = 0; jj < pathsS.length; jj++) {
    readFileJ(pathsS[jj]);
@@ -129,7 +156,10 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
 
    for (let jj = 0; jj < pathsS.length; jj++) {
       console.log ("Fuyo " + pathsS[jj] + " " + mont);
-      let tmpMo2 = readFileMonthly(pathsS[jj],mont);
+
+      let tmpMo2 = [];
+      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly(pathsS[jj],mont);
+      else console.log("Skipping " + mont);
 
       tmpMo.push(...tmpMo2);
    }
@@ -144,7 +174,7 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
       return 1;
    });
 
-   fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont + '.json', JSON.stringify(tmpMo));
+   if (tmpMo.length > 0) fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont + '.json', JSON.stringify(tmpMo));
 
    let moont = mont + '';
 
@@ -178,10 +208,12 @@ function listId(id_entry) {
 }
 
 function readFileMonthly(pathh,targetMonth) {
+    let tmpRet = [];
+
+
     let tmpArray = JSON.parse(fs.readFileSync(pathh, 'utf8'));
     if (!pathh.includes('finnredo')) tmpArray = tmpArray.videos;
     let tmpTarg = '' + targetMonth;
-    let tmpRet = [];
     let tmpPos = tmpArray.findIndex(ent => ( (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) ));
 
     if (tmpPos === -1)  return tmpRet;
