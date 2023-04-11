@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 200401;
+const minMonth = 202303;//200401;
 
 /*
    Determines how many entries are being shown per page.
@@ -74,18 +74,18 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
      If a Twitter account isn't listed, the database will provide a non-static link.
 */
 
-//const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
-const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
+const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+//const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
-//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
-const reuploadListLoc = 'vidJson2/reuploads.json';
+const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+//const reuploadListLoc = 'vidJson2/reuploads.json';
 var reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
-//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
-const twitterUserLoc = 'vidJson2/twitterUserList.json';
+const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+//const twitterUserLoc = 'vidJson2/twitterUserList.json';
 var twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 /*
@@ -134,7 +134,7 @@ function forceGC() {
 /*
    Linebreak for strings
 */
-const br =  '\r\n';
+const breakline =  '\r\n';
 
 /*
    This will be used to determine, whether or not the provided search words will be
@@ -214,8 +214,8 @@ console.log('Loading metadata...');
 {
    let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
-      //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-      let terappi = 'vidJson2/vids' + y + '.json';
+      let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+      //let terappi = 'vidJson2/vids' + y + '.json';
       console.log('Loading ' + terappi)  ;
       try {
          parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
@@ -243,7 +243,7 @@ function formatDuration(justSeconds) {
     let minute = 60;
 
     let mins = 0;
-    let secs = justSeconds;
+    let secs = Math.ceil(justSeconds);
     
     while (secs >= minute) {
         mins++;
@@ -322,7 +322,8 @@ function htmlLinkCompiler(address,txt = null) {
    return '<a href="' + address + '" target="_blank">' + tmpTxt + '</a>';
 }
 
-function userLinkCompiler(userName,userId,site = null) {
+
+function userLinkCompiler(userName,userId,site) {
    if (site === "Youtube") {
       let idTmp = userId;
       let multipleId = false;
@@ -331,32 +332,35 @@ function userLinkCompiler(userName,userId,site = null) {
          multipleId = true;
       }
 
-      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler(code,idTmp) + ']'));
+      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']'));
       
-      let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler(code,idTmp[0]) + ']'));
+      let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler("code",idTmp[0]) + ']'));
       for (let j = 1; j < idTmp.length; j++) {
-         retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler(code,idTmp[j]) + ']'));
+         retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
+      
+      return retStr;
    }
-   if (site === "Twitter") {
-      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler(code,userId) + ']'));
-   }
-   else {
-
-   }
+   if (site === "Twitter" || site === "Niconico") {
+      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']'));
+   }      
 }
 
-function userAddressCompiler(id,site) {
+function userAddressCompiler(id_,site) {
    if (site === "Twitter") {
-      let tmp1 = twitterUserList.findIndex(ent => ent.handle.includes(id));
-      if (tmp1 === -1) return 'https://twitter.com/' + id;
-      return 'https://twitter.com/i/user/' + twitterUserList[tmp1];
+      let tmp1 = twitterUserList.findIndex(ent => ent.handle.includes(id_));
+      if (tmp1 === -1) return 'https://twitter.com/' + id_;
+      return 'https://twitter.com/i/user/' + twitterUserList[tmp1].id;
    }
    
    if (site === "Youtube") {
-      if (id.length === 24 && id.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id;
-      if (id.charAt(0) === '@') return "https://www.youtube.com/" + id;
-      return "https://www.youtube.com/user/" + id;
+      if (id.length === 24 && id.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id_;
+      if (id.charAt(0) === '@') return "https://www.youtube.com/" + id_;
+      return "https://www.youtube.com/user/" + id_;
+   }
+
+   if (site === "Niconico") {
+      return "https://www.nicovideo.jp/user/" + id_;
    }
 }
 
@@ -373,16 +377,43 @@ function videoTags(vidTags) {
    return tagsTmp;
 }
 
+function videoLinkCompiler(id,site) {
+   if (site === "Twitter")  return htmlLinkCompiler('https://twitter.com/i/status/' + id);
+   if (site === "Youtube")  return htmlLinkCompiler('https://www.youtube.com/watch?v=' + id);
+   if (site === "Niconico") return htmlLinkCompiler('https://www.nicovideo.jp/watch/' + id);
+   if (site === "BiliBili") return htmlLinkCompiler('https://www.bilibili.com/video/' + id[0]) + ' / ' + htmlLinkCompiler('https://www.bilibili.com/video/' + id[1],id[1]);
+}
+
+console.log(compileEntry(parsedVideos[0]));
+console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Twitter")));
+console.log(compileEntry(parsedVideos.find(ent => ent.tags.length > 0)));
+console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK")));
+
+
 /*
    Creates a <div> segment of a singular video entry.
 */
 function compileEntry(video) {
-   let tagsTmp = videoTags(video.tags);
 
    let userAddress = "";
-   if (video.uploader_url !== undefined || video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + video.uploader_id + ']');
+   if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']');
    else {
-      if (video.extractor_key === "Youtube" && video.uId !== undefined) userAddress = userAddressCompiler(video.uId,video.extractor_key);
-      else userAddress = userAddressCompiler(video.uploader_id,video.extractor_key);
+      if (video.extractor_key === "Youtube" && video.uId !== undefined) userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key) + "Blol";
+      else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key) + "Blal";
    }
+
+   let titleTmp = videoLinkCompiler(video.id, video.extractor_key) + ' (' + formatDuration(video.duration) + ')';
+   if (video.extractor_key !== "Twitter") {
+      titleTmp = htmlBlockCompiler("b",video.title) + ' (' + formatDuration(video.duration) + ')<br/>' + breakline;
+      if (video.webpage_url !== undefined) titleTmp += htmlBlockCompiler("code",htmlLinkCompiler(video.webpage_url));
+      else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
+   }
+
+   userAddress = breakline + "Uploader: " + userAddress + '<br/>' + breakline;
+   
+   let releaseDate = "Release date: " + video.upload_date+ '<br/><br/>' + breakline;
+
+   let tagsTmp = videoTags(video.tags);
+
+   return titleTmp + userAddress + releaseDate + tagsTmp;
 }
