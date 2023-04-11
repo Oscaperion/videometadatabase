@@ -1380,21 +1380,6 @@ function createList(searchWord) {
           break;
        }
     }
-    /*
-    let checkMarkBoolean = [];
-    for (let pp = 0; pp < checkMarks.length; pp++) {
-        if (checkMarks[pp] === undefined || checkMarks[pp] !== 'true') {
-           checkMarkBoolean.push(false);
-        } else {
-           checkMarkBoolean.push(true);
-           noCheckmarks = false;
-        }
-    }
-    */
-    /*
-    console.log(checkMarks);
-    console.log(checkMarkBoolean); 
-    console.log(noCheckmarks);*/
 
     // This is here in case someone provides an empty string which prompts the database to show all videos. This avoids running the comparison check needlessly
     // var tmpDread = searchWord.trim() + ' ';
@@ -1404,9 +1389,6 @@ function createList(searchWord) {
         runThis = false;
         
         showAllVideos = true;
-        // showcasedVideos = showcasingAllVideos;
-       // showcasedVideos = null;
-       //console.log( showcasedVideos);
         console.log('Showing all videos!');
     }
 
