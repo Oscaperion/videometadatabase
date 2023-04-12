@@ -167,7 +167,7 @@ var showVidPrev = false;
       videos in the database. If no search query is given, the database shows all
       videos by default.
 */
-var showAllVideos = true;
+//var showAllVideos = true;
 
 /*
    These are to be used as part of queries that specify certain dates. Also used to 
@@ -185,13 +185,13 @@ var customRangeApplied = false;
      entries, aside from the last option. The "Others" option covers every other site,
      that hasn't been listed.
 */
-var sitesList = [ {'site': 'Youtube',    'isIgnored':false},
-                  {'site': 'Niconico',   'isIgnored':false},
-                  {'site': 'BiliBili',   'isIgnored':false},
-                  {'site': 'Twitter',    'isIgnored':false},
-                  {'site': 'Soundcloud', 'isIgnored':false},
-                  {'site': 'VK',         'isIgnored':false},
-                  {'site': 'Kakao',      'isIgnored':false}];
+var sitesList = [ {'site': 'Youtube',    'isIgnored':true},
+                  {'site': 'Niconico',   'isIgnored':true},
+                  {'site': 'BiliBili',   'isIgnored':true},
+                  {'site': 'Twitter',    'isIgnored':true},
+                  {'site': 'Soundcloud', 'isIgnored':true},
+                  {'site': 'VK',         'isIgnored':true},
+                  {'site': 'Kakao',      'isIgnored':true}];
                   //{'site': 'Others',     'isIgnored':false}];
 
 const otherSitePlaceholder = "Others";
@@ -253,11 +253,11 @@ function formatDuration(justSeconds) {
         mins++;
         secs = secs - minute;
     }
-    
+
     if (secs < 10 && mins < 60) {
         return mins + ':0' + secs;
     }
-    
+
     if (mins < 60) {
         return mins + ':' + secs;
     }
@@ -319,13 +319,32 @@ function optimizeSearching(searchWord,exactSearch) {
     return tmp2.sort((a, b) => b.length - a.length);
 }
 
-findVideos("   ",99);
+function isSameUser(searchUserStr,video) {
+   if (video.uId === undefined) return video.uploader_id === searchUserStr.trim();
+   return youtubeUserList[video.uId].includes(searchUserStr.trim());
+}
+
+function ignoredSitesPresent() {
+   return sitesList.some(ent => ent.isIgnored === true);
+}
+
+
+function compileList() {
+   let retStr = '<hr/>' + breakline;
+   
+   for (let i = 0; i < foundVids.length; i++) {
+      retStr += compileEntry(parsedVideos[foundVids[i]]) + breakline + '<hr/>' + breakline;
+   }
+
+   return retStr;
+}
+
+findVideos("",1);
 console.log(foundVids);
 console.log(pageNumber + " / " + pageTotal);
-console.log(compileEntry(parsedVideos[foundVids[0]]));
+//console.log(compileEntry(parsedVideos[foundVids[3]]));
+console.log(compileList());
 //console.log(hasSearchWords(["mr","beast"],parsedVideos[foundVids[0]]));
-
-
 
 //var pageNumber = 1;
 //var pageTotal = 1;
@@ -333,11 +352,12 @@ console.log(compileEntry(parsedVideos[foundVids[0]]));
 // videosPerPage
 //
 function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId = null) {
+   let showAllVideos = false;
    foundVids = [];
    let searchTmp = optimizeSearching(searchWord,exactSearch);
    console.log(searchTmp);
-   if (searchTmp === undefined) showAllVideos = true;
-   else showAllVideos = false;
+   if (searchTmp === undefined && searchUploaderId === null && !ignoredSitesPresent()) showAllVideos = true;
+   //else showAllVideos = false;
    
    if (showAllVideos) {
       pageTotal = Math.ceil(parsedVideos.length / videosPerPage);
@@ -345,33 +365,37 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       let pageTmp = reqPage;
       if (pageTmp > pageTotal || pageTmp < 1) pageTmp = 1;
       let searchThres = (pageTmp - 1) * videosPerPage;
-      
+
       foundVids = [];
       
       for (let u = searchThres; u < (searchThres + videosPerPage) && u < parsedVideos.length; u++) {
-          foundVids.push(u);
+         foundVids.push(u);
       }
    }
 
    else {
       let foundVidAmount = 0;
-      let vidTmp1 = parsedVideos.findIndex(ent => hasSearchWords(searchTmp,ent));
+      let searchUploaderToo = !(searchUploaderId === null);
+      let vidTmp1 = parsedVideos.findIndex(ent => {
+         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
+         if (tmp2 === -1) tmp2 = sitesList.length - 1;
+         if (sitesList[tmp2].isIgnored) return false;
+         if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
+         return hasSearchWords(searchTmp,ent);
+      });
 
       if (vidTmp1 !== -1) {
          let tmp1 = reqPage - 1;
-         if (tmp1 < 0) { 
+         if (tmp1 < 0) {
             tmp1 = 0;
             pageNumber = 1;
          }
          let searchThres = tmp1 * videosPerPage;
          let overPage = true;
-         //let firstVideosShown = false;
          if (searchThres === 0) overPage = false;
-         //foundVids.push(vidTmp1);
-         //foundVidAmount++;
 
          while (vidTmp1 > -1) {
-            if (foundVidAmount >= searchThres && overPage) {
+            if (overPage && foundVidAmount >= searchThres) {
                overPage = false;
                foundVids = [];
                pageNumber = reqPage;
@@ -381,23 +405,19 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
                foundVids.push(vidTmp1);
             }
 
-            /*
-            if (!overPage && (searchThres + videosPerPage) < foundVidAmount) {
-               foundVids.push(vidTmp1);
-            }
-
-            if (!firstVideosShown && videosPerPage > foundVidAmount) {
-               foundVids.push(vidTmp1);
-               if (foundVidAmount < (videosPerPage - 1)) firstVideosShown = true;
-            }      */
-
             foundVidAmount++;
 
-
-
-            vidTmp1 = parsedVideos.findIndex((ent,ind) => ind > vidTmp1 && hasSearchWords(searchTmp,ent));
+            // sitesList = [ {'site': 'Youtube',    'isIgnored
+            vidTmp1 = parsedVideos.findIndex((ent,ind) => {
+               if (!(ind > vidTmp1)) return false;
+               let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
+               if (tmp2 === -1) tmp2 = sitesList.length - 1;
+               if (sitesList[tmp2].isIgnored) return false;
+               if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
+               return hasSearchWords(searchTmp,ent);
+            });
          }
-         
+
          pageTotal = Math.ceil(foundVidAmount / videosPerPage);
          console.log(foundVidAmount);
       }
@@ -405,6 +425,8 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 }
 
 function hasSearchWords(searchWord,video) {
+   if (searchWord === undefined) return true;
+
    for (let i = 0; i < searchWord.length; i++) {
       if (!hasSearchWord(searchWord[i],video)) return false;
    }
@@ -415,7 +437,13 @@ function hasSearchWord(searchWord,video) {
    if (video.title !== undefined && video.title !== null && video.title.toLowerCase().includes(searchWord)) return true;
 
    if (video.description !== undefined && video.description !== null && video.description.toLowerCase().includes(searchWord)) return true;
-   
+
+   if (video.id !== undefined && video.id !== null) {
+      let iddTmp = video.id;
+      if (Array.isArray(video.id)) iddTmp = video.id.join(" ");
+      if (iddTmp.toLowerCase().includes(searchWord)) return true;
+   }
+
    {
       let tagsTmp = videoTags(video.tags);
       if (tagsTmp.length > 0 && tagsTmp.join(" ").toLowerCase().includes(searchWord)) return true;
@@ -426,13 +454,7 @@ function hasSearchWord(searchWord,video) {
    if (video.uploader !== undefined && video.uploader !== null && video.uploader.toLowerCase().includes(searchWord)) return true;
 
    if (video.uploader_id !== undefined && video.uploader_id !== null && video.uploader_id.toLowerCase().includes(searchWord)) return true;
-   
-   if (video.id !== undefined && video.id !== null) {
-      let iddTmp = video.id;
-      if (Array.isArray(video.id)) iddTmp = video.id.join(" ");
-      if (iddTmp.toLowerCase().includes(searchWord)) return true;
-   }
-   
+
    return false;
 }
 
@@ -537,7 +559,6 @@ console.log(compileEntry(parsedVideos[0]));
 console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Youtube")));
 console.log(compileEntry(parsedVideos.find(ent => ent.tags.length > 0)));
 console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK"))); */
-
 
 
 /*
