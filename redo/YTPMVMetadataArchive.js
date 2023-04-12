@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 202303;//200401;
+const minMonth = 200401;
 
 /*
    Determines how many entries are being shown per page.
@@ -136,6 +136,10 @@ function forceGC() {
 */
 const breakline =  '\r\n';
 
+var pageNumber = 1;
+var pageTotal = 1;
+var foundVids = [];
+
 /*
    This will be used to determine, whether or not the provided search words will be
      processed exactly as presented. Search words are processed separately by default.
@@ -156,7 +160,7 @@ var showVidPrev = false;
 /* 
    This will be used to store the search words of a query.
 */
-var searchWords = [];
+//var searchWords = [];
 
 /*
    This determines, whether or not the database will process a query or show all the 
@@ -289,13 +293,19 @@ function formatDuration(justSeconds) {
    2. Sorts them from longest to shortest. The longer the search word, the less likely
       there will be matches and the database should be able to process them quicker.
 */
-function optimizeSearching(searchArray) {
+function optimizeSearching(searchWord,exactSearch) {
+    if (searchWord === undefined || searchWord === null || searchWord.trim().length === 0) return undefined;
+
+    if (exactSearch) return [searchWord.trim()];
+
+    let searchArray = searchWord.split(" ").filter(ent => ent.length > 0);
+
     let tmp1 = searchArray.sort((a, b) => a.length - b.length);
     let tmp2 = [];
 
     for (let k = 0; k < tmp1.length; k++) {
        let includeStr = true;
-       
+
        for (let m = tmp1.length - 1; m > k; m--) {
           if (tmp1[m].includes(tmp1[k])) {
              includeStr = false;
@@ -303,15 +313,132 @@ function optimizeSearching(searchArray) {
           }
        }
 
-       if (includeStr) tmp2.push(tmp1[k]);
+       if (includeStr) tmp2.push(tmp1[k].toLowerCase());
     }
     
     return tmp2.sort((a, b) => b.length - a.length);
 }
 
+findVideos("   ",99);
+console.log(foundVids);
+console.log(pageNumber + " / " + pageTotal);
+console.log(compileEntry(parsedVideos[foundVids[0]]));
+//console.log(hasSearchWords(["mr","beast"],parsedVideos[foundVids[0]]));
+
+
+
+//var pageNumber = 1;
+//var pageTotal = 1;
+
+// videosPerPage
+//
+function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId = null) {
+   foundVids = [];
+   let searchTmp = optimizeSearching(searchWord,exactSearch);
+   console.log(searchTmp);
+   if (searchTmp === undefined) showAllVideos = true;
+   else showAllVideos = false;
+   
+   if (showAllVideos) {
+      pageTotal = Math.ceil(parsedVideos.length / videosPerPage);
+      
+      let pageTmp = reqPage;
+      if (pageTmp > pageTotal || pageTmp < 1) pageTmp = 1;
+      let searchThres = (pageTmp - 1) * videosPerPage;
+      
+      foundVids = [];
+      
+      for (let u = searchThres; u < (searchThres + videosPerPage) && u < parsedVideos.length; u++) {
+          foundVids.push(u);
+      }
+   }
+
+   else {
+      let foundVidAmount = 0;
+      let vidTmp1 = parsedVideos.findIndex(ent => hasSearchWords(searchTmp,ent));
+
+      if (vidTmp1 !== -1) {
+         let tmp1 = reqPage - 1;
+         if (tmp1 < 0) { 
+            tmp1 = 0;
+            pageNumber = 1;
+         }
+         let searchThres = tmp1 * videosPerPage;
+         let overPage = true;
+         //let firstVideosShown = false;
+         if (searchThres === 0) overPage = false;
+         //foundVids.push(vidTmp1);
+         //foundVidAmount++;
+
+         while (vidTmp1 > -1) {
+            if (foundVidAmount >= searchThres && overPage) {
+               overPage = false;
+               foundVids = [];
+               pageNumber = reqPage;
+            }
+            
+            if (foundVids.length < 15) {
+               foundVids.push(vidTmp1);
+            }
+
+            /*
+            if (!overPage && (searchThres + videosPerPage) < foundVidAmount) {
+               foundVids.push(vidTmp1);
+            }
+
+            if (!firstVideosShown && videosPerPage > foundVidAmount) {
+               foundVids.push(vidTmp1);
+               if (foundVidAmount < (videosPerPage - 1)) firstVideosShown = true;
+            }      */
+
+            foundVidAmount++;
+
+
+
+            vidTmp1 = parsedVideos.findIndex((ent,ind) => ind > vidTmp1 && hasSearchWords(searchTmp,ent));
+         }
+         
+         pageTotal = Math.ceil(foundVidAmount / videosPerPage);
+         console.log(foundVidAmount);
+      }
+   }
+}
+
+function hasSearchWords(searchWord,video) {
+   for (let i = 0; i < searchWord.length; i++) {
+      if (!hasSearchWord(searchWord[i],video)) return false;
+   }
+   return true;
+}
+
+function hasSearchWord(searchWord,video) {
+   if (video.title !== undefined && video.title !== null && video.title.toLowerCase().includes(searchWord)) return true;
+
+   if (video.description !== undefined && video.description !== null && video.description.toLowerCase().includes(searchWord)) return true;
+   
+   {
+      let tagsTmp = videoTags(video.tags);
+      if (tagsTmp.length > 0 && tagsTmp.join(" ").toLowerCase().includes(searchWord)) return true;
+   }
+
+   if (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(searchWord)) return true;
+
+   if (video.uploader !== undefined && video.uploader !== null && video.uploader.toLowerCase().includes(searchWord)) return true;
+
+   if (video.uploader_id !== undefined && video.uploader_id !== null && video.uploader_id.toLowerCase().includes(searchWord)) return true;
+   
+   if (video.id !== undefined && video.id !== null) {
+      let iddTmp = video.id;
+      if (Array.isArray(video.id)) iddTmp = video.id.join(" ");
+      if (iddTmp.toLowerCase().includes(searchWord)) return true;
+   }
+   
+   return false;
+}
+
 function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
    if (additionalInfo === null) return '<' + typeHtm + '>' + txt + '</' + typeHtm + '>' ;
-   
+
    return '<' + typeHtm + ' ' + additionalInfo + '>' + txt + '</' + typeHtm + '>' ;
 }
 
@@ -321,7 +448,6 @@ function htmlLinkCompiler(address,txt = null) {
    
    return '<a href="' + address + '" target="_blank">' + tmpTxt + '</a>';
 }
-
 
 function userLinkCompiler(userName,userId,site) {
    if (site === "Youtube") {
@@ -343,7 +469,7 @@ function userLinkCompiler(userName,userId,site) {
    }
    if (site === "Twitter" || site === "Niconico") {
       return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']'));
-   }      
+   }
 }
 
 function userAddressCompiler(id_,site) {
@@ -354,8 +480,8 @@ function userAddressCompiler(id_,site) {
    }
    
    if (site === "Youtube") {
-      if (id.length === 24 && id.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id_;
-      if (id.charAt(0) === '@') return "https://www.youtube.com/" + id_;
+      if (id_.length === 24 && id_.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id_;
+      if (id_.charAt(0) === '@') return "https://www.youtube.com/" + id_;
       return "https://www.youtube.com/user/" + id_;
    }
 
@@ -381,13 +507,37 @@ function videoLinkCompiler(id,site) {
    if (site === "Twitter")  return htmlLinkCompiler('https://twitter.com/i/status/' + id);
    if (site === "Youtube")  return htmlLinkCompiler('https://www.youtube.com/watch?v=' + id);
    if (site === "Niconico") return htmlLinkCompiler('https://www.nicovideo.jp/watch/' + id);
-   if (site === "BiliBili") return htmlLinkCompiler('https://www.bilibili.com/video/' + id[0]) + ' / ' + htmlLinkCompiler('https://www.bilibili.com/video/' + id[1],id[1]);
+   if (site === "BiliBili") {
+      if (id.length === 2) return htmlLinkCompiler('https://www.bilibili.com/video/' + id[0]) + ' / ' + htmlLinkCompiler('https://www.bilibili.com/video/' + id[1],id[1]);
+      else if (id.length === 1) return htmlLinkCompiler('https://www.bilibili.com/video/' + id[0]);
+   }
 }
 
+function editDescription(ogDesc) {
+   if (ogDesc === undefined || ogDesc === null || ogDesc.trim().length === 0) return htmlBlockCompiler("code","[No description]");
+
+   let lineBreakN = '\n';
+   let lineBreakLoc = ogDesc.indexOf(lineBreakN);
+   if (lineBreakLoc === -1) return ogDesc.trim();
+   
+   let retDesc = "";
+   let tmpPos = 0;
+   while (lineBreakLoc !== -1) {
+      let tmpStr1 = ogDesc.substring(tmpPos,lineBreakLoc);
+      retDesc += tmpStr1 + '<br/>';
+      tmpPos = lineBreakLoc + lineBreakN.length;
+      lineBreakLoc = ogDesc.indexOf(lineBreakN,lineBreakLoc + 1);
+   }
+   retDesc += ogDesc.substring(tmpPos);
+   return retDesc.trim();
+}
+
+/*
 console.log(compileEntry(parsedVideos[0]));
-console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Twitter")));
+console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Youtube")));
 console.log(compileEntry(parsedVideos.find(ent => ent.tags.length > 0)));
-console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK")));
+console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK"))); */
+
 
 
 /*
@@ -398,8 +548,8 @@ function compileEntry(video) {
    let userAddress = "";
    if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']');
    else {
-      if (video.extractor_key === "Youtube" && video.uId !== undefined) userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key) + "Blol";
-      else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key) + "Blal";
+      if (video.extractor_key === "Youtube" && video.uId !== undefined) userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
+      else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);
    }
 
    let titleTmp = videoLinkCompiler(video.id, video.extractor_key) + ' (' + formatDuration(video.duration) + ')';
@@ -409,11 +559,111 @@ function compileEntry(video) {
       else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
    }
 
-   userAddress = breakline + "Uploader: " + userAddress + '<br/>' + breakline;
-   
-   let releaseDate = "Release date: " + video.upload_date+ '<br/><br/>' + breakline;
+   userAddress = "<br/><br/>" + breakline + "Uploader: " + userAddress + '<br/>' + breakline;
+
+   let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
+
+   let descTmp = editDescription(video.description) + '<br/><br/>' + breakline;
 
    let tagsTmp = videoTags(video.tags);
 
-   return titleTmp + userAddress + releaseDate + tagsTmp;
+   let tagsTmp2 = "Tags:";
+   if (tagsTmp.length > 0) {
+      for (let p = 0; p < tagsTmp.length; p++) {
+         tagsTmp2 += " " + htmlLinkCompiler("https://www.youtube.com",tagsTmp[p]);
+      }
+   } else tagsTmp2 += " &#60;NONE&#62;";
+   tagsTmp2 = htmlBlockCompiler("code",tagsTmp2);
+
+   return htmlBlockCompiler("div",titleTmp + userAddress + releaseDate + descTmp + tagsTmp2);
+}
+
+function createVideoPreview(vidId,vidSite) {
+    if (!showVidPrev) return '<br/><br/>';
+
+    //reuploadShowing
+    
+    let tmpId = vidId;
+    let tmpSite = vidSite;
+    let tmpStr = '<br/><br/>';
+    
+    if (reuploadShowing.some(entry => entry.id === vidId)) {
+       let tmp1 = reuploadShowing.find(entry => entry.id === vidId);
+
+       tmpId = tmp1.reup;
+       tmpSite = tmp1.reup_site;
+       tmpStr += `<code><b>NOTE:</b> Original upload deleted! The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
+    }
+
+    if (tmpSite === 'Youtube') return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Niconico') return tmpStr  + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Twitter') return tmpStr  + createVideoPreviewTwitter(tmpId) + br;
+    if (tmpSite === 'Soundcloud') return tmpStr  + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Vimeo') return tmpStr  + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Kakao') return tmpStr  + createVideoPreviewKakao(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Dailymotion') return tmpStr  + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + br;
+    // Autoplays the video as of now, so I've decided to disable this until I figure out how to stop it from doing that
+    // if (tmpSite === 'BiliBili') return tmpStr + createVideoPreviewBilibili(tmpId) + '<br/><br/>' + br;
+    return '<br/><br/>';
+}
+
+// The player keeps autoplaying the videos, I'll try tweak this later
+function createVideoPreviewBilibili(vidId) {
+    let embbee = '<iframe src="https://player.bilibili.com/player.html?aid=' + vidId + '&autoplay=false" width="640" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>';
+    return embbee;
+}
+
+function createVideoPreviewYoutube(vidId) {
+    let embbee = '<iframe width="640" height="480" src="https://www.youtube.com/embed/' + vidId + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+    return embbee;
+}
+
+function createVideoPreviewNiconico(vidId) {
+    let embbee = '<iframe width="640" height="480" src="https://embed.nicovideo.jp/watch/' + vidId + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+    return embbee;
+}
+
+function createAudioPreviewSoundcloud(vidId) {
+    let embbee = '<iframe width="640" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/' + vidId + '&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>';
+    return embbee;
+}
+
+function createVideoPreviewVimeo(vidId) {
+    let embbee = '<iframe src="https://player.vimeo.com/video/' + vidId + '" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+
+    return embbee;
+}
+
+function createVideoPreviewKakao(vidId) {
+    let embbee = '<iframe width="640" height="480" src="https://play-tv.kakao.com/embed/player/cliplink/' + vidId + '?service=player_share" allowfullscreen frameborder="0" scrolling="no" allow="autoplay; fullscreen; encrypted-media"></iframe>';
+    
+    return embbee;
+}
+
+function createVideoPreviewDailymotion(vidId) {
+    let embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>';
+    
+    return embbee;
+}
+
+function createVideoPreviewTwitter(vidId) {
+    let requ = new XMLHttpRequest_node();
+    let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
+    let embbee = '';
+    requ.onreadystatechange = function() {
+      if (requ.readyState == 4 && requ.status == 200){
+        embbee = JSON.parse(requ.responseText).html;
+        console.log("JSON succesfully fetched from Twitter's site");
+       }
+    };
+    requ.open("GET", apiLink, false);
+    requ.send(null);
+    requ.abort();
+    requ = null;
+
+    embbee = embbee.trim();
+
+    if (embbee === '') embbee = '<br/>[No video preview. The tweet seem to have been deleted.]<br/>';
+
+    return embbee;
 }
