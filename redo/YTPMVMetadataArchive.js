@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 200401;
+const minMonth = 202301;//200401;
 
 /*
    Determines how many entries are being shown per page.
@@ -157,10 +157,13 @@ var exactWordSearch = false;
 */
 var showVidPrev = false;
 
-/* 
+/*
    This will be used to store the search words of a query.
 */
-//var searchWords = [];
+var searchWords = [];
+
+var searchedUser = "";
+var searchingUser = false;
 
 /*
    This determines, whether or not the database will process a query or show all the 
@@ -294,11 +297,19 @@ function formatDuration(justSeconds) {
       there will be matches and the database should be able to process them quicker.
 */
 function optimizeSearching(searchWord,exactSearch) {
-    if (searchWord === undefined || searchWord === null || searchWord.trim().length === 0) return undefined;
+    if (searchWord === undefined || searchWord === null || searchWord.trim().length === 0) {
+       searchWords = [];
+       return undefined;
+    }
 
-    if (exactSearch) return [searchWord.trim()];
+    if (exactSearch) {
+       let ret = [searchWord.trim()];
+       searchWords = ret;
+       return ret;
+    }
 
     let searchArray = searchWord.split(" ").filter(ent => ent.length > 0);
+    searchWords = searchArray;
 
     let tmp1 = searchArray.sort((a, b) => a.length - b.length);
     let tmp2 = [];
@@ -688,3 +699,160 @@ function createVideoPreviewTwitter(vidId) {
 
     return embbee;
 }
+
+function htmlHeadCompiler(htmlTitle = null) {
+
+   let htmlStrHead1 = `<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">` + breakline;
+   let titleStr =  'YTPMV Metadata Archive';
+   if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
+
+   return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>';
+}
+
+// sitesList = [ {'site': 'Youtube',    'isIgnored
+function switchLister(pageN = 1) {
+   let retStr = [];
+
+   if (searchWords.length > 0) retStr.push('search=' + searchWords.join(" "));
+
+   if (searchingUser) retStr.push('uploader_id=' + searchedUser);
+
+   for (let j = 0; j < sitesList.length; j++) {
+      if (sitesList[j].isIgnored) retStr.push(`${sitesList[j].site}=${sitesList[j].isIgnored}`);
+   }
+
+   retStr.push("page=" + pageN);
+   
+   if (showVidPrev) retStr.push('preview=' + showVidPrev);
+
+   retStr.push(`${botCheckName}=${botCheckValue}`);
+   
+   return retStr.join("&");
+}
+
+
+function makeSearchBar(searchStr = "") {
+   let retStr = `Search for videos:
+<form action="results.html" method="GET">
+<input type="text" name="search" value="${searchStr.trim()}" />&nbsp;
+<input type="submit" value="Search" />&nbsp;&#124;
+<input type="hidden" name="${botCheckName}" value="${botCheckValue}" />
+
+Exclude from search:` + breakline;
+
+   for (let y = 0; y < sitesList; y++) {
+      retStr += `<input type="checkbox" id="${sitesList[y].site}" name="${sitesList[y].site}" value="true"`;
+      if (sitesList[y].isIgnored) retStr += ' checked="yes"';
+      retStr += `><label for="${sitesList[y].site}">&nbsp;${sitesList[y].site}</label>` + breakline;
+   }
+
+   retStr += '</form>';
+
+   return htmlBlockCompiler("div",retStr);
+}
+
+/*
+   Initializing HTML code for index.html
+*/
+function htmlStrIndex(querie) {
+   let htmlStrIndex = '<div><h2>YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="' + dropboxLink + '" target="_blank">Download JSON File</a><br/><br/>See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124; <a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>' + breakline;
+
+   htmlStrIndex += '<hr/><p>' + breakline + 'Search for videos:' + breakline;
+
+   if ('/YTPMV_Database' === querie) {
+      htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
+   } else {
+      htmlStrIndex += '<form action="results.html" method="GET">';
+   }
+
+   htmlStrIndex +=  breakline + '<input type="text" name="search" />&nbsp;' + breakline;
+   htmlStrIndex += '<input type="submit" value="Search" />' + breakline;
+   htmlStrIndex += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + breakline;
+   htmlStrIndex += '</form><br/>' + breakline + '</p>';
+
+   return htmlStrIndex;
+}
+           /*
+   var pageNumber = 1;
+var pageTotal = 1;
+function createPageLinks() {
+}        */
+
+// sitesList = [ {'site': 'Youtube',    'isIgnored':true},
+var srvr = http.createServer(function (req, res) {
+
+   let quer = url.parse(req.url, true);
+
+   let htmPage = '/YTPMV_Database';
+   let searchTmp = quer.query.search;
+   if (searchTmp === undefined) searchTmp = "";
+   let pageTmp = quer.query.page;
+   if (pageTmp === undefined) pageTmp = 1;
+
+   let exactTmp = false;
+   if (quer.query.exactSearch !== undefined && quer.query.exactSearch === 'true') exactTmp;
+   //exactWordSearch = exactTmp;
+
+ {
+   for (let s = 0; s < sitesList.length; s++) {
+      if (quer.query[sitesList[s].site] !== undefined && quer.query[sitesList[s].site].trim() === 'true') sitesList[s].isIgnored = true;
+      else sitesList[s].isIgnored = false;
+   }
+
+   let uploaderTmp = quer.query.uploader_id;
+   if (uploaderTmp === undefined) {
+      searchingUser = false;
+   } else {
+      searchingUser = true;
+      searchedUser = uploaderTmp.trim();
+   }
+
+
+   let previewTmp = quer.query.preview;
+   if (previewTmp === undefined || previewTmp.trim() !== 'true') showVidPrev = false;
+   else showVidPrev = true;
+ }
+
+   let doThis = true;
+   
+   // Results page
+   if ((htmPage + '/results.html') === quer.pathname) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      
+      if (!searchingUser) findVideos(searchTmp,pageTmp,exactTmp);
+      else findVideos(searchTmp,pageTmp,exactTmp,searchedUser);
+
+      //let showingList = compileList();
+
+      res.write(htmlHeadCompiler() + htmlBlockCompiler("body",compileList()) + '</html>');
+
+      res.end();
+      
+      doThis = false;
+   }
+
+   // Index page
+   if (htmPage === quer.pathname || (htmPage + '/') === quer.pathname || (htmPage + '/index.html') === quer.pathname) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+
+      res.write(htmlHeadCompiler() + htmlBlockCompiler("body",htmlStrIndex(quer.pathname)) + '</html>');
+
+      res.end();
+      
+      doThis = false;
+   }
+
+   // For everything else
+   if (doThis) {
+      console.log('Tried to get to: ' +  quer.pathname);
+      res.writeHead(404, {'Content-Type': 'text/html'});
+      res.end("404 Not Found. Tried to get to: " +  quer.pathname);
+   }
+});
+
+srvr.listen(3535);
