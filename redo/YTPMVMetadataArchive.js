@@ -376,9 +376,10 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       let pageTmp = reqPage;
       if (pageTmp > pageTotal || pageTmp < 1) pageTmp = 1;
       let searchThres = (pageTmp - 1) * videosPerPage;
+      pageNumber = pageTmp;
 
       foundVids = [];
-      
+
       for (let u = searchThres; u < (searchThres + videosPerPage) && u < parsedVideos.length; u++) {
          foundVids.push(u);
       }
@@ -399,7 +400,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          let tmp1 = reqPage - 1;
          if (tmp1 < 0) {
             tmp1 = 0;
-            pageNumber = 1;
+            //pageNumber = 1;
          }
          let searchThres = tmp1 * videosPerPage;
          let overPage = true;
@@ -409,7 +410,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             if (overPage && foundVidAmount >= searchThres) {
                overPage = false;
                foundVids = [];
-               pageNumber = reqPage;
+               // pageNumber = reqPage;
             }
             
             if (foundVids.length < 15) {
@@ -428,6 +429,9 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
                return hasSearchWords(searchTmp,ent);
             });
          }
+         
+         if (overPage) pageNumber = 1;
+         else pageNumber =  reqPage;
 
          pageTotal = Math.ceil(foundVidAmount / videosPerPage);
          console.log(foundVidAmount);
@@ -475,11 +479,12 @@ function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
    return '<' + typeHtm + ' ' + additionalInfo + '>' + txt + '</' + typeHtm + '>' ;
 }
 
-function htmlLinkCompiler(address,txt = null) {
+function htmlLinkCompiler(address,txt = null,targetBlank = true) {
    let tmpTxt = txt;
    if (tmpTxt === null) tmpTxt = address;
    
-   return '<a href="' + address + '" target="_blank">' + tmpTxt + '</a>';
+   if (targetBlank) return '<a href="' + address + '" target="_blank">' + tmpTxt + '</a>';
+   return '<a href="' + address + '">' + tmpTxt + '</a>';
 }
 
 function userLinkCompiler(userName,userId,site) {
@@ -576,7 +581,6 @@ console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined 
    Creates a <div> segment of a singular video entry.
 */
 function compileEntry(video) {
-
    let userAddress = "";
    if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']');
    else {
@@ -597,28 +601,34 @@ function compileEntry(video) {
 
    let descTmp = editDescription(video.description) + '<br/><br/>' + breakline;
 
-   let tagsTmp = videoTags(video.tags);
+   let tagsTmp = htmlBlockCompiler("code",urlizeTags(videoTags(video.tags)));
+   
+   let prevTmp = createVideoPreview(video.id,video.extractor_key);
 
-   let tagsTmp2 = "Tags:";
-   if (tagsTmp.length > 0) {
-      for (let p = 0; p < tagsTmp.length; p++) {
-         tagsTmp2 += " " + htmlLinkCompiler("https://www.youtube.com",tagsTmp[p]);
+   return htmlBlockCompiler("div",titleTmp + userAddress + releaseDate + prevTmp + descTmp + tagsTmp);
+}
+
+function urlizeTags(tagsArray) {
+   let strRet = "Tags:";
+
+   if (tagsArray.length > 0) {
+      for (let p = 0; p < tagsArray.length; p++) {
+         strRet += " " + htmlLinkCompiler("results.html?" + switchLister(1,tagsArray[p]),tagsArray[p],false);
       }
-   } else tagsTmp2 += " &#60;NONE&#62;";
-   tagsTmp2 = htmlBlockCompiler("code",tagsTmp2);
-
-   return htmlBlockCompiler("div",titleTmp + userAddress + releaseDate + descTmp + tagsTmp2);
+   } else strRet += " &#60;NONE&#62;";
+   
+   return strRet;
 }
 
 function createVideoPreview(vidId,vidSite) {
-    if (!showVidPrev) return '<br/><br/>';
+    if (!showVidPrev) return '';
 
     //reuploadShowing
     
     let tmpId = vidId;
     let tmpSite = vidSite;
-    let tmpStr = '<br/><br/>';
-    
+    let tmpStr = '';
+
     if (reuploadShowing.some(entry => entry.id === vidId)) {
        let tmp1 = reuploadShowing.find(entry => entry.id === vidId);
 
@@ -627,16 +637,16 @@ function createVideoPreview(vidId,vidSite) {
        tmpStr += `<code><b>NOTE:</b> Original upload deleted! The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
     }
 
-    if (tmpSite === 'Youtube') return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Niconico') return tmpStr  + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Twitter') return tmpStr  + createVideoPreviewTwitter(tmpId) + br;
-    if (tmpSite === 'Soundcloud') return tmpStr  + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Vimeo') return tmpStr  + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Kakao') return tmpStr  + createVideoPreviewKakao(tmpId) + '<br/><br/>' + br;
-    if (tmpSite === 'Dailymotion') return tmpStr  + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + br;
+    if (tmpSite === 'Youtube') return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Niconico') return tmpStr  + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Twitter') return tmpStr  + createVideoPreviewTwitter(tmpId) + breakline;
+    if (tmpSite === 'Soundcloud') return tmpStr  + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Vimeo') return tmpStr  + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Kakao') return tmpStr  + createVideoPreviewKakao(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Dailymotion') return tmpStr  + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + breakline;
     // Autoplays the video as of now, so I've decided to disable this until I figure out how to stop it from doing that
     // if (tmpSite === 'BiliBili') return tmpStr + createVideoPreviewBilibili(tmpId) + '<br/><br/>' + br;
-    return '<br/><br/>';
+    return '';
 }
 
 // The player keeps autoplaying the videos, I'll try tweak this later
@@ -714,11 +724,34 @@ function htmlHeadCompiler(htmlTitle = null) {
    return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>';
 }
 
-// sitesList = [ {'site': 'Youtube',    'isIgnored
-function switchLister(pageN = 1) {
-   let retStr = [];
+function createPageLinks() {
+   let currentPage = htmlBlockCompiler('b',`&#139;${pageNumber}&#155;`);
+   //console.log(pageNumber + " / " + pageTotal);
 
-   if (searchWords.length > 0) retStr.push('search=' + searchWords.join(" "));
+   if (pageTotal === 1) return htmlBlockCompiler("div",currentPage);
+
+   let gapMark = ' &#9674; ';
+
+   let retPageLink = "";
+
+   let retArray = [];
+
+   if (pageNumber !== 1) retArray.push(htmlLinkCompiler('results.html?' + switchLister(1), '&#171;&nbsp;1',false));
+   if (pageNumber - 1 > 1) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageNumber - 1), `&#139;&nbsp;${pageNumber - 1}`,false));
+   retArray.push(currentPage);
+   if (pageNumber + 1 < pageTotal) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageNumber + 1), `${pageNumber + 1}&nbsp;&#155;`,false));
+   if (pageNumber !== pageTotal) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageTotal), pageTotal + '&nbsp;&#187;',false));
+   return htmlBlockCompiler("div",retArray.join(gapMark));
+}
+
+// sitesList = [ {'site': 'Youtube',    'isIgnored
+function switchLister(pageN = 1,searchW = null) {
+   let retStr = [];
+   
+   let searchTmmp = searchWords;
+   if (searchW !== null) searchTmmp = [searchW.trim()];
+
+   if (searchTmmp.length > 0) retStr.push('search=' + searchTmmp.join(" "));
 
    if (searchingUser) retStr.push('uploader_id=' + searchedUser);
 
@@ -734,7 +767,6 @@ function switchLister(pageN = 1) {
    
    return retStr.join("&");
 }
-
 
 function makeSearchBar(searchStr = "") {
    let retStr = `Search for videos:
@@ -777,11 +809,6 @@ function htmlStrIndex(querie) {
 
    return htmlStrIndex;
 }
-           /*
-   var pageNumber = 1;
-var pageTotal = 1;
-function createPageLinks() {
-}        */
 
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 var srvr = http.createServer(function (req, res) {
@@ -792,7 +819,9 @@ var srvr = http.createServer(function (req, res) {
    let searchTmp = quer.query.search;
    if (searchTmp === undefined) searchTmp = "";
    let pageTmp = quer.query.page;
-   if (pageTmp === undefined) pageTmp = 1;
+   console.log(pageTmp);
+   if (pageTmp === undefined || isNaN(pageTmp.trim())) pageTmp = 1;
+   else pageTmp = parseInt(pageTmp.trim());
 
    let exactTmp = false;
    if (quer.query.exactSearch !== undefined && quer.query.exactSearch === 'true') exactTmp;
@@ -829,7 +858,31 @@ var srvr = http.createServer(function (req, res) {
 
       //let showingList = compileList();
 
-      res.write(htmlHeadCompiler() + htmlBlockCompiler("body",compileList()) + '</html>');
+      let linksTmp = createPageLinks();
+      
+      let headTmo = '';
+
+      if (searchWords.length === 0 && !searchingUser && !ignoredSitesPresent()) headTmo = htmlHeadCompiler(`Showing all videos - Page: ${pageNumber}/${pageTotal}`);
+      else {
+         headTmo = "Searching";
+
+         if (searchWords.length === 0) headTmo += ' all videos';
+         if (searchWords.length > 0) headTmo += ` "${searchTmp.trim()}"`;
+
+         if (searchingUser) headTmo += ` by ${searchedUser}`;
+         
+         if (ignoredSitesPresent()) {
+            // sitesList = [ {'site': 'Youtube',    'isIgnored'
+            let tmoo = sitesList.filter(ent => !ent.isIgnored).map(ent => ent.site);
+            if (tmoo.length > 0) headTmo += " from " + tmoo.join(', ');
+            else headTmo += " from no site (Why would you exclude every site, you dumbass?)";
+         }
+         
+         headTmo = htmlHeadCompiler(headTmo + ` - Page: ${pageNumber}/${pageTotal}`);
+      }
+      if (headTmo === '') headTmo = htmlHeadCompiler();
+
+      res.write(headTmo + htmlBlockCompiler("body",linksTmp + compileList() + linksTmp) + '</html>');
 
       res.end();
       
