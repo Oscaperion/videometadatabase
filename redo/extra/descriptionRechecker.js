@@ -71,7 +71,8 @@ function checkFile(fileSource) {
        console.log(fileName);
        console.log(retJson);
        gatheredIds.push(retJson["id"]);
-       fs.writeFileSync('F:/tmpvid/--- ' + retJson["id"] + ' -- finnredo.json', JSON.stringify(retJson));
+       fs.writeFileSync('F:/tmpvid2/--- ' + retJson["id"] + ' -- finnredo.json', JSON.stringify(retJson),{encoding:'utf8'});
+       //fs.writeFileSync('F:/tmpvid/--- ' + retJson["id"] + ' -- finnredo.json', JSON.stringify(retJson));
    }
 }
 

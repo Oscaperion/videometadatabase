@@ -441,6 +441,33 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 
 function hasSearchWords(searchWord,video) {
    if (searchWord === undefined) return true;
+   
+   // console.log(video);
+
+   /*
+   let objArr  = Object.keys(video);
+   let objArr2 = Object.values(video);
+   let tmpVid = objArr2.filter((ent,ind) => {
+      let compTmp = objArr[ind]; */
+   
+   let tmpVid = Object.values(video).filter((ent,ind) => {
+      let compTmp = Object.keys(video)[ind];
+      if (compTmp === "tags" || compTmp === "uId" || compTmp === "duration" || compTmp === "extractor_key") return false;
+      return true;
+   }).join(" ");
+
+   if (video.uId !== undefined) tmpVid += " " + youtubeUserList[video.uId].join(" ");
+
+   tmpVid += " " + videoTags(video.tags).join(" ");
+   
+   // console.log(tmpVid);
+   
+   return searchWord.every(srcWrd => tmpVid.includes(srcWrd));
+}
+
+/*
+function hasSearchWords(searchWord,video) {
+   if (searchWord === undefined) return true;
 
    for (let i = 0; i < searchWord.length; i++) {
       if (!hasSearchWord(searchWord[i],video)) return false;
@@ -471,7 +498,8 @@ function hasSearchWord(searchWord,video) {
    if (video.uploader_id !== undefined && video.uploader_id !== null && video.uploader_id.toLowerCase().includes(searchWord)) return true;
 
    return false;
-}
+} 
+*/
 
 function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
    if (additionalInfo === null) return '<' + typeHtm + '>' + txt + '</' + typeHtm + '>' ;
