@@ -565,22 +565,69 @@ function addLinks(descri) {
    //return descri;
 
    let checkHttp1 = 'http';
-   let checkHttp2 = [' ','\n'];
-   
-   let descr = descri;
+   //let checkHttp2 = ['\n',' '];
+   //let checkHttp2 = ['<br/>',' '];
+   let checkHttp2 = [' '];
+   // let checkHttp3 = ['youtu.be/'];
+
+   let descr = descri.split("\n").join(" <br/>");
    
    let retArr = [];
 
-   let tmpHt = descr.indexOf(checkHttp1);
+   let tmpHt = descr.indexOf(checkHttp1); 
+               /*
+   for (let j = 0; j < checkHttp3.length; j++) {
+      let tmpCh = descr.indexOf(checkHttp3[j]);
+      if ((tmpHt === -1) || (tmpCh !== -1 && tmpHt > tmpCh)) {
+         tmpHt = tmpCh;
+      }
+   }         */
 
-   let tmppp = 0;
+   if (tmpHt === -1) return descri;
+
+   //let tmppp = 0;
 
    while (tmpHt > -1) {
+      retArr.push(descr.substring(0,tmpHt));
+
+      descr = descr.substring(tmpHt);
+      
+      let arrrtmp = [];
+      
+      let tmppp = -1;
+      for (let i = 0; i < checkHttp2.length; i++) {
+         arrrtmp.push(descr.indexOf(checkHttp2[i]));
+      }
+      tmppp = Math.min(...arrrtmp);
+      if (tmppp === -1) tmppp = descr.length;
+      console.log(tmppp + " -- " + descr);
+      
+      retArr.push(editLink(descr.substring(0,tmppp)));
+      
+      descr = descr.substring(tmppp);
+
+      tmpHt = descr.indexOf(checkHttp1);
+         /*
+      for (let j = 0; j < checkHttp3.length; j++) {
+         let tmpCh = descr.indexOf(checkHttp3[j]);
+         if ((tmpHt === -1) || (tmpCh !== -1 && tmpHt > tmpCh)) {
+            tmpHt = tmpCh;
+         }
+      }    */
+   }
+   
+   retArr.push(descr);
+
+   /*
+   while (tmpHt > -1) {
       tmppp = -1;
+      let arrrtmp = [];
       //console.log(tmpHt);
       for (let i = 0; i < checkHttp2.length; i++) {
-         if (tmppp === -1 || tmppp > descr.indexOf(checkHttp2[i],tmpHt)) tmppp = descr.indexOf(checkHttp2[i],tmpHt);
+         arrrtmp.push(descr.indexOf(checkHttp2[i]));
+         //if (tmppp === -1 || tmppp > descr.indexOf(checkHttp2[i],tmpHt + 1)) tmppp = descr.indexOf(checkHttp2[i],tmpHt + 1);
       }
+      tmppp = Math.min(...arrrtmp);
       //console.log("A " + tmppp);
 
       retArr.push(descr.substring(0,tmpHt));
@@ -590,11 +637,11 @@ function addLinks(descri) {
       let secondPart = "";
       if (tmppp > -1) secondPart = descr.substring(tmppp);
       descr = secondPart;
-      
+
       tmpHt = descr.indexOf(checkHttp1);
-      
+
       if (tmpHt === -1) retArr.push(descr);
-   }
+   } */
 
    return retArr.join("");
 }
@@ -624,6 +671,36 @@ function editLink(linkTmp) {
    
    if (!addSearchLinkYoutube && !addSearchLinkNiconico) return htmlLinkCompiler(linkTmp);
    
+   if (addSearchLinkNiconico) {
+      let tmpLinkerino = -1;
+      for (let y = 0; y < nicovideoChecking.length; y++) {
+         if (tmpLinkerino === -1) {
+            if (tmpp1.indexOf(nicovideoChecking[y]) > -1) {
+               tmpLinkerino = y;
+               break;
+            }
+         }
+      }
+      
+      let tmpLinkerino3 = tmpp1.indexOf(nicovideoChecking[tmpLinkerino]) + nicovideoChecking[tmpLinkerino].length;
+      let tmpLinkerino2 = tmpp1.substring(tmpLinkerino3);
+      let tmpLinkerino4 = 0;
+
+      console.log(tmpLinkerino2);
+
+      if (tmpLinkerino2.indexOf(" ") > 0) tmpLinkerino4 = tmpLinkerino2.indexOf(" ");
+      if (tmpLinkerino2.indexOf("?") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf("?") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf("?");
+      if (tmpLinkerino2.indexOf(")") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf(")") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf(")");
+      if (tmpLinkerino2.indexOf(".") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf(")") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf(".");
+      if (tmpLinkerino4 === 0) tmpLinkerino4 = tmpLinkerino2.length;
+
+      // let checkerCh = tmpLinkerino2.charAt(tmpLinkerino4);
+                                                                                                                           /*
+      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(linkTmp,tmpp1.substring(0,tmpLinkerino4)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4), htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpLinkerino3 + tmpLinkerino4);   */
+                                                                                                                                                             // &#60;NONE&#62;
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4), htmlBlockCompiler("code","[Search ID]"),false);
+   }
+   
    if (addSearchLinkYoutube) {
       let tmpLinkerino = -1;
       for (let y = 0; y < youTubeChecking.length; y++) {
@@ -631,9 +708,10 @@ function editLink(linkTmp) {
             if (tmpp1.indexOf(youTubeChecking[y]) > -1) {
                tmpLinkerino = y;
                break;
-            }                                                                                  // htmlBlockCompiler(typeHtm,txt,additionalInfo = null)
-         }                                                                                     // (address,txt = null,targetBlank = true)
+            }
+         }
       }
+
       let tmpLinkerino3 = tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length;
       let tmpLinkerino2 = tmpp1.substring(tmpLinkerino3);
       if (tmpLinkerino2.length > youtubeIdLength) {
@@ -641,10 +719,17 @@ function editLink(linkTmp) {
       }
       
       //console.log (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength));
-
-      if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
       
+      let checkerCh = tmpp1.charAt(tmpLinkerino3 + youtubeIdLength);
+      let linkTmp2 = linkTmp;
+      //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
+      //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
+
+      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+
       return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
+      //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
 
       //htmlLinkCompiler('results.html?search=' +
    }
@@ -846,7 +931,7 @@ function createPageLinks() {
    if (pageNumber - 1 > 1) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageNumber - 1), `&#139;&nbsp;${pageNumber - 1}`,false));
    retArray.push(currentPage);
    if (pageNumber + 1 < pageTotal) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageNumber + 1), `${pageNumber + 1}&nbsp;&#155;`,false));
-   if (pageNumber !== pageTotal) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageTotal), pageTotal + '&nbsp;&#187;',false));
+   if (pageNumber !== pageTotal && pageTotal !== 0) retArray.push(htmlLinkCompiler('results.html?' + switchLister(pageTotal), pageTotal + '&nbsp;&#187;',false));
    return htmlBlockCompiler("div",retArray.join(gapMark));
 }
 
