@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 202301;//200401;
+const minMonth = 200601;
 
 /*
    Determines how many entries are being shown per page.
@@ -384,7 +384,30 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          foundVids.push(u);
       }
    }
+   
+   else {
+      //let foundVidAmount = 0;
+      let searchUploaderToo = !(searchUploaderId === null);
+      
+      let vidTmp1 = parsedVideos.map((ent,ind) => {
+         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
+         if (tmp2 === -1) tmp2 = sitesList.length - 1;
+         if (sitesList[tmp2].isIgnored) return undefined;
+         if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return undefined;
+         if (!hasSearchWords(searchTmp,ent)) return undefined;
+         return ind;
+      }).filter(ent => ent !== undefined);
 
+      let foundVidAmount = vidTmp1.length;
+      pageTotal = Math.ceil(foundVidAmount / videosPerPage);
+
+      if (reqPage > pageTotal || reqPage < 1) pageNumber = 1;
+      else pageNumber = reqPage;
+
+      foundVids = vidTmp1.filter((ent,ind) => (ind >= ((pageNumber - 1) * videosPerPage) && ind < (pageNumber * videosPerPage)));
+   }
+
+   /*
    else {
       let foundVidAmount = 0;
       let searchUploaderToo = !(searchUploaderId === null);
@@ -412,7 +435,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
                foundVids = [];
                // pageNumber = reqPage;
             }
-            
+
             if (foundVids.length < 15) {
                foundVids.push(vidTmp1);
             }
@@ -429,77 +452,32 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
                return hasSearchWords(searchTmp,ent);
             });
          }
-         
+
          if (overPage) pageNumber = 1;
          else pageNumber =  reqPage;
 
          pageTotal = Math.ceil(foundVidAmount / videosPerPage);
          console.log(foundVidAmount);
       }
-   }
+   } */
 }
 
 function hasSearchWords(searchWord,video) {
-   if (searchWord === undefined) return true;
-   
-   // console.log(video);
+   if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
 
-   /*
-   let objArr  = Object.keys(video);
-   let objArr2 = Object.values(video);
-   let tmpVid = objArr2.filter((ent,ind) => {
-      let compTmp = objArr[ind]; */
-   
    let tmpVid = Object.values(video).filter((ent,ind) => {
       let compTmp = Object.keys(video)[ind];
-      if (compTmp === "tags" || compTmp === "uId" || compTmp === "duration" || compTmp === "extractor_key") return false;
+      if (compTmp === "tags" || compTmp === "uId" || compTmp === "duration" || compTmp === "extractor_key" || compTmp === "webpage_url" || compTmp === "uploader_url") return false;
       return true;
-   }).join(" ");
+   }).join(" ").toLowerCase();
 
-   if (video.uId !== undefined) tmpVid += " " + youtubeUserList[video.uId].join(" ");
+   //tmpVid.push(...videoTags(video.tags));
 
-   tmpVid += " " + videoTags(video.tags).join(" ");
-   
-   // console.log(tmpVid);
-   
-   return searchWord.every(srcWrd => tmpVid.includes(srcWrd));
+   //if (video.uId !== undefined) tmpVid.push(...youtubeUserList[video.uId]);
+
+   //return searchWord.every(srcWrd => tmpVid.join(" ").toLowerCase().includes(srcWrd));
+   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
 }
-
-/*
-function hasSearchWords(searchWord,video) {
-   if (searchWord === undefined) return true;
-
-   for (let i = 0; i < searchWord.length; i++) {
-      if (!hasSearchWord(searchWord[i],video)) return false;
-   }
-   return true;
-}
-
-function hasSearchWord(searchWord,video) {
-   if (video.title !== undefined && video.title !== null && video.title.toLowerCase().includes(searchWord)) return true;
-
-   if (video.description !== undefined && video.description !== null && video.description.toLowerCase().includes(searchWord)) return true;
-
-   if (video.id !== undefined && video.id !== null) {
-      let iddTmp = video.id;
-      if (Array.isArray(video.id)) iddTmp = video.id.join(" ");
-      if (iddTmp.toLowerCase().includes(searchWord)) return true;
-   }
-
-   {
-      let tagsTmp = videoTags(video.tags);
-      if (tagsTmp.length > 0 && tagsTmp.join(" ").toLowerCase().includes(searchWord)) return true;
-   }
-
-   if (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(searchWord)) return true;
-
-   if (video.uploader !== undefined && video.uploader !== null && video.uploader.toLowerCase().includes(searchWord)) return true;
-
-   if (video.uploader_id !== undefined && video.uploader_id !== null && video.uploader_id.toLowerCase().includes(searchWord)) return true;
-
-   return false;
-} 
-*/
 
 function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
    if (additionalInfo === null) return '<' + typeHtm + '>' + txt + '</' + typeHtm + '>' ;
@@ -533,7 +511,7 @@ function userLinkCompiler(userName,userId,site) {
       
       return retStr;
    }
-   if (site === "Twitter" || site === "Niconico") {
+   if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
       return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']'));
    }
 }
@@ -553,6 +531,10 @@ function userAddressCompiler(id_,site) {
 
    if (site === "Niconico") {
       return "https://www.nicovideo.jp/user/" + id_;
+   }
+   
+   if (site === "BiliBili") {
+      return "https://space.bilibili.com/" + id_;
    }
 }
 
@@ -579,22 +561,118 @@ function videoLinkCompiler(id,site) {
    }
 }
 
+function addLinks(descri) {
+   //return descri;
+
+   let checkHttp1 = 'http';
+   let checkHttp2 = [' ','\n'];
+   
+   let descr = descri;
+   
+   let retArr = [];
+
+   let tmpHt = descr.indexOf(checkHttp1);
+
+   let tmppp = 0;
+
+   while (tmpHt > -1) {
+      tmppp = -1;
+      //console.log(tmpHt);
+      for (let i = 0; i < checkHttp2.length; i++) {
+         if (tmppp === -1 || tmppp > descr.indexOf(checkHttp2[i],tmpHt)) tmppp = descr.indexOf(checkHttp2[i],tmpHt);
+      }
+      //console.log("A " + tmppp);
+
+      retArr.push(descr.substring(0,tmpHt));
+      //let linkPart   = "";
+      if (tmppp === -1) retArr.push(editLink(descr.substring(tmpHt)));
+      else retArr.push(editLink(descr.substring(tmpHt,tmppp)));
+      let secondPart = "";
+      if (tmppp > -1) secondPart = descr.substring(tmppp);
+      descr = secondPart;
+      
+      tmpHt = descr.indexOf(checkHttp1);
+      
+      if (tmpHt === -1) retArr.push(descr);
+   }
+
+   return retArr.join("");
+}
+
+function editLink(linkTmp) {
+   let tmpp1 = linkTmp;
+
+   let youTubeChecking   = ["youtu.be/","youtube.com/watch?v=","youtube.com/shorts/"];
+   let nicovideoChecking = ["nicovideo.jp/watch/","nico.ms/"];
+
+   let youtubeIdLength = 11;
+
+   let addSearchLinkYoutube = false;
+   let addSearchLinkNiconico = false;
+   
+   let tempp = Math.max(youTubeChecking.length,nicovideoChecking.length);
+
+   for (let i = 0; i < tempp; i++) {
+      if (youTubeChecking.length > i && tmpp1.includes(youTubeChecking[i])) {
+         addSearchLinkYoutube = true;
+         break;
+      } if (nicovideoChecking.length > i && tmpp1.includes(nicovideoChecking[i])) {
+         addSearchLinkNiconico = true;
+         break;
+      }
+   }
+   
+   if (!addSearchLinkYoutube && !addSearchLinkNiconico) return htmlLinkCompiler(linkTmp);
+   
+   if (addSearchLinkYoutube) {
+      let tmpLinkerino = -1;
+      for (let y = 0; y < youTubeChecking.length; y++) {
+         if (tmpLinkerino === -1) {
+            if (tmpp1.indexOf(youTubeChecking[y]) > -1) {
+               tmpLinkerino = y;
+               break;
+            }                                                                                  // htmlBlockCompiler(typeHtm,txt,additionalInfo = null)
+         }                                                                                     // (address,txt = null,targetBlank = true)
+      }
+      let tmpLinkerino3 = tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length;
+      let tmpLinkerino2 = tmpp1.substring(tmpLinkerino3);
+      if (tmpLinkerino2.length > youtubeIdLength) {
+         tmpLinkerino2 = tmpLinkerino2.substring(0,youtubeIdLength);
+      }
+      
+      //console.log (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength));
+
+      if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
+
+      //htmlLinkCompiler('results.html?search=' +
+   }
+   return htmlLinkCompiler(linkTmp);
+}
+
 function editDescription(ogDesc) {
    if (ogDesc === undefined || ogDesc === null || ogDesc.trim().length === 0) return htmlBlockCompiler("code","[No description]");
 
+   let descTmp = ogDesc.trim();
+
+   if (descTmp.includes('http')) {
+      descTmp = addLinks(ogDesc);
+   }
+
    let lineBreakN = '\n';
-   let lineBreakLoc = ogDesc.indexOf(lineBreakN);
-   if (lineBreakLoc === -1) return ogDesc.trim();
+   let lineBreakLoc = descTmp.indexOf(lineBreakN);
+   if (lineBreakLoc === -1) return descTmp.trim();
    
    let retDesc = "";
    let tmpPos = 0;
    while (lineBreakLoc !== -1) {
-      let tmpStr1 = ogDesc.substring(tmpPos,lineBreakLoc);
+      let tmpStr1 = descTmp.substring(tmpPos,lineBreakLoc);
       retDesc += tmpStr1 + '<br/>';
       tmpPos = lineBreakLoc + lineBreakN.length;
-      lineBreakLoc = ogDesc.indexOf(lineBreakN,lineBreakLoc + 1);
+      lineBreakLoc = descTmp.indexOf(lineBreakN,lineBreakLoc + 1);
    }
-   retDesc += ogDesc.substring(tmpPos);
+   retDesc += descTmp.substring(tmpPos);
    return retDesc.trim();
 }
 
@@ -775,7 +853,7 @@ function createPageLinks() {
 // sitesList = [ {'site': 'Youtube',    'isIgnored
 function switchLister(pageN = 1,searchW = null) {
    let retStr = [];
-   
+
    let searchTmmp = searchWords;
    if (searchW !== null) searchTmmp = [searchW.trim()];
 
@@ -820,9 +898,14 @@ Exclude from search:` + breakline;
    Initializing HTML code for index.html
 */
 function htmlStrIndex(querie) {
-   let htmlStrIndex = '<div><h2>YTPMV Metadata Archive</h2>Last updated: ' + lastUpdated + '&nbsp;&#124; <a href="' + dropboxLink + '" target="_blank">Download JSON File</a><br/><br/>See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124; <a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>' + breakline;
-
-   htmlStrIndex += '<hr/><p>' + breakline + 'Search for videos:' + breakline;
+   let htmlStrIndex = `<div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124; <a href="${dropboxLink}" target="_blank">Download JSON File</a>
+<br/>
+<br/>
+See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124;
+<a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>
+<hr/>
+<p>
+Search for videos:` + breakline;
 
    if ('/YTPMV_Database' === querie) {
       htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
