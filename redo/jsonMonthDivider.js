@@ -96,7 +96,7 @@ var allEntries = {};
 var pathsS = [];
 var pathCurrent = 0;
 
-for (let tu = 41; tu >= -1; tu--) {
+for (let tu = 42; tu >= -1; tu--) {
 
     //for (let tu = 0; tu < vidds.length; tu++) {
     //for (let tu = 41; tu >= -1; tu--) {
