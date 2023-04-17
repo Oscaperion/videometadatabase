@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 200601;
+const minMonth = 201201;//200601;
 
 /*
    Determines how many entries are being shown per page.
@@ -331,7 +331,13 @@ function optimizeSearching(searchWord,exactSearch) {
 }
 
 function isSameUser(searchUserStr,video) {
-   if (video.uId === undefined) return video.uploader_id === searchUserStr.trim();
+   if (video.uId === undefined && video.extractor_key !== "Twitter") return video.uploader_id === searchUserStr.trim();
+   if (video.extractor_key === "Twitter") {
+      let twtTmp = twitterUserList.find(ent => ent.handle.includes(video.uploader_id) || ent.id === video.uploader_id);
+      //console.log(twtTmp);
+      if (twtTmp === undefined) return video.uploader_id === searchUserStr.trim();
+      return (twtTmp.id === searchUserStr.trim() || twtTmp.handle.includes(searchUserStr.trim()));
+   }
    return youtubeUserList[video.uId].includes(searchUserStr.trim());
 }
 
@@ -502,17 +508,18 @@ function userLinkCompiler(userName,userId,site) {
          multipleId = true;
       }
 
-      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']'));
+      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
       
       let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler("code",idTmp[0]) + ']'));
       for (let j = 1; j < idTmp.length; j++) {
          retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
-      
-      return retStr;
+      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+                          botCheckName
+      return retStr;      botCheckValue
    }
    if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
-      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']'));
+      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
    }
 }
 
@@ -698,7 +705,7 @@ function editLink(linkTmp) {
                                                                                                                            /*
       if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(linkTmp,tmpp1.substring(0,tmpLinkerino4)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4), htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpLinkerino3 + tmpLinkerino4);   */
                                                                                                                                                              // &#60;NONE&#62;
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4), htmlBlockCompiler("code","[Search ID]"),false);
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
    }
    
    if (addSearchLinkYoutube) {
@@ -725,10 +732,10 @@ function editLink(linkTmp) {
       //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
       //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
 
-      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2 + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
       //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
 
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2 + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
       //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
 
       //htmlLinkCompiler('results.html?search=' +
@@ -911,8 +918,16 @@ function htmlHeadCompiler(htmlTitle = null) {
 <link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">` + breakline;
    let titleStr =  'YTPMV Metadata Archive';
    if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
+   
+   let htmlStrGead2 = `<body>
+<div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124; <a href="${dropboxLink}" target="_blank">Download JSON File</a>
+<br/>
+<br/>
+See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124;
+<a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>
+<hr/>`;
 
-   return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>';
+   return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>' + htmlStrGead2;
 }
 
 function createPageLinks() {
@@ -983,13 +998,7 @@ Exclude from search:` + breakline;
    Initializing HTML code for index.html
 */
 function htmlStrIndex(querie) {
-   let htmlStrIndex = `<div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124; <a href="${dropboxLink}" target="_blank">Download JSON File</a>
-<br/>
-<br/>
-See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124;
-<a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>
-<hr/>
-<p>
+   let htmlStrIndex = `<p>
 Search for videos:` + breakline;
 
    if ('/YTPMV_Database' === querie) {
@@ -1043,10 +1052,27 @@ var srvr = http.createServer(function (req, res) {
    else showVidPrev = true;
  }
 
-   let doThis = true;
-   
+   let doThis = true;                                                                                            // botCheckName
+   let botCheckTmp = (quer.query[botCheckName] !== undefined && quer.query[botCheckName] === botCheckValue);     // botCheckValue
+
+   //console.log( quer.query);
+
+   if (!botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      let excepTmp = htmlHeadCompiler("Search bot prevention");
+      excepTmp += htmlBlockCompiler("div",`<b>Search bot prevention</b>
+<br/><br/>
+This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${key}=${value}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
+
+      res.write(excepTmp + '</body></html>');
+      
+      res.end();
+      
+      doThis = false;
+   }
+
    // Results page
-   if ((htmPage + '/results.html') === quer.pathname) {
+   if (botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
       
       if (!searchingUser) findVideos(searchTmp,pageTmp,exactTmp);
@@ -1078,7 +1104,7 @@ var srvr = http.createServer(function (req, res) {
       }
       if (headTmo === '') headTmo = htmlHeadCompiler();
 
-      res.write(headTmo + htmlBlockCompiler("body",linksTmp + compileList() + linksTmp) + '</html>');
+      res.write(headTmo + linksTmp + compileList() + linksTmp + '</body></html>');
 
       res.end();
       
@@ -1089,7 +1115,7 @@ var srvr = http.createServer(function (req, res) {
    if (htmPage === quer.pathname || (htmPage + '/') === quer.pathname || (htmPage + '/index.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
 
-      res.write(htmlHeadCompiler() + htmlBlockCompiler("body",htmlStrIndex(quer.pathname)) + '</html>');
+      res.write(htmlHeadCompiler() + htmlStrIndex(quer.pathname) + '</body></html>');
 
       res.end();
       
