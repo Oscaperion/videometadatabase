@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 201201;//200601;
+const minMonth = 202109;
 
 /*
    Determines how many entries are being shown per page.
@@ -219,17 +219,24 @@ console.log('Loading metadata...');
      be edited through maxMonth and minMonth values.
 */
 {
-   let numm = 0;
+   //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
       let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
       //let terappi = 'vidJson2/vids' + y + '.json';
       console.log('Loading ' + terappi)  ;
-      try {
+      try {                                        /*
          parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
-         forceGC();
+           */
+         
+         let parSub = JSON.parse(fs.readFileSync(terappi, 'utf8'));
          console.log('Loaded!')  ;
-         numm++;
-         console.log('numm value: ' + numm)  ;
+         
+         for (let i = 0; i < parSub.length; i++) {
+            parsedVideos.push(parSub[i]);
+         }
+         //numm++;
+         console.log(terappi)  ;
+         forceGC();
       } catch(e) {
          console.log("Oh wait, that doesn't exist");
       }
@@ -356,11 +363,11 @@ function compileList() {
    return retStr;
 }
 
-findVideos("",1);
-console.log(foundVids);
-console.log(pageNumber + " / " + pageTotal);
+//findVideos("",1);
+//console.log(foundVids);
+//console.log(pageNumber + " / " + pageTotal);
 //console.log(compileEntry(parsedVideos[foundVids[3]]));
-console.log(compileList());
+//console.log(compileList());
 //console.log(hasSearchWords(["mr","beast"],parsedVideos[foundVids[0]]));
 
 //var pageNumber = 1;
@@ -369,10 +376,11 @@ console.log(compileList());
 // videosPerPage
 //
 function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId = null) {
+  {
    let showAllVideos = false;
    foundVids = [];
    let searchTmp = optimizeSearching(searchWord,exactSearch);
-   console.log(searchTmp);
+   //console.log(searchTmp);
    if (searchTmp === undefined && searchUploaderId === null && !ignoredSitesPresent()) showAllVideos = true;
    //else showAllVideos = false;
    
@@ -394,7 +402,17 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
    else {
       //let foundVidAmount = 0;
       let searchUploaderToo = !(searchUploaderId === null);
-      
+                                   /*
+      let vidTmp1 = parsedVideos.filter((ent, ind) => {
+         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
+         if (tmp2 === -1) tmp2 = sitesList.length - 1;
+         if (sitesList[tmp2].isIgnored) return false;
+         if (searchUploaderToo && !isSameUser(searchUploaderId, ent)) return false;
+         if (!hasSearchWords(searchTmp, ent)) return false;
+         return true;
+      }).map((ent, ind) => ind); */
+
+
       let vidTmp1 = parsedVideos.map((ent,ind) => {
          let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
          if (tmp2 === -1) tmp2 = sitesList.length - 1;
@@ -404,6 +422,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          return ind;
       }).filter(ent => ent !== undefined);
 
+
       let foundVidAmount = vidTmp1.length;
       pageTotal = Math.ceil(foundVidAmount / videosPerPage);
 
@@ -412,60 +431,8 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 
       foundVids = vidTmp1.filter((ent,ind) => (ind >= ((pageNumber - 1) * videosPerPage) && ind < (pageNumber * videosPerPage)));
    }
-
-   /*
-   else {
-      let foundVidAmount = 0;
-      let searchUploaderToo = !(searchUploaderId === null);
-      let vidTmp1 = parsedVideos.findIndex(ent => {
-         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
-         if (tmp2 === -1) tmp2 = sitesList.length - 1;
-         if (sitesList[tmp2].isIgnored) return false;
-         if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
-         return hasSearchWords(searchTmp,ent);
-      });
-
-      if (vidTmp1 !== -1) {
-         let tmp1 = reqPage - 1;
-         if (tmp1 < 0) {
-            tmp1 = 0;
-            //pageNumber = 1;
-         }
-         let searchThres = tmp1 * videosPerPage;
-         let overPage = true;
-         if (searchThres === 0) overPage = false;
-
-         while (vidTmp1 > -1) {
-            if (overPage && foundVidAmount >= searchThres) {
-               overPage = false;
-               foundVids = [];
-               // pageNumber = reqPage;
-            }
-
-            if (foundVids.length < 15) {
-               foundVids.push(vidTmp1);
-            }
-
-            foundVidAmount++;
-
-            // sitesList = [ {'site': 'Youtube',    'isIgnored
-            vidTmp1 = parsedVideos.findIndex((ent,ind) => {
-               if (!(ind > vidTmp1)) return false;
-               let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
-               if (tmp2 === -1) tmp2 = sitesList.length - 1;
-               if (sitesList[tmp2].isIgnored) return false;
-               if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
-               return hasSearchWords(searchTmp,ent);
-            });
-         }
-
-         if (overPage) pageNumber = 1;
-         else pageNumber =  reqPage;
-
-         pageTotal = Math.ceil(foundVidAmount / videosPerPage);
-         console.log(foundVidAmount);
-      }
-   } */
+  }
+   forceGC();
 }
 
 function hasSearchWords(searchWord,video) {
@@ -515,8 +482,8 @@ function userLinkCompiler(userName,userId,site) {
          retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
       retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
-                          botCheckName
-      return retStr;      botCheckValue
+
+      return retStr;     
    }
    if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
       return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
@@ -607,7 +574,7 @@ function addLinks(descri) {
       }
       tmppp = Math.min(...arrrtmp);
       if (tmppp === -1) tmppp = descr.length;
-      console.log(tmppp + " -- " + descr);
+      //console.log(tmppp + " -- " + descr);
       
       retArr.push(editLink(descr.substring(0,tmppp)));
       
@@ -693,7 +660,7 @@ function editLink(linkTmp) {
       let tmpLinkerino2 = tmpp1.substring(tmpLinkerino3);
       let tmpLinkerino4 = 0;
 
-      console.log(tmpLinkerino2);
+      //console.log(tmpLinkerino2);
 
       if (tmpLinkerino2.indexOf(" ") > 0) tmpLinkerino4 = tmpLinkerino2.indexOf(" ");
       if (tmpLinkerino2.indexOf("?") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf("?") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf("?");
@@ -780,7 +747,7 @@ console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined 
 */
 function compileEntry(video) {
    let userAddress = "";
-   if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']');
+   if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
    else {
       if (video.extractor_key === "Youtube" && video.uId !== undefined) userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
       else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);
@@ -951,7 +918,7 @@ function createPageLinks() {
 }
 
 // sitesList = [ {'site': 'Youtube',    'isIgnored
-function switchLister(pageN = 1,searchW = null) {
+function switchLister(pageN = 1,searchW = null,prev=null) {
    let retStr = [];
 
    let searchTmmp = searchWords;
@@ -961,35 +928,53 @@ function switchLister(pageN = 1,searchW = null) {
 
    if (searchingUser) retStr.push('uploader_id=' + searchedUser);
 
+   if (exactWordSearch) retStr.push("exactSearch=true");
+
    for (let j = 0; j < sitesList.length; j++) {
       if (sitesList[j].isIgnored) retStr.push(`${sitesList[j].site}=${sitesList[j].isIgnored}`);
    }
 
    retStr.push("page=" + pageN);
    
-   if (showVidPrev) retStr.push('preview=' + showVidPrev);
+   let prevTmp = showVidPrev;
+   if (prev !== null && (prev === false || prev === true)) prevTmp = prev;
+   if (prevTmp) retStr.push('preview=' + prevTmp);
 
    retStr.push(`${botCheckName}=${botCheckValue}`);
    
    return retStr.join("&");
 }
 
-function makeSearchBar(searchStr = "") {
-   let retStr = `Search for videos:
+function makeSearchBar(searchStr = "",previewing = false) {
+   let boolTmp = false;
+   if (previewing !== false && previewing.trim().toLowerCase() === "true") boolTmp = true;
+
+   //console.log("Hakase Fuyuki");
+   //console.log(searchStr);
+   //console.log(boolTmp);
+   
+   let prevTxt1 = "Show video previews";
+   if (boolTmp) prevTxt1 = "Hide video previews";
+   let prevTxt2 = htmlLinkCompiler("results.html?" + switchLister(pageNumber,null,!boolTmp),prevTxt1,false);
+
+   let retStr = `Search for videos:<br/><br/>
 <form action="results.html" method="GET">
 <input type="text" name="search" value="${searchStr.trim()}" />&nbsp;
 <input type="submit" value="Search" />&nbsp;&#124;
+<input type="checkbox" id="exactSearch" name="exactSearch" value="true"`
+   if (exactWordSearch) retStr += ' checked="yes"';
+   retStr += `><label for="exactSearch">&nbsp;Exact word search</label> &nbsp;&#124; ${prevTxt2}
 <input type="hidden" name="${botCheckName}" value="${botCheckValue}" />
-
+<br/><br/>
 Exclude from search:` + breakline;
 
-   for (let y = 0; y < sitesList; y++) {
+   for (let y = 0; y < sitesList.length; y++) {
       retStr += `<input type="checkbox" id="${sitesList[y].site}" name="${sitesList[y].site}" value="true"`;
       if (sitesList[y].isIgnored) retStr += ' checked="yes"';
       retStr += `><label for="${sitesList[y].site}">&nbsp;${sitesList[y].site}</label>` + breakline;
    }
 
-   retStr += '</form>';
+   retStr += '</form><hr/>';
 
    return htmlBlockCompiler("div",retStr);
 }
@@ -1024,13 +1009,16 @@ var srvr = http.createServer(function (req, res) {
    let searchTmp = quer.query.search;
    if (searchTmp === undefined) searchTmp = "";
    let pageTmp = quer.query.page;
-   console.log(pageTmp);
+   console.log(quer.pathname);
+   console.log(quer.query);
    if (pageTmp === undefined || isNaN(pageTmp.trim())) pageTmp = 1;
    else pageTmp = parseInt(pageTmp.trim());
 
+ {
    let exactTmp = false;
-   if (quer.query.exactSearch !== undefined && quer.query.exactSearch === 'true') exactTmp;
-   //exactWordSearch = exactTmp;
+   if (quer.query.exactSearch !== undefined && quer.query.exactSearch === 'true') exactTmp = true;
+   exactWordSearch = exactTmp;
+ }
 
  {
    for (let s = 0; s < sitesList.length; s++) {
@@ -1075,8 +1063,8 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
    if (botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
       
-      if (!searchingUser) findVideos(searchTmp,pageTmp,exactTmp);
-      else findVideos(searchTmp,pageTmp,exactTmp,searchedUser);
+      if (!searchingUser) findVideos(searchTmp,pageTmp,exactWordSearch);
+      else findVideos(searchTmp,pageTmp,exactWordSearch,searchedUser);
 
       //let showingList = compileList();
 
@@ -1104,7 +1092,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       }
       if (headTmo === '') headTmo = htmlHeadCompiler();
 
-      res.write(headTmo + linksTmp + compileList() + linksTmp + '</body></html>');
+      res.write(headTmo + makeSearchBar(quer.query.search,quer.query.preview) + linksTmp  + compileList() + linksTmp + '</body></html>');
 
       res.end();
       
@@ -1128,6 +1116,8 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.writeHead(404, {'Content-Type': 'text/html'});
       res.end("404 Not Found. Tried to get to: " +  quer.pathname);
    }
+   
+   forceGC();
 });
 
 srvr.listen(3535);
