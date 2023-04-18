@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
      months.
 */
 const maxMonth = 202312;
-const minMonth = 202109;
+const minMonth = 200601;
 
 /*
    Determines how many entries are being shown per page.
@@ -31,7 +31,7 @@ const botCheckValue = "penrose_likes_blohaj";
 /*
    Used to show, when the database was last updated.
 */
-var lastUpdated;
+let lastUpdated;
 {
    let currentDate = new Date();
    let cDay = currentDate.getDate();
@@ -74,42 +74,42 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
      If a Twitter account isn't listed, the database will provide a non-static link.
 */
 
-const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
-//const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
+//const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
-const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
-//const reuploadListLoc = 'vidJson2/reuploads.json';
-var reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+const reuploadListLoc = 'vidJson2/reuploads.json';
+let reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
-const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
-//const twitterUserLoc = 'vidJson2/twitterUserList.json';
-var twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
+//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+const twitterUserLoc = 'vidJson2/twitterUserList.json';
+let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 /*
    If JSON files for reuploadShowing and twitterUserList are changed, they will be 
      reread by the database.
 */
 fs.watchFile(reuploadListLoc, (curr,prev) => {
-    try {
-        console.log("Hoperiino"); 
-        reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
-        forceGC();
-    } catch (error) {
-        console.log ("Noperiino");
-    }
+   try {
+       console.log("Hoperiino"); 
+       reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+       forceGC();
+   } catch (error) {
+       console.log ("Noperiino");
+   }
 });
 
 fs.watchFile(twitterUserLoc, (curr,prev) => {
-    try {
-        console.log("Hoperiino"); 
-        twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
-        forceGC();
-    } catch (error) {
-        console.log ("Noperiino");
-    }
+   try {
+       console.log("Hoperiino"); 
+       twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
+       forceGC();
+   } catch (error) {
+       console.log ("Noperiino");
+   }
 });
 
 
@@ -136,9 +136,9 @@ function forceGC() {
 */
 const breakline =  '\r\n';
 
-var pageNumber = 1;
-var pageTotal = 1;
-var foundVids = [];
+let pageNumber = 1;
+let pageTotal = 1;
+let foundVids = [];
 
 /*
    This will be used to determine, whether or not the provided search words will be
@@ -146,7 +146,7 @@ var foundVids = [];
      - true  = The provided search word will be processed as-is.
      - false = In case there are multiple words, each of them will be used separately.
 */
-var exactWordSearch = false;
+let exactWordSearch = false;
 
 /*
    This will be used to determine, whether or not the entries will be accompanied by
@@ -155,15 +155,15 @@ var exactWordSearch = false;
      - true  = The video players are added along with the metadata.
      - false = The video players are not shown along with the metadata.
 */
-var showVidPrev = false;
+let showVidPrev = false;
 
 /*
    This will be used to store the search words of a query.
 */
-var searchWords = [];
+let searchWords = [];
 
-var searchedUser = "";
-var searchingUser = false;
+let searchedUser = "";
+let searchingUser = false;
 
 /*
    This determines, whether or not the database will process a query or show all the 
@@ -176,11 +176,11 @@ var searchingUser = false;
    These are to be used as part of queries that specify certain dates. Also used to 
      ensure that the user won't just input whatever they please.
 */
-var mostRecentDate;
-var leastRecentDate;
-var dateQueried1;
-var dateQueried2;
-var customRangeApplied = false;
+let mostRecentDate;
+let leastRecentDate;
+let dateQueried1;
+let dateQueried2;
+let customRangeApplied = false;
 
 /*
    These are used as part of a method to determine, whether or not to exclude particular
@@ -188,7 +188,7 @@ var customRangeApplied = false;
      entries, aside from the last option. The "Others" option covers every other site,
      that hasn't been listed.
 */
-var sitesList = [ {'site': 'Youtube',    'isIgnored':true},
+let sitesList = [ {'site': 'Youtube',    'isIgnored':true},
                   {'site': 'Niconico',   'isIgnored':true},
                   {'site': 'BiliBili',   'isIgnored':true},
                   {'site': 'Twitter',    'isIgnored':true},
@@ -221,19 +221,19 @@ console.log('Loading metadata...');
 {
    //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
-      let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-      //let terappi = 'vidJson2/vids' + y + '.json';
+      //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+      let terappi = 'vidJson2/vids' + y + '.json';
       console.log('Loading ' + terappi)  ;
-      try {                                        /*
+      try {
          parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
-           */
-         
-         let parSub = JSON.parse(fs.readFileSync(terappi, 'utf8'));
+
+
+         //let parSub = JSON.parse(fs.readFileSync(terappi, 'utf8'));
          console.log('Loaded!')  ;
-         
+                /*
          for (let i = 0; i < parSub.length; i++) {
             parsedVideos.push(parSub[i]);
-         }
+         }    */
          //numm++;
          console.log(terappi)  ;
          forceGC();
@@ -258,7 +258,57 @@ function formatDuration(justSeconds) {
 
     let mins = 0;
     let secs = Math.ceil(justSeconds);
-    
+
+    while (secs >= minute) {
+        mins++;
+        secs = secs - minute;
+    }
+
+    /*
+    if (secs < 10 && mins < 60) {
+        return mins + ':0' + secs;
+    }
+    */
+
+    if (mins < 60) {
+        return mins + ':' + ("" + secs).padStart(2, '0');
+    }
+
+    let hours = 0;
+
+    while (mins >= minute) {
+        hours++;
+        mins = mins - minute;
+    }
+
+    /*
+    let retStr = hours + ':';
+
+    if (mins < 10) {
+        retStr = retStr + '0';
+    }
+
+    retStr = retStr + mins + ':';
+
+    if (secs < 10) {
+        retStr = retStr + '0';
+    }
+
+    retStr = retStr + secs;
+    */
+
+    return hours + ':' + ("" + mins).padStart(2, '0') + ':' + ("" + secs).padStart(2, '0');
+}
+
+/*
+   Used to turn seconds into more sensible form.
+
+function formatDuration_old(justSeconds) {
+    let minute = 60;
+
+    let mins = 0;
+    let secs = Math.ceil(justSeconds);
+
     while (secs >= minute) {
         mins++;
         secs = secs - minute;
@@ -271,30 +321,31 @@ function formatDuration(justSeconds) {
     if (mins < 60) {
         return mins + ':' + secs;
     }
-    
+
     let hours = 0;
-    
+
     while (mins >= minute) {
         hours++;
         mins = mins - minute;
     }
-    
+
     let retStr = hours + ':';
-    
+
     if (mins < 10) {
         retStr = retStr + '0';
     }
-    
+
     retStr = retStr + mins + ':';
-    
+
     if (secs < 10) {
         retStr = retStr + '0';
     }
-    
+
     retStr = retStr + secs;
-    
+
     return retStr;
 }
+*/
 
 /*
    In case of separate search words, this optimizes them in two ways:
@@ -333,7 +384,7 @@ function optimizeSearching(searchWord,exactSearch) {
 
        if (includeStr) tmp2.push(tmp1[k].toLowerCase());
     }
-    
+
     return tmp2.sort((a, b) => b.length - a.length);
 }
 
@@ -361,6 +412,19 @@ function compileList() {
    }
 
    return retStr;
+
+  /*
+   let retStr = '<hr/>' + breakline;
+
+   let start_tmp = 0;
+   if (foundVids.length > 15 && pageNumber > 1) start_tmp = videosPerPage;
+
+   for (let i = start_tmp; i < foundVids.length; i++) {
+      retStr += compileEntry(foundVids[i]) + breakline + '<hr/>' + breakline;
+      //retStr += compileEntry(parsedVideos[foundVids[i]]) + breakline + '<hr/>' + breakline;
+   }
+
+   return retStr;  */
 }
 
 //findVideos("",1);
@@ -383,10 +447,10 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
    //console.log(searchTmp);
    if (searchTmp === undefined && searchUploaderId === null && !ignoredSitesPresent()) showAllVideos = true;
    //else showAllVideos = false;
-   
+
    if (showAllVideos) {
       pageTotal = Math.ceil(parsedVideos.length / videosPerPage);
-      
+
       let pageTmp = reqPage;
       if (pageTmp > pageTotal || pageTmp < 1) pageTmp = 1;
       let searchThres = (pageTmp - 1) * videosPerPage;
@@ -395,24 +459,15 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       foundVids = [];
 
       for (let u = searchThres; u < (searchThres + videosPerPage) && u < parsedVideos.length; u++) {
+         // foundVids.push(u);
          foundVids.push(u);
       }
    }
-   
+
    else {
-      //let foundVidAmount = 0;
       let searchUploaderToo = !(searchUploaderId === null);
-                                   /*
-      let vidTmp1 = parsedVideos.filter((ent, ind) => {
-         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
-         if (tmp2 === -1) tmp2 = sitesList.length - 1;
-         if (sitesList[tmp2].isIgnored) return false;
-         if (searchUploaderToo && !isSameUser(searchUploaderId, ent)) return false;
-         if (!hasSearchWords(searchTmp, ent)) return false;
-         return true;
-      }).map((ent, ind) => ind); */
 
-
+      /*
       let vidTmp1 = parsedVideos.map((ent,ind) => {
          let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
          if (tmp2 === -1) tmp2 = sitesList.length - 1;
@@ -420,16 +475,82 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return undefined;
          if (!hasSearchWords(searchTmp,ent)) return undefined;
          return ind;
-      }).filter(ent => ent !== undefined);
+      }).filter(ent => ent !== undefined);    
+      */
+      
+      let startTmp1 = 0;
+      let startTmp2 = videosPerPage;
+
+      let pageTmp = reqPage;
+      if (pageTmp < 1) pageTmp = 1;
+      let endTmp1 = (pageTmp - 1) * videosPerPage;
+      let endTmp2 = pageTmp * videosPerPage;
+      pageNumber = pageTmp;
+
+      //console.log(itIsFirstPage);
+      let foundVidAmount = 0;
+      let vidTmp1 = [];
+     
+     {
+      let itIsFirstPage = (startTmp1 === endTmp1);
+      let foundVidAmoun2 = 0;
+      let alreadyEnough = false;
+      let foundMore = false;
+
+      //console.log(`Values : ${startTmp1} - ${startTmp2} > ${endTmp1} - ${endTmp2}`);
 
 
-      let foundVidAmount = vidTmp1.length;
+      let vidTmp_ = parsedVideos.filter((ent,ind) => {
+         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
+         if (tmp2 === -1) tmp2 = sitesList.length - 1;
+         if (sitesList[tmp2].isIgnored) return false;
+         if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
+         if (!hasSearchWords(searchTmp,ent)) return false;
+
+         //console.log(ind);
+
+         if (!alreadyEnough && startTmp1 <= foundVidAmount && startTmp2 > foundVidAmount) {
+            // console.log("lol");
+            foundVidAmount++;
+            foundVidAmoun2++;
+            if (itIsFirstPage && foundVidAmoun2 >= videosPerPage) alreadyEnough = true;
+            vidTmp1.push(ind);
+            return false;
+         }
+
+         if (!alreadyEnough && endTmp1 <= foundVidAmount && endTmp2 > foundVidAmount) {
+            if (!foundMore) {
+               foundMore = true;
+               vidTmp1 = [];
+            }
+            // console.log("lol2");
+            foundVidAmount++;
+            foundVidAmoun2++;
+            if (foundVidAmoun2 >= (videosPerPage * 2)) alreadyEnough = true;
+            vidTmp1.push(ind);
+            return true;
+         }
+
+         foundVidAmount++;
+         return false;
+      });
+     }
+      //console.log(vidTmp1);
+
+      //let foundVidAmount = vidTmp1.length;
       pageTotal = Math.ceil(foundVidAmount / videosPerPage);
 
-      if (reqPage > pageTotal || reqPage < 1) pageNumber = 1;
-      else pageNumber = reqPage;
+      if (foundVidAmount <= videosPerPage) {
+         pageNumber = 1;
+         //itIsFirstPage = true;
+      }
+      
+      foundVids = vidTmp1;
 
+      //if (foundVidAmount)
+      /*
       foundVids = vidTmp1.filter((ent,ind) => (ind >= ((pageNumber - 1) * videosPerPage) && ind < (pageNumber * videosPerPage)));
+      */
    }
   }
    forceGC();
@@ -461,7 +582,7 @@ function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
 function htmlLinkCompiler(address,txt = null,targetBlank = true) {
    let tmpTxt = txt;
    if (tmpTxt === null) tmpTxt = address;
-   
+
    if (targetBlank) return '<a href="' + address + '" target="_blank">' + tmpTxt + '</a>';
    return '<a href="' + address + '">' + tmpTxt + '</a>';
 }
@@ -476,14 +597,14 @@ function userLinkCompiler(userName,userId,site) {
       }
 
       if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
-      
+
       let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler("code",idTmp[0]) + ']'));
       for (let j = 1; j < idTmp.length; j++) {
          retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
       retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
 
-      return retStr;     
+      return retStr;
    }
    if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
       return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
@@ -496,7 +617,7 @@ function userAddressCompiler(id_,site) {
       if (tmp1 === -1) return 'https://twitter.com/' + id_;
       return 'https://twitter.com/i/user/' + twitterUserList[tmp1].id;
    }
-   
+
    if (site === "Youtube") {
       if (id_.length === 24 && id_.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id_;
       if (id_.charAt(0) === '@') return "https://www.youtube.com/" + id_;
@@ -506,7 +627,7 @@ function userAddressCompiler(id_,site) {
    if (site === "Niconico") {
       return "https://www.nicovideo.jp/user/" + id_;
    }
-   
+
    if (site === "BiliBili") {
       return "https://space.bilibili.com/" + id_;
    }
@@ -516,12 +637,12 @@ function videoTags(vidTags) {
    if (vidTags === undefined || vidTags === null) return [];
 
    let tagsTmp = [];
-   
+
    for (let i = 0; i < vidTags.length; i++) {
       if (Number.isInteger(vidTags[i])) tagsTmp.push(tagsList[vidTags[i]]);
       else tagsTmp.push(vidTags[i]);
    }
-   
+
    return tagsTmp;
 }
 
@@ -545,10 +666,10 @@ function addLinks(descri) {
    // let checkHttp3 = ['youtu.be/'];
 
    let descr = descri.split("\n").join(" <br/>");
-   
+
    let retArr = [];
 
-   let tmpHt = descr.indexOf(checkHttp1); 
+   let tmpHt = descr.indexOf(checkHttp1);
                /*
    for (let j = 0; j < checkHttp3.length; j++) {
       let tmpCh = descr.indexOf(checkHttp3[j]);
@@ -565,9 +686,9 @@ function addLinks(descri) {
       retArr.push(descr.substring(0,tmpHt));
 
       descr = descr.substring(tmpHt);
-      
+
       let arrrtmp = [];
-      
+
       let tmppp = -1;
       for (let i = 0; i < checkHttp2.length; i++) {
          arrrtmp.push(descr.indexOf(checkHttp2[i]));
@@ -575,9 +696,9 @@ function addLinks(descri) {
       tmppp = Math.min(...arrrtmp);
       if (tmppp === -1) tmppp = descr.length;
       //console.log(tmppp + " -- " + descr);
-      
+
       retArr.push(editLink(descr.substring(0,tmppp)));
-      
+
       descr = descr.substring(tmppp);
 
       tmpHt = descr.indexOf(checkHttp1);
@@ -589,7 +710,7 @@ function addLinks(descri) {
          }
       }    */
    }
-   
+
    retArr.push(descr);
 
    /*
@@ -630,7 +751,7 @@ function editLink(linkTmp) {
 
    let addSearchLinkYoutube = false;
    let addSearchLinkNiconico = false;
-   
+
    let tempp = Math.max(youTubeChecking.length,nicovideoChecking.length);
 
    for (let i = 0; i < tempp; i++) {
@@ -642,9 +763,9 @@ function editLink(linkTmp) {
          break;
       }
    }
-   
+
    if (!addSearchLinkYoutube && !addSearchLinkNiconico) return htmlLinkCompiler(linkTmp);
-   
+
    if (addSearchLinkNiconico) {
       let tmpLinkerino = -1;
       for (let y = 0; y < nicovideoChecking.length; y++) {
@@ -655,7 +776,7 @@ function editLink(linkTmp) {
             }
          }
       }
-      
+
       let tmpLinkerino3 = tmpp1.indexOf(nicovideoChecking[tmpLinkerino]) + nicovideoChecking[tmpLinkerino].length;
       let tmpLinkerino2 = tmpp1.substring(tmpLinkerino3);
       let tmpLinkerino4 = 0;
@@ -674,7 +795,7 @@ function editLink(linkTmp) {
                                                                                                                                                              // &#60;NONE&#62;
       return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
    }
-   
+
    if (addSearchLinkYoutube) {
       let tmpLinkerino = -1;
       for (let y = 0; y < youTubeChecking.length; y++) {
@@ -691,9 +812,9 @@ function editLink(linkTmp) {
       if (tmpLinkerino2.length > youtubeIdLength) {
          tmpLinkerino2 = tmpLinkerino2.substring(0,youtubeIdLength);
       }
-      
+
       //console.log (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength));
-      
+
       let checkerCh = tmpp1.charAt(tmpLinkerino3 + youtubeIdLength);
       let linkTmp2 = linkTmp;
       //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
@@ -722,7 +843,7 @@ function editDescription(ogDesc) {
    let lineBreakN = '\n';
    let lineBreakLoc = descTmp.indexOf(lineBreakN);
    if (lineBreakLoc === -1) return descTmp.trim();
-   
+
    let retDesc = "";
    let tmpPos = 0;
    while (lineBreakLoc !== -1) {
@@ -767,7 +888,7 @@ function compileEntry(video) {
    let descTmp = editDescription(video.description) + '<br/><br/>' + breakline;
 
    let tagsTmp = htmlBlockCompiler("code",urlizeTags(videoTags(video.tags)));
-   
+
    let prevTmp = createVideoPreview(video.id,video.extractor_key);
 
    return htmlBlockCompiler("div",titleTmp + userAddress + releaseDate + prevTmp + descTmp + tagsTmp);
@@ -781,7 +902,7 @@ function urlizeTags(tagsArray) {
          strRet += " " + htmlLinkCompiler("results.html?" + switchLister(1,tagsArray[p]),tagsArray[p],false);
       }
    } else strRet += " &#60;NONE&#62;";
-   
+
    return strRet;
 }
 
@@ -789,7 +910,7 @@ function createVideoPreview(vidId,vidSite) {
     if (!showVidPrev) return '';
 
     //reuploadShowing
-    
+
     let tmpId = vidId;
     let tmpSite = vidSite;
     let tmpStr = '';
@@ -843,13 +964,13 @@ function createVideoPreviewVimeo(vidId) {
 
 function createVideoPreviewKakao(vidId) {
     let embbee = '<iframe width="640" height="480" src="https://play-tv.kakao.com/embed/player/cliplink/' + vidId + '?service=player_share" allowfullscreen frameborder="0" scrolling="no" allow="autoplay; fullscreen; encrypted-media"></iframe>';
-    
+
     return embbee;
 }
 
 function createVideoPreviewDailymotion(vidId) {
     let embbee = '<iframe frameborder="0" type="text/html" src="https://www.dailymotion.com/embed/video/' + vidId + '" width="640" height="480" allowfullscreen></iframe>';
-    
+
     return embbee;
 }
 
@@ -885,7 +1006,7 @@ function htmlHeadCompiler(htmlTitle = null) {
 <link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">` + breakline;
    let titleStr =  'YTPMV Metadata Archive';
    if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
-   
+
    let htmlStrGead2 = `<body>
 <div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124; <a href="${dropboxLink}" target="_blank">Download JSON File</a>
 <br/>
@@ -935,13 +1056,13 @@ function switchLister(pageN = 1,searchW = null,prev=null) {
    }
 
    retStr.push("page=" + pageN);
-   
+
    let prevTmp = showVidPrev;
    if (prev !== null && (prev === false || prev === true)) prevTmp = prev;
    if (prevTmp) retStr.push('preview=' + prevTmp);
 
    retStr.push(`${botCheckName}=${botCheckValue}`);
-   
+
    return retStr.join("&");
 }
 
@@ -952,7 +1073,7 @@ function makeSearchBar(searchStr = "",previewing = false) {
    //console.log("Hakase Fuyuki");
    //console.log(searchStr);
    //console.log(boolTmp);
-   
+
    let prevTxt1 = "Show video previews";
    if (boolTmp) prevTxt1 = "Hide video previews";
    let prevTxt2 = htmlLinkCompiler("results.html?" + switchLister(pageNumber,null,!boolTmp),prevTxt1,false);
@@ -1001,7 +1122,7 @@ Search for videos:` + breakline;
 }
 
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
-var srvr = http.createServer(function (req, res) {
+let srvr = http.createServer(function (req, res) {
 
    let quer = url.parse(req.url, true);
 
@@ -1053,23 +1174,23 @@ var srvr = http.createServer(function (req, res) {
 This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${key}=${value}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
 
       res.write(excepTmp + '</body></html>');
-      
+
       res.end();
-      
+
       doThis = false;
    }
 
    // Results page
    if (botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
-      
+
       if (!searchingUser) findVideos(searchTmp,pageTmp,exactWordSearch);
       else findVideos(searchTmp,pageTmp,exactWordSearch,searchedUser);
 
       //let showingList = compileList();
 
       let linksTmp = createPageLinks();
-      
+
       let headTmo = '';
 
       if (searchWords.length === 0 && !searchingUser && !ignoredSitesPresent()) headTmo = htmlHeadCompiler(`Showing all videos - Page: ${pageNumber}/${pageTotal}`);
@@ -1080,14 +1201,14 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
          if (searchWords.length > 0) headTmo += ` "${searchTmp.trim()}"`;
 
          if (searchingUser) headTmo += ` by ${searchedUser}`;
-         
+
          if (ignoredSitesPresent()) {
             // sitesList = [ {'site': 'Youtube',    'isIgnored'
             let tmoo = sitesList.filter(ent => !ent.isIgnored).map(ent => ent.site);
             if (tmoo.length > 0) headTmo += " from " + tmoo.join(', ');
             else headTmo += " from no site (Why would you exclude every site, you dumbass?)";
          }
-         
+
          headTmo = htmlHeadCompiler(headTmo + ` - Page: ${pageNumber}/${pageTotal}`);
       }
       if (headTmo === '') headTmo = htmlHeadCompiler();
@@ -1095,7 +1216,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.write(headTmo + makeSearchBar(quer.query.search,quer.query.preview) + linksTmp  + compileList() + linksTmp + '</body></html>');
 
       res.end();
-      
+
       doThis = false;
    }
 
@@ -1106,7 +1227,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.write(htmlHeadCompiler() + htmlStrIndex(quer.pathname) + '</body></html>');
 
       res.end();
-      
+
       doThis = false;
    }
 
@@ -1116,7 +1237,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.writeHead(404, {'Content-Type': 'text/html'});
       res.end("404 Not Found. Tried to get to: " +  quer.pathname);
    }
-   
+
    forceGC();
 });
 
