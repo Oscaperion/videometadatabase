@@ -74,18 +74,18 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
      If a Twitter account isn't listed, the database will provide a non-static link.
 */
 
-//const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
-const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
+const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+//const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
-//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
-const reuploadListLoc = 'vidJson2/reuploads.json';
+const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+//const reuploadListLoc = 'vidJson2/reuploads.json';
 let reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
-//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
-const twitterUserLoc = 'vidJson2/twitterUserList.json';
+const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+//const twitterUserLoc = 'vidJson2/twitterUserList.json';
 let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 /*
@@ -221,8 +221,8 @@ console.log('Loading metadata...');
 {
    //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
-      //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
-      let terappi = 'vidJson2/vids' + y + '.json';
+      let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+      //let terappi = 'vidJson2/vids' + y + '.json';
       console.log('Loading ' + terappi)  ;
       try {
          parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
@@ -490,12 +490,12 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       //console.log(itIsFirstPage);
       let foundVidAmount = 0;
       let vidTmp1 = [];
+      let foundMore = false;
      
      {
       let itIsFirstPage = (startTmp1 === endTmp1);
       let foundVidAmoun2 = 0;
       let alreadyEnough = false;
-      let foundMore = false;
 
       //console.log(`Values : ${startTmp1} - ${startTmp2} > ${endTmp1} - ${endTmp2}`);
 
@@ -528,7 +528,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             foundVidAmoun2++;
             if (foundVidAmoun2 >= (videosPerPage * 2)) alreadyEnough = true;
             vidTmp1.push(ind);
-            return true;
+            return false;
          }
 
          foundVidAmount++;
@@ -540,7 +540,8 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       //let foundVidAmount = vidTmp1.length;
       pageTotal = Math.ceil(foundVidAmount / videosPerPage);
 
-      if (foundVidAmount <= videosPerPage) {
+      if (!foundMore) {
+      //if (foundVidAmount <= videosPerPage) {
          pageNumber = 1;
          //itIsFirstPage = true;
       }
@@ -831,12 +832,12 @@ function editLink(linkTmp) {
    return htmlLinkCompiler(linkTmp);
 }
 
-function editDescription(ogDesc) {
+function editDescription(ogDesc,descExtr) {
    if (ogDesc === undefined || ogDesc === null || ogDesc.trim().length === 0) return htmlBlockCompiler("code","[No description]");
 
    let descTmp = ogDesc.trim();
 
-   if (descTmp.includes('http')) {
+   if (descExtr !== "Niconico" && descTmp.includes('http')) {
       descTmp = addLinks(ogDesc);
    }
 
@@ -885,7 +886,7 @@ function compileEntry(video) {
 
    let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
 
-   let descTmp = editDescription(video.description) + '<br/><br/>' + breakline;
+   let descTmp = editDescription(video.description,video.extractor_key) + '<br/><br/>' + breakline;
 
    let tagsTmp = htmlBlockCompiler("code",urlizeTags(videoTags(video.tags)));
 
@@ -975,14 +976,14 @@ function createVideoPreviewDailymotion(vidId) {
 }
 
 function createVideoPreviewTwitter(vidId) {
-    let requ = new XMLHttpRequest_node();
+    let requ = new XMLRequest();
     let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
     let embbee = '';
     requ.onreadystatechange = function() {
       if (requ.readyState == 4 && requ.status == 200){
         embbee = JSON.parse(requ.responseText).html;
         console.log("JSON succesfully fetched from Twitter's site");
-       }
+      }
     };
     requ.open("GET", apiLink, false);
     requ.send(null);
