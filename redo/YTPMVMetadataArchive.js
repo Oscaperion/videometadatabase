@@ -491,6 +491,10 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       let foundVidAmount = 0;
       let vidTmp1 = [];
       let foundMore = false;
+
+      // FOR OFFLINE BLACLISTING PURPOSES
+      amountBlack = {};
+      amountWhite = {};
      
      {
       let itIsFirstPage = (startTmp1 === endTmp1);
@@ -535,6 +539,8 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          return false;
       });
      }
+     
+      blaclListCheck();
       //console.log(vidTmp1);
 
       //let foundVidAmount = vidTmp1.length;
@@ -557,7 +563,21 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
    forceGC();
 }
 
+// FOR OFFLINE BLACKLISTING PURPOSES, DON'T HAVE THIS WHEN PUTTING THIS ONLINE
+let amountBlack = {};
+let amountWhite = {};
+
 function hasSearchWords(searchWord,video) {
+   if (video.uId !== undefined) {
+      if (amountWhite[youtubeUserList[video.uId][0]] === undefined) amountWhite[youtubeUserList[video.uId][0]] = 0;
+      amountWhite[youtubeUserList[video.uId][0]]++;
+   }
+   else {
+      if (amountWhite[video.uploader_id] === undefined) amountWhite[video.uploader_id] = 0;
+      amountWhite[video.uploader_id]++;
+   }
+
+
    if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
 
    let tmpVid = Object.values(video).filter((ent,ind) => {
@@ -570,8 +590,47 @@ function hasSearchWords(searchWord,video) {
 
    //if (video.uId !== undefined) tmpVid.push(...youtubeUserList[video.uId]);
 
-   //return searchWord.every(srcWrd => tmpVid.join(" ").toLowerCase().includes(srcWrd));
-   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
+   // USE THIS FOR NORMAL ONLINE USE
+   // return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
+
+   // FOR OFFLINE BLACKLISTING PURPOSES
+   let retVal = searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
+   
+   if (retVal) {
+      if (video.uId !== undefined) {
+         if (amountBlack[youtubeUserList[video.uId][0]] === undefined) amountBlack[youtubeUserList[video.uId][0]] = 0;
+         amountBlack[youtubeUserList[video.uId][0]]++;
+      }
+      else {  
+         if (amountBlack[video.uploader_id] === undefined) amountBlack[video.uploader_id] = 0;
+         amountBlack[video.uploader_id]++;
+      }
+   }
+   
+   return retVal;
+}
+
+function blaclListCheck() {
+   let blackUsers = Object.keys(amountBlack);
+   console.log(amountBlack);
+   let blackList = [];
+
+   for (let i = 0; i < blackUsers.length; i++) {
+      if (amountBlack[blackUsers[i]] === 1) continue;
+
+      if (amountBlack[blackUsers[i]] >= 50) {
+          blackList.push(blackUsers[i]);
+          continue;
+      }
+
+      if (amountBlack[blackUsers[i]] >= ( Math.floor(amountWhite[blackUsers[i]] * (2 / 3)) ) ) {
+          blackList.push(blackUsers[i]);
+      }
+   }
+   
+   let writerino = '"' + blackList.join('","') + '"';
+
+   fs.writeFileSync('F:/Dropbox/NodeJS/blacklisterino.txt', writerino);
 }
 
 function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
