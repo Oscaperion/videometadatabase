@@ -4,6 +4,8 @@ var fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
+const maxJsonAmount = 43;
+
 const maxMonth = 202312;
 const minMonth = 200601;
 
@@ -96,7 +98,7 @@ var allEntries = {};
 var pathsS = [];
 var pathCurrent = 0;
 
-for (let tu = 42; tu >= -1; tu--) {
+for (let tu = maxJsonAmount; tu >= -1; tu--) {
 
     //for (let tu = 0; tu < vidds.length; tu++) {
     //for (let tu = 41; tu >= -1; tu--) {
