@@ -4,7 +4,14 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
+// Easy changes can be made here:
+
 let searchingUser = "Rlcemaster3";
+// Make sure these are in form "YYYYMMDD"
+let checkDates = ["20100300","20200600"];
+
+// =============================
+
 let checkedUid = -1;
 
 {
@@ -18,7 +25,16 @@ let checkedUid = -1;
    }
 }
 
-console.log(checkedUid);
+if (checkedUid == -1) throw new Error('No user found with the ID "' + searchingUser) + '"';
+else console.log('Found a user with the ID "' + searchingUser + '" (Placement ID: ' + checkedUid + ')');
+
+// This makes sure the first date is more recent
+if (checkDates[0] < checkDates[1]) {
+   let tmp = checkDates[0];
+   checkDates[0] = checkDates[1];
+   checkDates[1] = tmp;
+   console.log("Swapped");
+}
 
 const br =  '\r\n';
 //var videoList = '';
