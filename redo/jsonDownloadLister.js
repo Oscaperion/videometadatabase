@@ -24,7 +24,7 @@ videoList += '<hr/>' + br;
 
 var rString = '';
 var tu;
-for (tu = 42; tu >= 0; tu--) {
+for (tu = 43; tu >= 0; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
 //var parsedVideos = JSON.parse(videoitaFile);
     var parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
@@ -36,7 +36,7 @@ for (tu = 42; tu >= 0; tu--) {
     //for (i = 0; i < 100; i++) {
     for (i = 0; i < parsedVideos.videos.length; i++) {
        //var dewIt = true;
-       
+
        if (parsedVideos.videos[i].extractor_key === "BilibiliSpaceVideo") continue; // dewIt = false;
 
        if (parsedVideos.videos[i].extractor_key === "YoutubeTab") continue; // dewIt = false;
