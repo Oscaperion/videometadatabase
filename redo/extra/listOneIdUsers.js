@@ -4,6 +4,7 @@ let retStr = '';
 let tablerooni = [];
 let orderId = 0;
 
+
 {
     let parsedVideos = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 
@@ -32,11 +33,20 @@ console.log(tablerooni);
 console.log(presentIds);
 console.log(presentIds.includes(2));
 
-while (checkingVidFileId >= 42) {
-    let fileSource = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + checkingVidFileId + '.json';
-    console.log(fileSource);
-    let checkingFile = JSON.parse(fs.readFileSync(fileSource, 'utf8'));
+let foundUsers = [];
+
+for (var ty = 202312; ty > 200600; ty--) {
+    let fileSource = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + ty + '.json';
+    var checkingFile;
+    try {
+       checkingFile = JSON.parse(fs.readFileSync(fileSource, 'utf8'));
+    } catch (err) {
+       console.log("No file found");
+       continue;
+    }
     // console.log(checkingFile);
+    // console.log(checkingFile[6]);
+    //console.log(fileSource);
 
     /*
     The following refused to work for some reason
@@ -51,19 +61,29 @@ while (checkingVidFileId >= 42) {
     ) */
 
     for (let k = 0; k < checkingFile.length; k++) {
-       console.log(k);
-       console.log(checkingFile[k].uId);
-       if (presentIds.includes(checkingFile[k].uId)) {
+       if (checkingFile[k].extractor_key === 'Youtube' && presentIds.includes(checkingFile[k].uId) && checkingFile[k].uploader.includes(' - Topic')) {
+          console.log(k);
+          console.log(checkingFile[k]);
           console.log(k);
           let indexr = presentIds.indexOf(checkingFile[k].uId);
-          tablerooni[indexr]["userName"] =  checkingFile[k].uploader;
+
+
+          let tmpCell = tablerooni[indexr];
+          tmpCell["userName"] =  checkingFile[k].uploader;
+          if (!foundUsers.map(ent => ent.uploader).includes(checkingFile[k].uploader)) foundUsers.push(tmpCell);
+          // tablerooni[indexr]["userName"] =  checkingFile[k].uploader;
           //foundIds.push({"id":checkingFile[k].uId,"userName":checkingFile[k].uploader});
           presentIds[indexr] = -1;
-          console.log(tablerooni[indexr]);
+          // console.log(tablerooni[indexr]);
        }
     }
-
-    checkingVidFileId--;
 }
 
-// fs.writeFileSync('F:/Dropbox/NodeJS/users_with_oneid.txt', retStr);
+console.log(foundUsers);
+console.log(foundUsers.map(ent => ent.userId));
+
+let finStr = '"' + foundUsers.map(ent => ent.userId).join('","') + '"';
+
+//console.log(finStr);
+
+fs.writeFileSync('F:/Dropbox/NodeJS/topic-users.txt', finStr);
