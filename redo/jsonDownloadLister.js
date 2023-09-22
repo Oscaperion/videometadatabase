@@ -24,7 +24,7 @@ videoList += '<hr/>' + br;
 
 var rString = '';
 var tu;
-for (tu = 43; tu >= 0; tu--) {
+for (tu = 45; tu >= 0; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
 //var parsedVideos = JSON.parse(videoitaFile);
     var parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));
@@ -51,7 +51,7 @@ for (tu = 43; tu >= 0; tu--) {
     }
 }
 
-    fs.writeFileSync('F:/Dropbox/NodeJS/already-downloaded.txt', rString);
+    fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/already-downloaded.txt', rString);
     console.log("Tallennettu");
 
 //console.log('List done');

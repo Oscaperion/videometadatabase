@@ -90,7 +90,7 @@ var tagsAll = [];
   }
 }      */
 
-var maxY = 43;
+var maxY = 45;
 var minY = 1;
 
 {
@@ -188,7 +188,7 @@ var tmpTaags = Object.keys(tagsAll);
 var tagsComp2 = [];
 
 for (let k = 0; k < tmpTaags.length; k++) {
-   if (tagsAll[tmpTaags[k]] > 100) tagsComp2.push(tmpTaags[k]);
+   if (tagsAll[tmpTaags[k]] >= 10) tagsComp2.push(tmpTaags[k]);
 }
 console.log(tagsComp2);
 
