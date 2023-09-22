@@ -3,6 +3,7 @@ var fs = require('fs');
 let retStr = '';
 let tablerooni = [];
 let orderId = 0;
+let searchPhrase = ' - Topic';
 
 
 {
@@ -18,7 +19,7 @@ let orderId = 0;
 
 let maxAmount = tablerooni.length;
 
-let checkingVidFileId = 43;
+let checkingVidFileId = 45;
 let extraFileName = 'finnredo';
 let presentIds = tablerooni.map(ent => ent.id);
 let foundIds = [];
@@ -61,7 +62,7 @@ for (var ty = 202312; ty > 200600; ty--) {
     ) */
 
     for (let k = 0; k < checkingFile.length; k++) {
-       if (checkingFile[k].extractor_key === 'Youtube' && presentIds.includes(checkingFile[k].uId) && checkingFile[k].uploader.includes(' - Topic')) {
+       if (checkingFile[k].extractor_key === 'Youtube' && presentIds.includes(checkingFile[k].uId) && checkingFile[k].uploader.includes(searchPhrase)) {
           console.log(k);
           console.log(checkingFile[k]);
           console.log(k);
