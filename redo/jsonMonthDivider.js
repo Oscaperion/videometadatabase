@@ -1,6 +1,6 @@
 //requiring path and fs modules
-var path = require('path');
-var fs = require('fs');
+let path = require('path');
+let fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
@@ -34,7 +34,7 @@ const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Meta
 //var gatheredIds = [];
 
 
-var ignoreUsers = [];
+let ignoreUsers = [];
 /*
 for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
    var tmpArr = youtubeUserList1[ttu].uploader_id;
@@ -94,9 +94,9 @@ for (let kii = 41; kii >= 1; kii--) {
 }    */
 
 //var toBeSortedList = [];
-var allEntries = {};
-var pathsS = [];
-var pathCurrent = 0;
+let allEntries = {};
+let pathsS = [];
+let pathCurrent = 0;
 
 for (let tu = maxJsonAmount; tu >= -1; tu--) {
 
@@ -119,7 +119,7 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
        }
 }
 
-var monthCheck = {};
+let monthCheck = {};
 
 for (let tr = 0; tr < pathsS.length; tr++) {
    let tmoe = JSON.parse(fs.readFileSync(pathsS[tr], 'utf8'));
@@ -150,9 +150,12 @@ for (let jj = 0; jj < pathsS.length; jj++) {
    readFileJ(pathsS[jj]);
 } */
 
-var gatheredIds = [];
+let gatheredIds = [];
+
+//const dayRange = [[1,10],[11,20],[21,31]];
 
 for (let mont = maxMonth; mont >= minMonth; mont--) {
+ // for (let dRangeId = 0; dRangeId < dayRange.length; dRangeId++) {
    let tmpMo = [];
    gatheredIds = [];
 
@@ -160,7 +163,7 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
       console.log ("Fuyo " + pathsS[jj] + " " + mont);
 
       let tmpMo2 = [];
-      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly(pathsS[jj],mont);
+      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly(pathsS[jj],mont /* ,dRangeId */ );
       else console.log("Skipping " + mont);
 
       tmpMo.push(...tmpMo2);
@@ -176,11 +179,12 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
       return 1;
    });
 
-   if (tmpMo.length > 0) fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont + '.json', JSON.stringify(tmpMo));
+   if (tmpMo.length > 0) fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont + /* '' + dRangeId + */ '.json', JSON.stringify(tmpMo));
 
    let moont = mont + '';
 
    if (moont.substring(4) === '01' ) mont = mont - 88;
+ // }
 }
 
 function optimizeTags(tagsArray) {
@@ -207,6 +211,45 @@ function forceGC() {
 function listId(id_entry) {
    if (Array.isArray(id_entry)) gatheredIds.push(...id_entry);
    else gatheredIds.push(id_entry);
+}
+
+
+function readFileMonthly_redoAttempt(pathh,targetMonth,dayRangeId) {
+    let tmpRet = [];
+
+
+    let tmpArray = JSON.parse(fs.readFileSync(pathh, 'utf8'));
+    if (!pathh.includes('finnredo')) tmpArray = tmpArray.videos;
+    let tmpTarg = '' + targetMonth;
+    let tmpPos = tmpArray.findIndex(ent => ( (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) && ((ent.upload_date >= (tmpTarg + dayRange[dayRangeId][0])) && (ent.upload_date <= (tmpTarg + dayRange[dayRangeId][1]))) ));
+
+    if (tmpPos === -1)  return tmpRet;
+
+
+    //for (let iop = 0; iop < tmpArray.length; iop++) {
+    while (tmpPos !== -1) {
+       let tmppVid = entryEditor(tmpArray[tmpPos],tmpTarg);
+
+       if (tmppVid === undefined) {
+          tmpPos = tmpArray.findIndex((ent,ind) => ( (ind > tmpPos) && (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) && ((ent.upload_date >= (tmpTarg + dayRange[dayRangeId][0])) && (ent.upload_date <= (tmpTarg + dayRange[dayRangeId][1]))) ));
+          continue;
+       }
+
+       //let monthThmp = tmppVid.upload_date.substring(0,6);
+
+       /*
+       if (tmpTarg !== monthThmp) {
+          console.log(tmppVid.id + " doesn't fit upload month");
+          continue;
+       }      */
+         console.log(pathh);
+         console.log("Adding to " + tmpTarg);
+         //gatheredIds.push(tmppVid.id);
+         tmpRet.push(tmppVid);
+         listId(tmppVid.id);
+         tmpPos = tmpArray.findIndex((ent,ind) => ( (ind > tmpPos) && (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) && ((ent.upload_date >= (tmpTarg + dayRange[dayRangeId][0])) && (ent.upload_date <= (tmpTarg + dayRange[dayRangeId][1]))) ));
+    }
+    return tmpRet;
 }
 
 function readFileMonthly(pathh,targetMonth) {
