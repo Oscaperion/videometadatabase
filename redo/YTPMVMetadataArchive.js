@@ -251,7 +251,7 @@ dateQueried1 = mostRecentDate;
 dateQueried1 = leastRecentDate;
 
 /*
-   Used to turn seconds into more sensible form.
+   Used to turn seconds into more readable form.
 */
 function formatDuration(justSeconds) {
     let minute = 60;
@@ -388,6 +388,9 @@ function optimizeSearching(searchWord,exactSearch) {
     return tmp2.sort((a, b) => b.length - a.length);
 }
 
+/*
+
+*/
 function isSameUser(searchUserStr,video) {
    if (video.uId === undefined && video.extractor_key !== "Twitter") return video.uploader_id === searchUserStr.trim();
    if (video.extractor_key === "Twitter") {
@@ -399,6 +402,9 @@ function isSameUser(searchUserStr,video) {
    return youtubeUserList[video.uId].includes(searchUserStr.trim());
 }
 
+/*
+   Checks if any of the sites have been set to be ignored during searching
+*/
 function ignoredSitesPresent() {
    return sitesList.some(ent => ent.isIgnored === true);
 }
@@ -406,7 +412,7 @@ function ignoredSitesPresent() {
 
 function compileList() {
    let retStr = '<hr/>' + breakline;
-   
+
    for (let i = 0; i < foundVids.length; i++) {
       retStr += compileEntry(parsedVideos[foundVids[i]]) + breakline + '<hr/>' + breakline;
    }
@@ -427,18 +433,6 @@ function compileList() {
    return retStr;  */
 }
 
-//findVideos("",1);
-//console.log(foundVids);
-//console.log(pageNumber + " / " + pageTotal);
-//console.log(compileEntry(parsedVideos[foundVids[3]]));
-//console.log(compileList());
-//console.log(hasSearchWords(["mr","beast"],parsedVideos[foundVids[0]]));
-
-//var pageNumber = 1;
-//var pageTotal = 1;
-
-// videosPerPage
-//
 function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId = null) {
   {
    let showAllVideos = false;
@@ -477,7 +471,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          return ind;
       }).filter(ent => ent !== undefined);    
       */
-      
+
       let startTmp1 = 0;
       let startTmp2 = videosPerPage;
 

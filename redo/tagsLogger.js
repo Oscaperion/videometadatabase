@@ -90,7 +90,7 @@ var tagsAll = [];
   }
 }      */
 
-var maxY = 45;
+var maxY = 46;
 var minY = 1;
 
 {
