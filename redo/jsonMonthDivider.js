@@ -4,7 +4,7 @@ let fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
-const maxJsonAmount = 46;
+const maxJsonAmount = 47;
 
 const maxMonth = 202312;
 const minMonth = 200601;
@@ -405,6 +405,9 @@ function entryEditor(entry,targetMonth) {
    //let parsedVideos = vidds[tu];
    //if (entry.upload_date > minDate && entry.upload_date < maxDate) return undefined;
    {
+     // TEMPORARY! Unables Bilibili videos for the time being
+     // if (entry.extractor_key === "BiliBili") return undefined;
+
      if (ignoreUsers.includes(entry.uploader_id)) return undefined;
      let tttmp_id = entry.id;
      if (Array.isArray(entry.id)) tttmp_id = entry.id[0];

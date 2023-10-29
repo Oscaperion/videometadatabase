@@ -34,7 +34,7 @@ requ_HSL.onreadystatechange = function() {
 //for (j = 1; j <= 27; j++) {
 //for (j = 16; j >= 16; j--) {
 
-  var dirName = folderName + 42;
+  var dirName = folderName + 46;
   console.log('Luetaan kansiota ' + dirName);
   //joining path of directory
   var directoryPath = path.join(dirName);

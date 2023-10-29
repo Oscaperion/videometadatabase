@@ -25,8 +25,8 @@ const videosPerPage = 15;
      for actual visitors. So far this has been surprisingly effective, but if bots ever
      learn to take this into consideration a more robust measure need to be implemented.
 */
-const botCheckName = "hey_didyou_know";
-const botCheckValue = "penrose_likes_blohaj";
+const botCheckName = "rumour_came_out";
+const botCheckValue = "lupinight_my_beloved";
 
 /*
    Used to show, when the database was last updated.
@@ -79,6 +79,9 @@ const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Ar
 
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+
+const sameUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/sameUsers.json', 'utf8'));
 
 const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
 //const reuploadListLoc = 'vidJson2/reuploads.json';
@@ -487,8 +490,8 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       let foundMore = false;
 
       // FOR OFFLINE BLACLISTING PURPOSES
-      amountBlack = {};
-      amountWhite = {};
+      // amountBlack = {};
+      // amountWhite = {};
      
      {
       let itIsFirstPage = (startTmp1 === endTmp1);
@@ -534,7 +537,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       });
      }
      
-      blaclListCheck();
+      // blaclListCheck();
       //console.log(vidTmp1);
 
       //let foundVidAmount = vidTmp1.length;
@@ -558,10 +561,11 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 }
 
 // FOR OFFLINE BLACKLISTING PURPOSES, DON'T HAVE THIS WHEN PUTTING THIS ONLINE
-let amountBlack = {};
-let amountWhite = {};
+// let amountBlack = {};
+// let amountWhite = {};
 
 function hasSearchWords(searchWord,video) {
+   /*
    if (video.uId !== undefined) {
       if (amountWhite[youtubeUserList[video.uId][0]] === undefined) amountWhite[youtubeUserList[video.uId][0]] = 0;
       amountWhite[youtubeUserList[video.uId][0]]++;
@@ -570,6 +574,7 @@ function hasSearchWords(searchWord,video) {
       if (amountWhite[video.uploader_id] === undefined) amountWhite[video.uploader_id] = 0;
       amountWhite[video.uploader_id]++;
    }
+   */
 
 
    if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
@@ -585,11 +590,12 @@ function hasSearchWords(searchWord,video) {
    //if (video.uId !== undefined) tmpVid.push(...youtubeUserList[video.uId]);
 
    // USE THIS FOR NORMAL ONLINE USE
-   // return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
+   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
 
    // FOR OFFLINE BLACKLISTING PURPOSES
+   /*
    let retVal = searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
-   
+
    if (retVal) {
       if (video.uId !== undefined) {
          if (amountBlack[youtubeUserList[video.uId][0]] === undefined) amountBlack[youtubeUserList[video.uId][0]] = 0;
@@ -600,10 +606,12 @@ function hasSearchWords(searchWord,video) {
          amountBlack[video.uploader_id]++;
       }
    }
+   */
    
    return retVal;
 }
 
+/*
 function blaclListCheck() {
    let blackUsers = Object.keys(amountBlack);
    console.log(amountBlack);
@@ -625,7 +633,8 @@ function blaclListCheck() {
    let writerino = '"' + blackList.join('","') + '"';
 
    fs.writeFileSync('F:/Dropbox/NodeJS/blacklisterino.txt', writerino);
-}
+} 
+*/
 
 function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
    if (additionalInfo === null) return '<' + typeHtm + '>' + txt + '</' + typeHtm + '>' ;
@@ -674,7 +683,7 @@ function userAddressCompiler(id_,site) {
 
    if (site === "Youtube") {
       if (id_.length === 24 && id_.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id_;
-      if (id_.charAt(0) === '@') return "https://www.youtube.com/" + id_;
+      if (id_.charAt(0) === '@' || id_.substring(0, 2) === 'c/') return "https://www.youtube.com/" + id_;
       return "https://www.youtube.com/user/" + id_;
    }
 
