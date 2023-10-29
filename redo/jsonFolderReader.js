@@ -1,15 +1,15 @@
 //requiring path and fs modules
-var path = require('path');
-var fs = require('fs');
+let path = require('path');
+let fs = require('fs');
 const url = require('url');
 const http = require('http');
 
 const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
-var videoList = '';
+let videoList = '';
 
        /*
-var exampleFile = fs.readFileSync('massJsonTesting1\\SO8RSZNyWXs.info.json', 'utf8');
-var parseJSON = JSON.parse(exampleFile);
+let exampleFile = fs.readFileSync('massJsonTesting1\\SO8RSZNyWXs.info.json', 'utf8');
+let parseJSON = JSON.parse(exampleFile);
 console.log(parseJSON.uploader_url);
 if (parseJSON.uploader_url === undefined) {
    console.log("This works 23");
@@ -23,25 +23,25 @@ if (parsedJSON.uploader_url.length == 0) {
 
 //console.log(exampleFile);
 
-var toBeSortedList = [];
+let toBeSortedList = [];
 
-var changeHere = false;
+let changeHere = false;
 
-//var j = 29;
-var readTwitterVids = changeHere;
-//var ignoreBilibiliPlaylists = changeHere;
+//let j = 29;
+let readTwitterVids = changeHere;
+//let ignoreBilibiliPlaylists = changeHere;
 
 
 
 //for (j = 1; j <= 25; j++) {
-for (var j = 46; j >= 46; j--) {
-//for (var j = 0; j >= 0; j--) {
+for (let j = 47; j >= 47; j--) {
+//for (let j = 0; j >= 0; j--) {
 
-//for (var j = 1; j <= 28; j++) {
-  var dirName = folderName + j;
+//for (let j = 1; j <= 28; j++) {
+  let dirName = folderName + j;
   console.log('Reading the folder: ' + dirName);
   //joining path of directory
-  var directoryPath = path.join(dirName);
+  let directoryPath = path.join(dirName);
   //passsing directoryPath and callback function
   fs.readdirSync(directoryPath).forEach(function (file) {
      if (file.localeCompare('desktop.ini') != 0) {
@@ -50,11 +50,11 @@ for (var j = 46; j >= 46; j--) {
         let willBeAdded = true;
 
         //console.log(file);
-        var filePath = dirName + '\\' + file;
+        let filePath = dirName + '\\' + file;
        // console.log(filePath);
         //console.log(file + ' is being read' );
 
-        var parsedJSON = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        let parsedJSON = JSON.parse(fs.readFileSync(filePath, 'utf8'));
                   /*
         if (ext_key.indexOf("NiconicoPlaylist") > -1) {
            return;
@@ -64,12 +64,12 @@ for (var j = 46; j >= 46; j--) {
            return;
         }       */
 
-        var uPage = parsedJSON.uploader_url;
-        var vidId = parsedJSON.id;
+        let uPage = parsedJSON.uploader_url;
+        let vidId = parsedJSON.id;
 
         //console.log(uPage);
 
-        var tmp1 = parsedJSON.extractor_key;
+        let tmp1 = parsedJSON.extractor_key;
         if (uPage === undefined) {
            if (tmp1 === "Niconico") {
               uPage = 'https://www.nicovideo.jp/user/' + parsedJSON.uploader_id;
@@ -219,16 +219,16 @@ for (var j = 46; j >= 46; j--) {
            }
         }
         
-        var webbUrl = parsedJSON.webpage_url;
+        let webbUrl = parsedJSON.webpage_url;
 
 
         if (tmp1 === "Twitter") {
             webbUrl = "https://twitter.com/" + parsedJSON.uploader_id + "/status/" + parsedJSON.display_id;
         }
 
-        // var cmpStr = parsedJSON.upload_date + ' ' + parsedJSON.title + ' ' + parsedJSON.id + ' ' + parsedJSON.uploader + ' ' +  parsedJSON.uploader_url;
+        // let cmpStr = parsedJSON.upload_date + ' ' + parsedJSON.title + ' ' + parsedJSON.id + ' ' + parsedJSON.uploader + ' ' +  parsedJSON.uploader_url;
 
-        var newVideoInfo = {
+        let newVideoInfo = {
             upload_date: parsedJSON.upload_date,
             id: vidId,
             webpage_url: webbUrl,
@@ -345,15 +345,15 @@ for (var j = 46; j >= 46; j--) {
      }
   });
   
-  var i;
+  let i;
   
      /*
     console.log('Rearranging the list');
     
     // First, we sort by title
     toBeSortedList = toBeSortedList.sort(function(a,b) {
-       var nameA = (a.title + ' ' + a.id).toUpperCase();
-       var nameB = (b.title + ' ' + b.id).toUpperCase();
+       let nameA = (a.title + ' ' + a.id).toUpperCase();
+       let nameB = (b.title + ' ' + b.id).toUpperCase();
 
        if (nameA < nameB) {
           return -1; //nameA comes first
@@ -367,8 +367,8 @@ for (var j = 46; j >= 46; j--) {
     
     // Then by upload date
     toBeSortedList = toBeSortedList.sort(function(a,b) {
-       var nameA = a.upload_date ;
-       var nameB = b.upload_date ;
+       let nameA = a.upload_date ;
+       let nameB = b.upload_date ;
        
        if (nameA === undefined) nameA = "0";
        if (nameB === undefined) nameB = "0";
@@ -386,18 +386,18 @@ for (var j = 46; j >= 46; j--) {
 
           /*
     // Original method
-    //var tmp1 = toBeSortedList;
+    //let tmp1 = toBeSortedList;
     for (i = 0; i < toBeSortedList.length; i++) {
-       //var tmp = toBeSortedList[i];
-       var replaceNum = i;
-       var j;
+       //let tmp = toBeSortedList[i];
+       let replaceNum = i;
+       let j;
        for (j = i; j < toBeSortedList.length; j++) {
            if (toBeSortedList[replaceNum].upload_date < toBeSortedList[j].upload_date) {
                replaceNum = j;
            }
        }
        if (replaceNum != i) {
-           var tmp = toBeSortedList[i];
+           let tmp = toBeSortedList[i];
            toBeSortedList[i] = toBeSortedList[replaceNum];
            toBeSortedList[replaceNum] = tmp;
        }
@@ -406,10 +406,10 @@ for (var j = 46; j >= 46; j--) {
     }   */
 
     console.log("Saving the JSON file");
-    //var jsonifyData =  JSON.stringify({videos: toBeSortedList});
+    //let jsonifyData =  JSON.stringify({videos: toBeSortedList});
     //fs.writeFileSync('videoita.json', jsonifyData);
-    //var nimii = 'YTPMV Metadata Archive JSON/videoita.json';
-    var nimii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + j + '.json';
+    //let nimii = 'YTPMV Metadata Archive JSON/videoita.json';
+    let nimii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + j + '.json';
 
     fs.writeFileSync(nimii, JSON.stringify({videos: toBeSortedList}));
     //fs.writeFileSync('videoita.json', JSON.stringify({videos: sortedList}));
