@@ -80,8 +80,9 @@ const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Ar
 const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-const sameUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json', 'utf8'));
-//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/sameUsers.json', 'utf8'));
+const sameUserListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json';
+//const sameUserListLoc = 'vidJson2/sameUsers.json';
+let sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
 
 const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
 //const reuploadListLoc = 'vidJson2/reuploads.json';
@@ -92,7 +93,7 @@ const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUse
 let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 /*
-   If JSON files for reuploadShowing and twitterUserList are changed, they will be 
+   If JSON files for reuploadShowing, twitterUserList or sameUserList are changed, they will be
      reread by the database.
 */
 fs.watchFile(reuploadListLoc, (curr,prev) => {
@@ -109,6 +110,16 @@ fs.watchFile(twitterUserLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
+       forceGC();
+   } catch (error) {
+       console.log ("Noperiino");
+   }
+});
+
+fs.watchFile(sameUserListLoc, (curr,prev) => {
+   try {
+       console.log("Hoperiino"); 
+       sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
        forceGC();
    } catch (error) {
        console.log ("Noperiino");
@@ -925,6 +936,82 @@ console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Youtube
 console.log(compileEntry(parsedVideos.find(ent => ent.tags.length > 0)));
 console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK"))); */
 
+/*
+   Provides
+*/
+function checkForOtherChannels(siteKey,checkUploaderId,checkuId) {
+   let valueArr = [];
+
+   sameUserList.forEach(item => {
+      Object.values(item).forEach(value => {
+         if (Array.isArray(value)) {
+            valueArr.push(...value);
+         } else {
+            valueArr.push(value);
+         }
+      });
+   });
+
+   // console.log(valueArr);
+
+   if (siteKey === "Youtube" && checkuId !== undefined) {
+      let userIdss = youtubeUserList[checkuId];
+      for (let i = 0; i < userIdss.length; i++) {
+         if (valueArr.includes(userIdss[i])) return true;
+      }
+   }
+   
+   if (valueArr.includes(checkUploaderId)) return true;
+
+   return false;
+}
+
+function addOtherChannels(siteKey,checkUploaderId,checkuId) {
+   let userArr = -1;
+   let ignoreStr = "";
+
+   for (let j = 0; j < sameUserList.length; j++) {
+      let checkArr = Object.values(sameUserList[j]);
+      let ignoreSlot = -1;
+
+      if (siteKey === "Youtube" && checkuId !== undefined) {
+         let userIdss = youtubeUserList[checkuId];
+         for (let i = 0; i < userIdss.length; i++) {
+            if (checkArr.includes(userIdss[i])) {
+              userArr = j;
+              break;
+            }
+         }
+      }
+
+      if (checkArr.includes(checkUploaderId)) userArr = j;
+      
+      if (userArr !== -1) break;
+   }
+
+   let retStr = "Search alt channels:";
+   let vals = Object.values(sameUserList[userArr]);
+   //console.log(vals);
+   for (let h = 0; h < vals.length; h++) {
+      if (checkUploaderId !== undefined && vals[h] === checkUploaderId) continue;
+      if (checkuId !== undefined && youtubeUserList[checkuId].includes(vals[h])) continue;
+      
+      retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + vals[h] + '&' + botCheckName + '=' + botCheckValue,"[" + vals[h] + "]",false);
+   }
+
+   /*
+   if (sameUserList[userArr].mainYoutube !== undefined) retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + sameUserList[userArr].mainYoutube + '&' + botCheckName + '=' + botCheckValue,"[" + sameUserList[userArr].mainYoutube + "]",false);
+   
+   if (sameUserList[userArr].altYoutube !== undefined) {
+      for (let h = 0; h < sameUserList[userArr].altYoutube.length; h++) {
+         retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + sameUserList[userArr].altYoutube[h] + '&' + botCheckName + '=' + botCheckValue,"[" + sameUserList[userArr].altYoutube[h] + "]",false);
+      }
+   }
+
+   if (sameUserList[userArr].mainNiconico !== undefined) retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + sameUserList[userArr].mainNiconico + '&' + botCheckName + '=' + botCheckValue,"[" + sameUserList[userArr].mainNiconico + "]",false); */
+   
+   return htmlBlockCompiler("code",retStr);
+}
 
 /*
    Creates a <div> segment of a singular video entry.
@@ -944,7 +1031,11 @@ function compileEntry(video) {
       else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
    }
 
-   userAddress = "<br/><br/>" + breakline + "Uploader: " + userAddress + '<br/>' + breakline;
+   userAddress = "<br/><br/>" + breakline + "Uploader: " + userAddress + breakline;
+
+   if (checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId)) userAddress += ' &#8212; ' + addOtherChannels(video.extractor_key,video.uploader_id,video.uId) + breakline;
+   
+   userAddress += '<br/>';
 
    let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
 
