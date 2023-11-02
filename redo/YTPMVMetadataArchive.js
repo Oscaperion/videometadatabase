@@ -3,6 +3,20 @@ const url = require('url');
 const http = require('http');
 const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 
+
+/*
+   This is where the primary JSON files for video entries are located
+*/
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+//const jsonLocation = "vidJson2/";
+
+/*
+   This is where the complementary JSON files for e.g. lists of tags and YouTube user IDs
+     are located.
+*/
+const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
+//const jsonLocationComp = "vidJson2/";
+
 /*
    These are used to process the JSON files that contain the entries for the database.
      The values are supposed to read as a year and a month (YYYYMM) and the files should
@@ -74,21 +88,26 @@ const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v
      If a Twitter account isn't listed, the database will provide a non-static link.
 */
 
-const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf8'));
+//const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
 //const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
-const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
-const sameUserListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json';
+const sameUserListLoc = jsonLocationComp + 'sameUsers.json';
+//const sameUserListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json';
 //const sameUserListLoc = 'vidJson2/sameUsers.json';
 let sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
 
-const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+const reuploadListLoc = jsonLocationComp + 'reuploads.json';
+//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
 //const reuploadListLoc = 'vidJson2/reuploads.json';
 let reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
-const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+const twitterUserLoc = jsonLocationComp + 'twitterUserList.json';
+//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
 //const twitterUserLoc = 'vidJson2/twitterUserList.json';
 let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
@@ -235,7 +254,8 @@ console.log('Loading metadata...');
 {
    //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
-      let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+      let terappi = jsonLocation + 'vids' + y + '.json';
+      //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
       //let terappi = 'vidJson2/vids' + y + '.json';
       console.log('Loading ' + terappi)  ;
       try {
@@ -996,7 +1016,11 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
       if (checkUploaderId !== undefined && vals[h] === checkUploaderId) continue;
       if (checkuId !== undefined && youtubeUserList[checkuId].includes(vals[h])) continue;
       
-      retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + vals[h] + '&' + botCheckName + '=' + botCheckValue,"[" + vals[h] + "]",false);
+      let tmpLink = 'results.html?uploader_id=' + vals[h];
+      if (showVidPrev) tmpLink += '&preview=true';
+      tmpLink += '&' + botCheckName + '=' + botCheckValue;
+      
+      retStr += " " + htmlLinkCompiler(tmpLink,"[" + vals[h] + "]",false);
    }
 
    /*
