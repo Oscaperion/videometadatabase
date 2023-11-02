@@ -426,14 +426,62 @@ function optimizeSearching(searchWord,exactSearch) {
 
 */
 function isSameUser(searchUserStr,video) {
-   if (video.uId === undefined && video.extractor_key !== "Twitter") return video.uploader_id === searchUserStr.trim();
+   /*
+   let hasAltAccounts = checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId);
+   console.log(hasAltAccounts);
+
+ if (hasAltAccounts) {
+   let checkingArray = true;
+   let checkingUser = video.uId;
+   if (checkingUser === undefined) {
+      checkingUser = video.uploader_id;
+      checkingArray = false;
+   } else {
+      checkingUser = youtubeUserList[video.uId];
+   }
+
+   if (!checkingArray) {
+      for (let i = 0; i < sameUserList.length; i++) {
+         if (Object.values(sameUserList[i]).includes(searchUserStr.trim())) return true;
+      }
+   } if (checkingArray) {
+      let userIds = youtubeUserList[youtubeUserList.findIndex(ent => ent.includes(searchUserStr.trim()))];
+
+      for (let j = 0; j < userIds.length; j++) {
+         for (let i = 0; i < sameUserList.length; i++) {
+            if (Object.values(sameUserList[i]).includes(userIds[j])) return true;
+         }
+      }
+   }
+ }     */
+   let tmpStr = [searchUserStr.trim()];
+
+   if (searchedUploaderHasAlts) {
+      tmpStr = uploadersAlts;
+   }
+
+   if (video.uId === undefined && video.extractor_key !== "Twitter") return tmpStr.includes(video.uploader_id); // return video.uploader_id === searchUserStr.trim();
    if (video.extractor_key === "Twitter") {
       let twtTmp = twitterUserList.find(ent => ent.handle.includes(video.uploader_id) || ent.id === video.uploader_id);
       //console.log(twtTmp);
-      if (twtTmp === undefined) return video.uploader_id === searchUserStr.trim();
-      return (twtTmp.id === searchUserStr.trim() || twtTmp.handle.includes(searchUserStr.trim()));
+      if (twtTmp === undefined) return tmpStr.includes(video.uploader_id); // return video.uploader_id === searchUserStr.trim();
+      for (let k = 0; k < tmpStr.length; k++) {
+         if (twtTmp.handle.includes(tmpStr[k])) return true;
+      }
+
+      return tmpStr.includes(twtTmp.id);
+      // return (twtTmp.id === searchUserStr.trim() ||  twtTmp.handle.includes(searchUserStr.trim()));
    }
-   return youtubeUserList[video.uId].includes(searchUserStr.trim());
+
+   for (let p = 0; p < tmpStr.length; p++) {
+      if (youtubeUserList[video.uId].includes(tmpStr[p])) return true;
+   }
+   
+   return false;
+
+   //let userArr = youtubeUserList[video.uId];
+
+   //return youtubeUserList[video.uId].includes(searchUserStr.trim());
 }
 
 /*
@@ -467,7 +515,12 @@ function compileList() {
    return retStr;  */
 }
 
+let searchedUploaderHasAlts = false;
+let uploadersAlts = [];
+
 function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId = null) {
+   searchedUploaderHasAlts = false;
+   uploadersAlts = [];
   {
    let showAllVideos = false;
    foundVids = [];
@@ -494,6 +547,21 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 
    else {
       let searchUploaderToo = !(searchUploaderId === null);
+
+      if (searchUploaderToo) {
+         let checkTmp = idPlacementInAltList(searchUploaderId);
+         if (checkTmp >= 0) {
+            searchedUploaderHasAlts = true;
+            let tmpArr = youtubeUserList.filter(ent => {
+               for (let j = 0; j < ent.length; j++) {
+                  if (Object.values(sameUserList[checkTmp]).includes(ent[j])) return true;
+               }
+               return false;
+            });
+            tmpArr.push(...Object.values(sameUserList[checkTmp]));
+            uploadersAlts = tmpArr;
+         }
+      }
 
       /*
       let vidTmp1 = parsedVideos.map((ent,ind) => {
@@ -956,6 +1024,43 @@ console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Youtube
 console.log(compileEntry(parsedVideos.find(ent => ent.tags.length > 0)));
 console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK"))); */
 
+function idPresentInAltList(checkUploaderId) {
+   let valueArr = [];
+
+   sameUserList.forEach(item => {
+      Object.values(item).forEach(value => {
+         if (Array.isArray(value)) {
+            valueArr.push(...value);
+         } else {
+            valueArr.push(value);
+         }
+      });
+   });
+   
+   return valueArr.includes(checkUploaderId.trim());
+}
+
+function idPlacementInAltList(checkUploaderId) {
+   /*
+   sameUserList.forEach(item => {
+      Object.values(item).forEach(value => {
+         if (Array.isArray(value)) {
+            //valueArr.push(...value);
+         } else {
+            if ()
+            //valueArr.push(value);
+         }
+      });
+   });    */
+   
+   for (let i = 0; i < sameUserList.length; i++) {
+       let tmop = Object.values(sameUserList[i]);
+       if (tmop.includes(checkUploaderId.trim())) return i;
+   }
+   
+   return -1;
+}
+
 /*
    Provides
 */
@@ -1058,7 +1163,7 @@ function compileEntry(video) {
    userAddress = "<br/><br/>" + breakline + "Uploader: " + userAddress + breakline;
 
    if (checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId)) userAddress += ' &#8212; ' + addOtherChannels(video.extractor_key,video.uploader_id,video.uId) + breakline;
-   
+
    userAddress += '<br/>';
 
    let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
@@ -1332,7 +1437,6 @@ let srvr = http.createServer(function (req, res) {
       searchingUser = true;
       searchedUser = uploaderTmp.trim();
    }
-
 
    let previewTmp = quer.query.preview;
    if (previewTmp === undefined || previewTmp.trim() !== 'true') showVidPrev = false;
