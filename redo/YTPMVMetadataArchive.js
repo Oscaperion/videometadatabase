@@ -558,8 +558,13 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
                }
                return false;
             });
-            tmpArr.push(...Object.values(sameUserList[checkTmp]));
-            uploadersAlts = tmpArr;
+            let tmpArr2 = Object.values(sameUserList[checkTmp]);
+            for (let j = 0; j < tmpArr.length; j++) {
+               tmpArr2.push(...tmpArr[j]);
+            }
+            console.log(tmpArr2);
+            // console.log(tmpArr);
+            uploadersAlts = tmpArr2;
          }
       }
 
