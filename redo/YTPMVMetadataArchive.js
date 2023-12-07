@@ -25,7 +25,7 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202311;
+const maxMonth = 202312;
 const minMonth = 200601;
 //const minMonth = 201501;
 
@@ -97,6 +97,8 @@ const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf
 const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
+
+const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
 
 const sameUserListLoc = jsonLocationComp + 'sameUsers.json';
 //const sameUserListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json';
@@ -511,6 +513,10 @@ function isSameUser(searchUserStr,video) {
 
       return tmpStr.includes(twtTmp.id);
       // return (twtTmp.id === searchUserStr.trim() ||  twtTmp.handle.includes(searchUserStr.trim()));
+   }
+   
+   if (video.uId !== undefined && video.extractor_key === "Niconico") {
+      return tmpStr.includes(niconicoUserList[video.uId]);
    }
 
    for (let p = 0; p < tmpStr.length; p++) {
@@ -1124,10 +1130,14 @@ function checkForOtherChannels(siteKey,checkUploaderId,checkuId) {
 
    // console.log(valueArr);
 
-   if (siteKey === "Youtube" && checkuId !== undefined) {
-      let userIdss = youtubeUserList[checkuId];
-      for (let i = 0; i < userIdss.length; i++) {
-         if (valueArr.includes(userIdss[i])) return true;
+   if ((siteKey === "Youtube" || siteKey === "Niconico") && checkuId !== undefined) {
+      if (siteKey === "Youtube") {
+         let userIdss = youtubeUserList[checkuId];
+         for (let i = 0; i < userIdss.length; i++) {
+            if (valueArr.includes(userIdss[i])) return true;
+         }
+      } if (siteKey === "Niconico") {
+         return valueArr.includes(niconicoUserList[checkuId]);
       }
    }
    
@@ -1144,13 +1154,18 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
       let checkArr = Object.values(sameUserList[j]);
       let ignoreSlot = -1;
 
-      if (siteKey === "Youtube" && checkuId !== undefined) {
-         let userIdss = youtubeUserList[checkuId];
-         for (let i = 0; i < userIdss.length; i++) {
-            if (checkArr.includes(userIdss[i])) {
-              userArr = j;
-              break;
+      if ((siteKey === "Youtube" || siteKey === "Niconico") && checkuId !== undefined) {
+         if (siteKey === "Youtube") {
+            let userIdss = youtubeUserList[checkuId];
+            for (let i = 0; i < userIdss.length; i++) {
+               if (checkArr.includes(userIdss[i])) {
+                 userArr = j;
+                 break;
+               }
             }
+         } if (siteKey === "Niconico" && checkArr.includes(niconicoUserList[checkuId])) {
+            userArr = j;
+            break;
          }
       }
 
@@ -1196,7 +1211,10 @@ function compileEntry(video) {
    let userAddress = "";
    if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
    else {
-      if (video.extractor_key === "Youtube" && video.uId !== undefined) userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
+      if ((video.extractor_key === "Youtube" || video.extractor_key === "Niconico") && video.uId !== undefined) {
+         if (video.extractor_key === "Youtube") userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
+         if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(video.uploader,niconicoUserList[video.uId],video.extractor_key);
+      }
       else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);
    }
 

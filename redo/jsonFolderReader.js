@@ -25,7 +25,7 @@ if (parsedJSON.uploader_url.length == 0) {
 
 let toBeSortedList = [];
 
-let changeHere = true;
+let changeHere = false;
 
 //let j = 29;
 let readTwitterVids = changeHere;

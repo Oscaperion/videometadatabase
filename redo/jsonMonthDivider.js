@@ -16,46 +16,12 @@ const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata A
 //var tagsList  = [];
 const nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
 const nicoTags  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
-//nicoTags.push(...JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
-/*
-{
-     console.log("Kanata");
-  let nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
-  for (let i = 0; i < nicoTags.length; i++) {
-     let tmpTaag = nicoTags2.find(ent => ent.id === nicoTags[i].id);
-     if (tmpTaag !== undefined) {
-        nicoTags[i] = tmpTaag;
-     }
-  }
 
-     console.log("is");
-}   */
+const youtubeUserList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+const niconicoUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
 
-     console.log("Kanata");
-const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
-
-//var gatheredIds = [];
-
-
+console.log("Kanata");
 let ignoreUsers = [];
-/*
-for (var ttu = 0; ttu < youtubeUserList1.length; ttu++) {
-   var tmpArr = youtubeUserList1[ttu].uploader_id;
-   var addUser = false;
-   for (var tty = 0; tty < tmpArr.length; tty++) {
-      if (ignoreUsersTmp.includes(tmpArr[tty])) {
-         addUser = true;
-         break;
-      }
-   }
-
-   if (addUser) {
-      for (var tti = 0; tti < tmpArr.length; tti++) {
-         ignoreUsers.push(tmpArr[tti]);
-      }
-   }
-}
-*/
 
 {
   let ignoreUsersTmp = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
@@ -472,7 +438,12 @@ function entryEditor(entry,targetMonth) {
 
                tmpTagss = checkingTags;
           }
-          // console.log("Adding tags for " + tmpVid.id);
+          
+          // If the uploader ID is present in the external list of IDs, this'll add the ID matching that list
+          if (niconicoUserList.includes(tmpVid.uploader_id)) {
+             tmpVid["uId"] = niconicoUserList.indexOf(tmpVid.uploader_id);
+             delete tmpVid["uploader_id"];
+          }
        }
        if (tmpVid.extractor_key !== "Niconico") {
           if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
