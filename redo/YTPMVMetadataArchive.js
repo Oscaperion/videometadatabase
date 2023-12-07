@@ -1,4 +1,5 @@
 const fs = require('fs');
+const readline = require('readline');
 const url = require('url');
 const http = require('http');
 const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -24,8 +25,9 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202312;
+const maxMonth = 202311;
 const minMonth = 200601;
+//const minMonth = 201501;
 
 /*
    Determines how many entries are being shown per page.
@@ -251,6 +253,7 @@ console.log('Loading metadata...');
    This is where the video entries are processed into the database. The time range can
      be edited through maxMonth and minMonth values.
 */
+
 {
    //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
@@ -264,10 +267,7 @@ console.log('Loading metadata...');
 
          //let parSub = JSON.parse(fs.readFileSync(terappi, 'utf8'));
          console.log('Loaded!')  ;
-                /*
-         for (let i = 0; i < parSub.length; i++) {
-            parsedVideos.push(parSub[i]);
-         }    */
+
          //numm++;
          console.log(terappi)  ;
          forceGC();
@@ -276,6 +276,46 @@ console.log('Loading metadata...');
       }
    }
 }
+         /*
+//async function readAndProcessFiles() {
+  for (let y = maxMonth; y >= minMonth; y--) {
+    const terappi = jsonLocation + 'vids' + y + '.json';
+    console.log('Loading ' + terappi);
+
+    try {
+      console.log('Zumi');
+      const readStream = fs.createReadStream(terappi, { encoding: 'utf8' });
+      let fileContent = '';
+
+      readStream.on('data', (chunk) => {
+        fileContent += chunk;
+      console.log('Dokumi');
+      });
+
+      readStream.on('end', () => {
+        const jsonData = JSON.parse(fileContent);
+        parsedVideos.push(...jsonData);
+
+        // Process parsedVideos here if needed
+
+        // Clear the content of parsedVideos after processing
+        parsedVideos.length = 0;
+
+        console.log('Loaded and processed!');
+        forceGC(); // Optional: To manually trigger garbage collection
+      });
+
+      readStream.on('error', (err) => {
+        console.log("Error reading file:", err);
+      });
+    } catch (e) {
+      console.log("Oh wait, that doesn't exist or there was an error:", e);
+    }
+  }   */
+//}
+
+//readAndProcessFiles();
+
 console.log('All metadata loaded!');
 console.log("Total number of entries: " + parsedVideos.length);
 
@@ -562,7 +602,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             for (let j = 0; j < tmpArr.length; j++) {
                tmpArr2.push(...tmpArr[j]);
             }
-            console.log(tmpArr2);
+            // console.log(tmpArr2);
             // console.log(tmpArr);
             uploadersAlts = tmpArr2;
          }
@@ -1151,6 +1191,8 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    Creates a <div> segment of a singular video entry.
 */
 function compileEntry(video) {
+   // console.log(video.id);
+
    let userAddress = "";
    if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
    else {
@@ -1452,6 +1494,22 @@ let srvr = http.createServer(function (req, res) {
    let botCheckTmp = (quer.query[botCheckName] !== undefined && quer.query[botCheckName] === botCheckValue);     // botCheckValue
 
    //console.log( quer.query);
+                /*
+   if ((htmPage + '/video.html') === quer.pathname) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      
+      let tmpId = quer.query.id;
+      
+      if (tmpId === undefined) {
+          
+      }
+
+      let tmpStr = htmlHeadCompiler();
+
+
+
+      doThis = false;
+   }
 
    if (!botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
@@ -1465,7 +1523,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.end();
 
       doThis = false;
-   }
+   }    */
 
    // Results page
    if (botCheckTmp && (htmPage + '/results.html') === quer.pathname) {

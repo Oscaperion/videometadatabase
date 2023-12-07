@@ -22,8 +22,10 @@ for (let i = yearMax; i >= yearMin; i--) {
 
       maxDate = i + maxDate.toString().padStart(2, '0');
       minDate = i + minDate.toString().padStart(2, '0');
-      
-      let filteredJson = jsonFile.filter(ent => (ent.upload_date >= minDate) && (ent.upload_date <= maxDate));
+
+      let filteredJson = jsonFile.filter(ent => (ent.upload_date >= minDate) && (ent.upload_date <= maxDate)
+      // TEMPORARY! Ignores BiliBili videos
+        && (ent.extractor_key !== "BiliBili"));
       
       if (filteredJson.length > 0) fs.writeFileSync(folderLocationDest + i + j + '.json', JSON.stringify(filteredJson));
       console.log('Saved ' + folderLocationDest + i + j);

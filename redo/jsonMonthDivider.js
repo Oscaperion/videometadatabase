@@ -4,10 +4,13 @@ let fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
-const maxJsonAmount = 47;
+const maxJsonAmount = 49;
 
 const maxMonth = 202312;
 const minMonth = 200601;
+
+//const maxMonth = 202204;
+//const minMonth = 202204;
 
 const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
 //var tagsList  = [];
@@ -408,7 +411,7 @@ function entryEditor(entry,targetMonth) {
      // TEMPORARY! Unables Bilibili videos for the time being
      // if (entry.extractor_key === "BiliBili") return undefined;
 
-     if (ignoreUsers.includes(entry.uploader_id)) return undefined;
+     if (ignoreUsers.includes(entry.channel_id) || ignoreUsers.includes(entry.uploader_id)) return undefined;
      let tttmp_id = entry.id;
      if (Array.isArray(entry.id)) tttmp_id = entry.id[0];
      if (gatheredIds.includes(tttmp_id)) return undefined;
@@ -428,11 +431,12 @@ function entryEditor(entry,targetMonth) {
        let tmpVid =  entry;
        //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
        let addForSure = true;
-
-       if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) {
+              /*
+       // if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) {
+       if (tmpVid.extractor_key === "Youtube" && (tmpVid.channel_id === undefined || tmpVid.channel_id === null)) {
           // console.log(tmpVid);
-          tmpVid.uploader_id = tmpVid.channel_id;
-       }
+          tmpVid["uploader_id"] = tmpVid.channel_id;
+       }    */
 
        if (ignoreUsers.includes(tmpVid.uploader_id)) return undefined; // addForSure = false;
 
@@ -480,9 +484,13 @@ function entryEditor(entry,targetMonth) {
           let uploader_id_tmp = -1 // tmpVid.uploader_id;
           let uploaderFound = false;
 
+          let userIid = tmpVid.channel_id;
+          if (userIid === undefined || userIid === null) userIid = tmpVid.uploader_id;
+
           for (let i = 0; i < youtubeUserList.length; i++) {
              for (let j = 0; j < youtubeUserList[i].length; j++) {
-                if (tmpVid.uploader_id === youtubeUserList[i][j]) {
+                if (userIid  === youtubeUserList[i][j]) {
+                // if (tmpVid.uploader_id === youtubeUserList[i][j]) {
                    uploader_id_tmp = i;
                    uploaderFound = true;
                    break;
@@ -493,10 +501,10 @@ function entryEditor(entry,targetMonth) {
 
           if (uploaderFound) {
              tmpVid["uId"] = uploader_id_tmp;
-             delete tmpVid["uploader_id"];
              // console.log("Uploader order number: " + uploader_id_tmp);
           }
 
+          delete tmpVid["uploader_id"];
           delete tmpVid["channel_id"];
        }
 

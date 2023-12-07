@@ -57,8 +57,8 @@ const tagThreshold = 100;
   }
 }
 
-var maxY = 47;
-var minY = 1;
+let maxY = 49;
+let minY = 1;
 
 {
   let parsedVideos = [];
