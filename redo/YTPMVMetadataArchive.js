@@ -740,7 +740,7 @@ function hasSearchWords(searchWord,video) {
    //if (video.uId !== undefined) tmpVid.push(...youtubeUserList[video.uId]);
 
    // USE THIS FOR NORMAL ONLINE USE
-   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
+   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) || (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
 
    // FOR OFFLINE BLACKLISTING PURPOSES
    /*
@@ -1180,7 +1180,8 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    for (let h = 0; h < vals.length; h++) {
       if (checkUploaderId !== undefined && vals[h] === checkUploaderId) continue;
       if (checkuId !== undefined && youtubeUserList[checkuId].includes(vals[h])) continue;
-      
+      if (checkuId !== undefined && niconicoUserList[checkuId] === vals[h]) continue;
+
       let tmpLink = 'results.html?uploader_id=' + vals[h];
       if (showVidPrev) tmpLink += '&preview=true';
       tmpLink += '&' + botCheckName + '=' + botCheckValue;
