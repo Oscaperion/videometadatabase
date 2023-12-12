@@ -4,6 +4,7 @@ const url = require('url');
 const http = require('http');
 const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 
+// let tmpConsole = '';
 
 /*
    This is where the primary JSON files for video entries are located
@@ -832,6 +833,7 @@ function userAddressCompiler(id_,site) {
    }
 
    if (site === "Youtube") {
+      // console.log(tmpConsole);
       if (id_.length === 24 && id_.substring(0,2) === 'UC') return "https://www.youtube.com/channel/" + id_;
       if (id_.charAt(0) === '@' || id_.substring(0, 2) === 'c/') return "https://www.youtube.com/" + id_;
       return "https://www.youtube.com/user/" + id_;
@@ -1213,7 +1215,12 @@ function compileEntry(video) {
    if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
    else {
       if ((video.extractor_key === "Youtube" || video.extractor_key === "Niconico") && video.uId !== undefined) {
-         if (video.extractor_key === "Youtube") userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
+
+         if (video.extractor_key === "Youtube") {
+             // tmpConsole = video;
+             //if (video.uId === undefined) console.log(video);
+             userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
+         }
          if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(video.uploader,niconicoUserList[video.uId],video.extractor_key);
       }
       else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);

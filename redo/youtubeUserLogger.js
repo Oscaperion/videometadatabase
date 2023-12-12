@@ -12,10 +12,13 @@ const search2 = '</div>';  */
 
 let foundTags;
 
+//let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json', 'utf8')) };
 let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids49.json', 'utf8'));
 //let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202210.json', 'utf8')) };
 
 let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+let tmprep =  replll.map(entry => entry.uploader_id).flat();
+console.log(tmprep);
 
 let orttt = 0;
 
@@ -34,6 +37,7 @@ for (let orttt = 0; orttt < vids.videos.length; orttt++) {
 
      for (let j = 0; j < replll.length; j++) {
          if (vids.videos[orttt].channel_id === undefined) {
+            //if (vids.videos[orttt].uploader_id !== undefined && !tmprep.includes(vids.videos[orttt].uploader_id)) {
             if (vids.videos[orttt].uploader_id.substring(0,2) === "UC" && vids.videos[orttt].uploader_id.length === 24) {
                vids.videos[orttt].channel_id = vids.videos[orttt].uploader_id;
 
