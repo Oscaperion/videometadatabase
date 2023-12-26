@@ -46,6 +46,11 @@ const botCheckName = "rumour_came_out";
 const botCheckValue = "lupinight_my_beloved";
 
 /*
+   Changes the language for the site. Currently only supports English and Japanese.
+*/
+let pageLanguage = 'en';
+
+/*
    Used to show, when the database was last updated.
 */
 let lastUpdated;
@@ -56,7 +61,12 @@ let lastUpdated;
    let cMonth = currentDate.getMonth() + 1;
    if (cMonth < 10) cMonth = '0' + cMonth;
    let cYear = currentDate.getFullYear() + '';
-   lastUpdated = cYear + cMonth + cDay + ' [YYYYMMDD]';
+   lastUpdated = cYear + cMonth + cDay;
+}
+
+function getLastUpdated() {
+   if (pageLanguage === 'jp') return lastUpdated + ' [&#9633;&#9633;&#9633;&#24180;&#9633;&#26376;&#9633;&#26085;]';
+   return lastUpdated + ' [YYYYMMDD]';
 }
 
 /*
@@ -118,6 +128,13 @@ let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 const headerTextLoc = jsonLocationComp + 'forHeader.txt';
 let headerText = fs.readFileSync(headerTextLoc, 'utf8');
+const headerTextJpLoc = jsonLocationComp + 'forHeaderJp.txt';
+let headerTextJp = fs.readFileSync(headerTextJpLoc, 'utf8');
+
+function getHeaderText() {
+   if (pageLanguage === 'jp') return headerTextJp;
+   return headerText;
+}
 
 /*
    If JSON files for reuploadShowing, twitterUserList or sameUserList are changed, they will be
@@ -157,6 +174,16 @@ fs.watchFile(headerTextLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        headerText = fs.readFileSync(headerTextLoc, 'utf8');
+       forceGC();
+   } catch (error) {
+       console.log ("Noperiino");
+   }
+});
+
+fs.watchFile(headerTextJpLoc, (curr,prev) => {
+   try {
+       console.log("Hoperiino"); 
+       headerTextJp = fs.readFileSync(headerTextLocJp, 'utf8');
        forceGC();
    } catch (error) {
        console.log ("Noperiino");
@@ -1373,14 +1400,23 @@ function htmlHeadCompiler(htmlTitle = null) {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">` + breakline;
+   // let titleStr =  'YTPMV Metadata Archive';
+   // if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
+
    let titleStr =  'YTPMV Metadata Archive';
-   if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
+   let lastUpdStr = 'Last updated';
+   if (pageLanguage === 'jp') {
+      titleStr   = "YTPMV&#12513;&#12479;&#12487;&#12540;&#12479;&#12539;&#12450;&#12540;&#12459;&#12452;&#12502;";
+      lastUpdStr = '&#26368;&#32066;&#26356;&#26032;&#26085;';
+   }
 
    let htmlStrGead2 = `<body>
-<div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124;
-${headerText}
+<div><h2>${titleStr}</h2>${lastUpdStr}: ${getLastUpdated()} &nbsp;&#124;
+${getHeaderText()}
 </div>
 <hr/>`;
+
+   if (htmlTitle !== null) titleStr += ' - ' + htmlTitle;
 
    return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>' + htmlStrGead2;
 }
@@ -1491,6 +1527,8 @@ function htmlStrIndex(querie) {
 let srvr = http.createServer(function (req, res) {
 
    let quer = url.parse(req.url, true);
+   pageLanguage = 'en';
+   if (quer.query.lang !== undefined && quer.query.lang.trim().toLowerCase() === 'jp') pageLanguage = 'jp';
 
    let htmPage = '/YTPMV_Database';
    let searchTmp = quer.query.search;
@@ -1574,8 +1612,39 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
 
       let headTmo = '';
 
-      if (searchWords.length === 0 && !searchingUser && !ignoredSitesPresent()) headTmo = htmlHeadCompiler(`Showing all videos - Page: ${pageNumber}/${pageTotal}`);
+      if (searchWords.length === 0 && !searchingUser && !ignoredSitesPresent()) {
+         if (pageLanguage === 'jp') { headTmo = htmlHeadCompiler(`&#12377;&#12409;&#12390;&#12398;&#21205;&#30011;&#12434;&#34920;&#31034;&#20013; - &#12506;&#12540;&#12472;: ${pageNumber}/${pageTotal}`); }
+         else { headTmo = htmlHeadCompiler(`Showing all videos - Page: ${pageNumber}/${pageTotal}`); }
+      }
       else {
+        if (pageLanguage === 'jp') {
+         headTmo = '&#26908;&#32034;&#20013;'; // in middle of search (add at end)
+
+         if (searchWords.length === 0) {
+            let userTmmp = '';
+            if (searchingUser) userTmmp = `&#12300;${searchedUser}&#12301;&#12373;&#12435;&#12398;`;
+            headTmo = userTmmp + '&#12377;&#12409;&#12390;&#12398;&#21205;&#30011;&#12434;' + headTmo;  // all videos
+         }
+         if (searchWords.length > 0) {
+            let userTmmp = '';
+            if (searchingUser) userTmmp = `&#12300;${searchedUser}&#12301;&#12373;&#12435;&#12398;&#21205;&#30011;&#12434;`;
+            headTmo = userTmmp + `&#12300;${searchTmp.trim()}&#12301;&#12391;` + headTmo; // searching based on search word
+         }
+         
+         //if (searchingUser) headTmo = `${searchedUser}&#12373;&#12435;&#12398;&#21205;&#30011;&#12434;` + headTmo;
+
+         if (ignoredSitesPresent()) {
+            // sitesList = [ {'site': 'Youtube',    'isIgnored'
+            let tmoo = sitesList.filter(ent => !ent.isIgnored).map(ent => ent.site);
+            if (tmoo.length > 0) headTmo = tmoo.join('&#12392;') + '&#12363;&#12425;' + headTmo;
+            else headTmo += " from no site (Why would you exclude every site, you dumbass?)";
+         }
+         
+         headTmo = htmlHeadCompiler(headTmo + ` - &#12506;&#12540;&#12472;: ${pageNumber}/${pageTotal}`);
+
+        }
+
+        else {
          headTmo = "Searching";
 
          if (searchWords.length === 0) headTmo += ' all videos';
@@ -1591,7 +1660,9 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
          }
 
          headTmo = htmlHeadCompiler(headTmo + ` - Page: ${pageNumber}/${pageTotal}`);
+        }
       }
+
       if (headTmo === '') headTmo = htmlHeadCompiler();
 
       res.write(headTmo + makeSearchBar(quer.query.search,quer.query.preview) + linksTmp  + compileList() + linksTmp + '</body></html>');
