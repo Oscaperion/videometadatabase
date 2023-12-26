@@ -116,6 +116,9 @@ const twitterUserLoc = jsonLocationComp + 'twitterUserList.json';
 //const twitterUserLoc = 'vidJson2/twitterUserList.json';
 let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
+const headerTextLoc = jsonLocationComp + 'forHeader.txt';
+let headerText = fs.readFileSync(headerTextLoc, 'utf8');
+
 /*
    If JSON files for reuploadShowing, twitterUserList or sameUserList are changed, they will be
      reread by the database.
@@ -144,6 +147,16 @@ fs.watchFile(sameUserListLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
+       forceGC();
+   } catch (error) {
+       console.log ("Noperiino");
+   }
+});
+
+fs.watchFile(headerTextLoc, (curr,prev) => {
+   try {
+       console.log("Hoperiino"); 
+       headerText = fs.readFileSync(headerTextLoc, 'utf8');
        forceGC();
    } catch (error) {
        console.log ("Noperiino");
@@ -1367,8 +1380,8 @@ function htmlHeadCompiler(htmlTitle = null) {
 <div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124; <a href="${dropboxLink}" target="_blank">Download JSON File</a>
 <br/>
 <br/>
-See also: <a href="https://polsy.org.uk/stuff/ytrestrict.cgi" target="_blank">YouTube region restriction checker</a> (polsy.org.uk)&nbsp;&#124;
-<a href="https://www.codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a> (codeofaninja.com)</div>
+${headerText}
+</div>
 <hr/>`;
 
    return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>' + htmlStrGead2;
@@ -1460,7 +1473,7 @@ Exclude from search:` + breakline;
    Initializing HTML code for index.html
 */
 function htmlStrIndex(querie) {
-   let htmlStrIndex = `<p>
+   let htmlStrIndex = `<div>
 Search for videos:` + breakline;
 
    if ('/YTPMV_Database' === querie) {
@@ -1469,10 +1482,10 @@ Search for videos:` + breakline;
       htmlStrIndex += '<form action="results.html" method="GET">';
    }
 
-   htmlStrIndex +=  breakline + '<input type="text" name="search" />&nbsp;' + breakline;
+   htmlStrIndex += '<br/>' + breakline + '<input type="text" name="search" />&nbsp;' + breakline;
    htmlStrIndex += '<input type="submit" value="Search" />' + breakline;
    htmlStrIndex += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + breakline;
-   htmlStrIndex += '</form><br/>' + breakline + '</p>';
+   htmlStrIndex += '</form><br/>' + breakline + '</div>';
 
    return htmlStrIndex;
 }
