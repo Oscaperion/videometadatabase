@@ -4,7 +4,7 @@ let fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
-const maxJsonAmount = 49;
+const maxJsonAmount = 50;
 
 const maxMonth = 202312;
 const minMonth = 200601;

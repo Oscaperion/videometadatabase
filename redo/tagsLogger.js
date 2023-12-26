@@ -57,7 +57,7 @@ const tagThreshold = 100;
   }
 }
 
-let maxY = 49;
+let maxY = 50;
 let minY = 1;
 
 {

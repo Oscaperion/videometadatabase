@@ -34,7 +34,7 @@ let readTwitterVids = changeHere;
 
 
 //for (j = 1; j <= 25; j++) {
-for (let j = 49; j >= 49; j--) {
+for (let j = 50; j >= 50; j--) {
 //for (let j = 0; j >= 0; j--) {
 
 //for (let j = 1; j <= 28; j++) {
@@ -227,6 +227,9 @@ for (let j = 49; j >= 49; j--) {
         }
 
         // let cmpStr = parsedJSON.upload_date + ' ' + parsedJSON.title + ' ' + parsedJSON.id + ' ' + parsedJSON.uploader + ' ' +  parsedJSON.uploader_url;
+        
+        let ext_tmp = parsedJSON.extractor_key;
+        if (ext_tmp === "YoutubeWebArchive") ext_tmp = "Youtube";
 
         let newVideoInfo = {
             upload_date: parsedJSON.upload_date,
@@ -240,7 +243,7 @@ for (let j = 49; j >= 49; j--) {
             duration: parsedJSON.duration,
             description: parsedJSON.description,
             tags: parsedJSON.tags,
-            extractor_key: parsedJSON.extractor_key
+            extractor_key: ext_tmp
         };
 
         console.log(newVideoInfo.id + ' -- ' + dirName);

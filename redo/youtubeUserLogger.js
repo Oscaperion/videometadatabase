@@ -12,13 +12,13 @@ const search2 = '</div>';  */
 
 let foundTags;
 
-//let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json', 'utf8')) };
-let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids49.json', 'utf8'));
+// let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json', 'utf8')) };
+let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids50.json', 'utf8'));
 //let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202210.json', 'utf8')) };
 
 let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
-let tmprep =  replll.map(entry => entry.uploader_id).flat();
-console.log(tmprep);
+//let tmprep =  replll.map(entry => entry.uploader_id).flat();
+//console.log(tmprep);
 
 let orttt = 0;
 
