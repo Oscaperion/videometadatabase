@@ -63,7 +63,7 @@ let lastUpdated;
    Link to an external Dropbox repository that has a backup of the JSON files used for
      the database.
 */
-const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
+//const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
 
 /*
    These JSON arrays will be used in junction with the video entries.
@@ -1377,9 +1377,7 @@ function htmlHeadCompiler(htmlTitle = null) {
    if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
 
    let htmlStrGead2 = `<body>
-<div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124; <a href="${dropboxLink}" target="_blank">Download JSON File</a>
-<br/>
-<br/>
+<div><h2>YTPMV Metadata Archive</h2>Last updated: ${lastUpdated} &nbsp;&#124;
 ${headerText}
 </div>
 <hr/>`;
@@ -1473,8 +1471,7 @@ Exclude from search:` + breakline;
    Initializing HTML code for index.html
 */
 function htmlStrIndex(querie) {
-   let htmlStrIndex = `<div>
-Search for videos:` + breakline;
+   let htmlStrIndex = 'Search for videos:' + breakline;
 
    if ('/YTPMV_Database' === querie) {
       htmlStrIndex += '<form action="YTPMV_Database/results.html" method="GET">';
@@ -1485,9 +1482,9 @@ Search for videos:` + breakline;
    htmlStrIndex += '<br/>' + breakline + '<input type="text" name="search" />&nbsp;' + breakline;
    htmlStrIndex += '<input type="submit" value="Search" />' + breakline;
    htmlStrIndex += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + breakline;
-   htmlStrIndex += '</form><br/>' + breakline + '</div>';
+   htmlStrIndex += '</form><br/>' + breakline;
 
-   return htmlStrIndex;
+   return htmlBlockCompiler("div",htmlStrIndex);
 }
 
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
