@@ -3,7 +3,7 @@ let fs = require('fs');
 
 const folderLocation = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids';
 const folderLocationDest = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/vids';
-const yearMax = 202312;
+const yearMax = 202412;
 const yearMin = 200601;
 
 for (let i = yearMax; i >= yearMin; i--) {
