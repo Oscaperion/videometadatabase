@@ -26,7 +26,7 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202312;
+const maxMonth = 202412;
 const minMonth = 200601;
 //const minMonth = 201501;
 
@@ -65,7 +65,7 @@ let lastUpdated;
 }
 
 function getLastUpdated() {
-   if (pageLanguage === 'jp') return lastUpdated + ' [&#9633;&#9633;&#9633;&#24180;&#9633;&#26376;&#9633;&#26085;]';
+   if (pageLanguage === 'jp') return lastUpdated + ' [&#9633;&#9633;&#9633;&#9633;&#24180;&#9633;&#9633;&#26376;&#9633;&#9633;&#26085;]';
    return lastUpdated + ' [YYYYMMDD]';
 }
 
@@ -842,6 +842,9 @@ function htmlLinkCompiler(address,txt = null,targetBlank = true) {
 }
 
 function userLinkCompiler(userName,userId,site) {
+   let langTmp = '';
+   if (pageLanguage === "jp") langTmp = '&lang=jp';
+
    if (site === "Youtube") {
       let idTmp = userId;
       let multipleId = false;
@@ -850,18 +853,18 @@ function userLinkCompiler(userName,userId,site) {
          multipleId = true;
       }
 
-      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
 
       let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler("code",idTmp[0]) + ']'));
       for (let j = 1; j < idTmp.length; j++) {
          retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
-      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
 
       return retStr;
    }
    if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
-      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
    }
 }
 
@@ -1216,7 +1219,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
       if (userArr !== -1) break;
    }
 
-   let retStr = "Search alt channels:";
+   let retStr = "Alt channels:";
    let vals = Object.values(sameUserList[userArr]);
    //console.log(vals);
    for (let h = 0; h < vals.length; h++) {
@@ -1226,6 +1229,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
 
       let tmpLink = 'results.html?uploader_id=' + vals[h];
       if (showVidPrev) tmpLink += '&preview=true';
+      if (pageLanguage === "jp") tmpLink += '&lang=jp';
       tmpLink += '&' + botCheckName + '=' + botCheckValue;
       
       retStr += " " + htmlLinkCompiler(tmpLink,"[" + vals[h] + "]",false);
@@ -1464,11 +1468,14 @@ function switchLister(pageN = 1,searchW = null,prev=null) {
    if (prev !== null && (prev === false || prev === true)) prevTmp = prev;
    if (prevTmp) retStr.push('preview=' + prevTmp);
 
+   if (pageLanguage === 'jp') retStr.push('lang=jp');
+
    retStr.push(`${botCheckName}=${botCheckValue}`);
 
    return retStr.join("&");
 }
 
+// pageLanguage
 function makeSearchBar(searchStr = "",previewing = false) {
    let boolTmp = false;
    if (previewing !== false && previewing.trim().toLowerCase() === "true") boolTmp = true;
@@ -1478,7 +1485,9 @@ function makeSearchBar(searchStr = "",previewing = false) {
    //console.log(boolTmp);
 
    let prevTxt1 = "Show video previews";
-   if (boolTmp) prevTxt1 = "Hide video previews";
+   if (!boolTmp && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;ON";
+   if (boolTmp  && pageLanguage === "en") prevTxt1 = "Hide video previews";
+   if (boolTmp  && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;OFF";
    let prevTxt2 = htmlLinkCompiler("results.html?" + switchLister(pageNumber,null,!boolTmp),prevTxt1,false);
 
    let retStr = `Search for videos:<br/><br/>

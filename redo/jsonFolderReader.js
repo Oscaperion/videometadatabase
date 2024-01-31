@@ -34,7 +34,7 @@ let readTwitterVids = changeHere;
 
 
 //for (j = 1; j <= 25; j++) {
-for (let j = 50; j >= 50; j--) {
+for (let j = 52; j >= 52; j--) {
 //for (let j = 0; j >= 0; j--) {
 
 //for (let j = 1; j <= 28; j++) {
@@ -227,9 +227,23 @@ for (let j = 50; j >= 50; j--) {
         }
 
         // let cmpStr = parsedJSON.upload_date + ' ' + parsedJSON.title + ' ' + parsedJSON.id + ' ' + parsedJSON.uploader + ' ' +  parsedJSON.uploader_url;
-        
+
         let ext_tmp = parsedJSON.extractor_key;
-        if (ext_tmp === "YoutubeWebArchive") ext_tmp = "Youtube";
+        if (ext_tmp === "YoutubeWebArchive") {
+            if (parsedJSON.upload_date === undefined) {
+               console.log("Faulty arhived page from Wayback Machine, no upload_date. Not adding: " + parsedJSON.id);
+               throw new Error("CHECK THE FILE");
+               // return;
+            }
+
+            if (parsedJSON.uploader !== undefined && parsedJSON.channel_id === undefined && parsedJSON.uploader_id === undefined) {
+               // parsedJSON["uploader_id"] = parsedJSON.uploader;
+               console.log("Faulty arhived page from Wayback Machine, no uploader_id. Not adding: " + parsedJSON.id);
+               throw new Error("CHECK THE FILE");
+            }
+
+            ext_tmp = "Youtube";
+        }
 
         let newVideoInfo = {
             upload_date: parsedJSON.upload_date,

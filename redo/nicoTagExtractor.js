@@ -5,11 +5,11 @@ const url = require('url');
 const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
-var feats_HSL;
+let feats_HSL;
 
-var codeTmp = 0;
+let codeTmp = 0;
 
-var requ_HSL = new XMLHttpRequest_node();
+let requ_HSL = new XMLHttpRequest_node();
 requ_HSL.onreadystatechange = function() {
    console.log("Readystate = " + requ_HSL.readyState + ', Status = ' + requ_HSL.status);
    if (requ_HSL.readyState == 4 && (requ_HSL.status == 200 || requ_HSL.status == 302)){
@@ -34,21 +34,21 @@ const keyword2 = 'fwvaa1c';
 const search1 = '>';
 const search2 = '</div>';
 
-var foundTags;
+let foundTags;
 
-var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids50.json', 'utf8'));
+let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids52.json', 'utf8'));
 //var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202206.json', 'utf8')) };
 
-var replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 
-var orttt = 0;
+let orttt = 0;
 
 while (orttt < vids.videos.length) {
 //for (var i = 0; i < 500; i++) {
 
 //var ertt = 10 + (10 * opp);
 //if (ertt >  vids.videos.length ) ertt = vids.videos.length;
-var orttt2 = 0;
+let orttt2 = 0;
 console.log("Abba");
 
 while (orttt2 < 10 && orttt < vids.videos.length) {
