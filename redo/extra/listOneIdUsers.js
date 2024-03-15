@@ -37,7 +37,7 @@ console.log(presentIds.includes(2));
 
 let foundUsers = [];
 
-for (var ty = 202312; ty > 200600; ty--) {
+for (var ty = 202412; ty > 200600; ty--) {
     let fileSource = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + ty + '.json';
     var checkingFile;
     try {
