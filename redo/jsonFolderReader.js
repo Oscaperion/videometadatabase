@@ -34,7 +34,7 @@ let readTwitterVids = changeHere;
 
 
 //for (j = 1; j <= 25; j++) {
-for (let j = 52; j >= 52; j--) {
+for (let j = 53; j >= 53; j--) {
 //for (let j = 0; j >= 0; j--) {
 
 //for (let j = 1; j <= 28; j++) {

@@ -1253,7 +1253,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    Creates a <div> segment of a singular video entry.
 */
 function compileEntry(video) {
-   // console.log(video.id);
+   console.log(video.id);
 
    let userAddress = "";
    if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
@@ -1267,7 +1267,10 @@ function compileEntry(video) {
          }
          if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(video.uploader,niconicoUserList[video.uId],video.extractor_key);
       }
-      else userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);
+      else { 
+         // console.log(video);
+         userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);
+      }
    }
 
    let titleTmp = videoLinkCompiler(video.id, video.extractor_key) + ' (' + formatDuration(video.duration) + ')';
