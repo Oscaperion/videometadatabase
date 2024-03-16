@@ -379,7 +379,7 @@ function entryEditor(entryVid,targetMonth) {
    {
      // TEMPORARY! Unables Bilibili videos for the time being
      // if (entry.extractor_key === "BiliBili") return undefined;
-     
+
      // let tmpUploaderId = entry.uploader_id;
      // let tmpUploader   = entry.uploader;
 
@@ -388,13 +388,14 @@ function entryEditor(entryVid,targetMonth) {
         if (missingNicoUsers.map(item => item.id).includes(entry.id)) {
            let tmpUserInfo = missingNicoUsers.find(item => item.id === entry.id);
            if (tmpUserInfo.nicologEntry) {
-              entry.uploader_id = tmpUserInfo.uId;
-              entry.uploader    = tmpUserInfo.uploader;
+              entry["uploader_id"] = tmpUserInfo.uId;
+              if (entry.uploader === undefined) entry["uploader"] = tmpUserInfo.uploader;
+              console.log("User info patched for " + entry.id + ": " + tmpUserInfo.uploader + " (" + tmpUserInfo.uId + ")");
            }
         }
      }
 
-     if (ignoreUsers.includes(entry.channel_id) || ignoreUsers.includes(tmpUploaderId)) return undefined;
+     if (ignoreUsers.includes(entry.channel_id) || ignoreUsers.includes(entry.uploader_id)) return undefined;
      let tttmp_id = entry.id;
      if (Array.isArray(entry.id)) tttmp_id = entry.id[0];
      if (gatheredIds.includes(tttmp_id)) return undefined;
