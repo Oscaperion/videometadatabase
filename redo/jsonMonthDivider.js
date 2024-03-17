@@ -384,12 +384,12 @@ function entryEditor(entryVid,targetMonth) {
      // let tmpUploader   = entry.uploader;
 
      // For Niconico entries that are missing uploader info
-     if (entry.extractor_key === "Niconico" && entry.uploader_id === undefined) {
+     if (entry.extractor_key === "Niconico" && (entry.uploader_id === undefined || entry.uploader_id === null)) {
         if (missingNicoUsers.map(item => item.id).includes(entry.id)) {
            let tmpUserInfo = missingNicoUsers.find(item => item.id === entry.id);
            if (tmpUserInfo.nicologEntry) {
               entry["uploader_id"] = tmpUserInfo.uId;
-              if (entry.uploader === undefined) entry["uploader"] = tmpUserInfo.uploader;
+              entry["uploader"] = tmpUserInfo.uploader;
               console.log("User info patched for " + entry.id + ": " + tmpUserInfo.uploader + " (" + tmpUserInfo.uId + ")");
            }
         }
