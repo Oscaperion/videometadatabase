@@ -48,23 +48,7 @@ let ignoreUsers = [];
 }
 
 console.log(ignoreUsers);
-       /*
-var vidds = [];
-
-for (let kii = 41; kii >= 1; kii--) {
-   let tmppp = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + kii + '.json'), 'utf8')).videos;
-   vidds.push(tmppp);
-   console.log(kii);
-
-
-   if (kii === 1) {
-      let tmpppe = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json'), 'utf8'));
-      vidds.push(tmpppe);
-      console.log("Yay");
-   }
-}    */
-
-//var toBeSortedList = [];
+    
 let allEntries = {};
 let pathsS = [];
 let pathCurrent = 0;
