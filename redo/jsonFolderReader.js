@@ -1,3 +1,9 @@
+/*
+
+This script takes the JSON files from a folder and then compiles them into a single file.
+
+*/
+
 //requiring path and fs modules
 let path = require('path');
 let fs = require('fs');
@@ -7,31 +13,12 @@ const http = require('http');
 const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
 let videoList = '';
 
-       /*
-let exampleFile = fs.readFileSync('massJsonTesting1\\SO8RSZNyWXs.info.json', 'utf8');
-let parseJSON = JSON.parse(exampleFile);
-console.log(parseJSON.uploader_url);
-if (parseJSON.uploader_url === undefined) {
-   console.log("This works 23");
-} else {
-   console.log("This works 46");
-}    */
-/*
-if (parsedJSON.uploader_url.length == 0) {
-  console.log("This works");
-}      */
-
-//console.log(exampleFile);
-
 let toBeSortedList = [];
 
 let changeHere = false;
 
-//let j = 29;
 let readTwitterVids = changeHere;
 //let ignoreBilibiliPlaylists = changeHere;
-
-
 
 //for (j = 1; j <= 25; j++) {
 for (let j = 53; j >= 53; j--) {
@@ -49,20 +36,9 @@ for (let j = 53; j >= 53; j--) {
 
         let willBeAdded = true;
 
-        //console.log(file);
         let filePath = dirName + '\\' + file;
-       // console.log(filePath);
-        //console.log(file + ' is being read' );
 
         let parsedJSON = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                  /*
-        if (ext_key.indexOf("NiconicoPlaylist") > -1) {
-           return;
-        }
-
-        if (ext_key.indexOf("NiconicoUser") > -1) {
-           return;
-        }       */
 
         let uPage = parsedJSON.uploader_url;
         let vidId = parsedJSON.id;

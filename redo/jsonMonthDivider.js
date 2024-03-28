@@ -1,23 +1,49 @@
+/*
+
+This script takes the unsorted JSON files generated through jsonFolderReader.js and
+reorganizes all the metadata. The resulting JSON files will be split based on the
+release months.
+
+*/
+
 //requiring path and fs modules
 let path = require('path');
 let fs = require('fs');
 const JSONStream = require('JSONStream');
 console.log("Amane");
 
+// This determines how many JSON files are to be sorted
 const maxJsonAmount = 53;
 
+/* These determine the time frame that will be processed. If a video was released outside
+   of this time frame or has an undefined release date, its metadata won't be processed and
+   included.                                                                                   
+*/
 const maxMonth = 202412;
 const minMonth = 200601;
 
 //const maxMonth = 202204;
 //const minMonth = 202204;
 
+/* A list of the most common tags used across all videos, generated through tagsLogger.js.
+   Used to replace these most common tags from the metadata with their respective indexes
+   within this list.                                                                           
+*/
 const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
-//var tagsList  = [];
+
+/* These files include the tags for videos from Niconico. Due to yt-dlp not including them,
+   they've been gathered and compiled into these files through nicoTagExtractor.js and
+   nicoTagExtractor-nicolog.js. The script will couple each set of tags to their respective
+   videos.
+*/
 const nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
 const nicoTags  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 
+/* This file includes
+
+*/
 const youtubeUserList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+
 const niconicoUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
 
 const missingNicoUsers = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid2.json', 'utf8'));
