@@ -91,8 +91,8 @@ function checkVideo(video) {
       let teee = {};
       teee["channel_id"] = video.channel_id;
       teee["uploader_id"] = [];
-      if (video.uploader_id !== undefined) teee.uploader_id.push(video.uploader_id);
-      if (video.channel_id !== video.uploader_id && video.channel_id !== undefined) teee.uploader_id.push(video.channel_id);
+      if (video.uploader_id !== undefined && video.uploader_id !== null) teee.uploader_id.push(video.uploader_id);
+      if (video.channel_id !== video.uploader_id && video.channel_id !== undefined && video.channel_id !== null) teee.uploader_id.push(video.channel_id);
       console.log(teee);
       replll.push(teee);
    }

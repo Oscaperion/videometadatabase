@@ -28,7 +28,8 @@ for (let j = 0; j < vids.length; j++) {
         if (!doIt) break;
         */
     }
-    
+
+    // console.log(checkTmp.uploader_id);
     let tmpChannel = checkTmp.uploader_id.findIndex(ent => ent.substring(0,2) === "UC" && ent.length === 24);
     let tmpUser = checkTmp.uploader_id.findIndex(ent => !(ent.substring(0,2) === "UC" && ent.length === 24) && ent.substring(0,1) !== '@');
     let tmpAt = [];
