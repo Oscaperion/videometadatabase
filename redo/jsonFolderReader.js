@@ -44,12 +44,19 @@ for (let j = 54; j >= 54; j--) {
         let vidId = parsedJSON.id;
 
         //console.log(uPage);
-
         let tmp1 = parsedJSON.extractor_key;
+        
+        // For Odysee
+        if (tmp1 === "LBRY" && parsedJSON.webpage_url.includes("odysee.com/")) {
+           uPage = 'https://odysee.com/@channel:' + parsedJSON.channel_id;
+           parsedJSON["uploader"] = parsedJSON.channel;
+        }
+
         if (uPage === undefined) {
            if (tmp1 === "Niconico") {
               uPage = 'https://www.nicovideo.jp/user/' + parsedJSON.uploader_id;
            }
+
            if (tmp1 === "BiliBili") {
               if (parsedJSON.upload_date === undefined) {
                  return;

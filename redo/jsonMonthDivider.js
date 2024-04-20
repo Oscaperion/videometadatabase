@@ -439,6 +439,13 @@ function entryEditor(entryVid,targetMonth) {
           tmpVid.id = truId;
           tmpVid.title = '';
        }
+       
+       // This handles entries from the site Odysee
+       if (tmpVid.extractor_key === "LBRY" && tmpVid.webpage_url.includes('odysee.com/')) {
+          tmpVid.extractor_key = "Odysee";
+          tmpVid.webpage_url = "https://odysee.com/video:" + tmpVid.id;
+
+       }
 
        let tmpTagss = [];
 
