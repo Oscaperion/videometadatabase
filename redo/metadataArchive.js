@@ -845,6 +845,9 @@ function userLinkCompiler(userName,userId,site) {
    let langTmp = '';
    if (pageLanguage === "jp") langTmp = '&lang=jp';
 
+   let searchUploaderStr = '[Search uploader]';
+   if (pageLanguage === 'jp') searchUploaderStr = '[&#25237;&#31295;&#32773;&#12434;&#26908;&#32034;]';
+
    if (site === "Youtube") {
       let idTmp = userId;
       let multipleId = false;
@@ -853,18 +856,18 @@ function userLinkCompiler(userName,userId,site) {
          multipleId = true;
       }
 
-      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
 
       let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler("code",idTmp[0]) + ']'));
       for (let j = 1; j < idTmp.length; j++) {
          retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
-      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
 
       return retStr;
    }
    if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
-      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
    }
 }
 
@@ -1051,7 +1054,7 @@ function editLink(linkTmp) {
                                                                                                                            /*
       if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(linkTmp,tmpp1.substring(0,tmpLinkerino4)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4), htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpLinkerino3 + tmpLinkerino4);   */
                                                                                                                                                              // &#60;NONE&#62;
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2.substring(0,tmpLinkerino4)) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
    }
 
    if (addSearchLinkYoutube) {
@@ -1078,10 +1081,10 @@ function editLink(linkTmp) {
       //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
       //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
 
-      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2 + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
       //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
 
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2 + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
       //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
 
       //htmlLinkCompiler('results.html?search=' +
@@ -1220,6 +1223,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    }
 
    let retStr = "Alt channels:";
+   if (pageLanguage === 'jp') retStr = "&#21029;&#12481;&#12515;&#12531;&#12493;&#12523;:";
    let vals = Object.values(sameUserList[userArr]);
    //console.log(vals);
    for (let h = 0; h < vals.length; h++) {
@@ -1254,9 +1258,12 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
 */
 function compileEntry(video) {
    console.log(video.id);
+   
+   let searchUploaderStr = '[Search uploader]';
+   if (pageLanguage === 'jp') searchUploaderStr = '[&#25237;&#31295;&#32773;&#12434;&#26908;&#32034;]';
 
    let userAddress = "";
-   if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code","[Search uploader]"),false);
+   if (video.uploader_url !== undefined && video.uploader_url !== null) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
    else {
       if ((video.extractor_key === "Youtube" || video.extractor_key === "Niconico") && video.uId !== undefined) {
 
@@ -1280,13 +1287,20 @@ function compileEntry(video) {
       else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
    }
 
-   userAddress = "<br/><br/>" + breakline + "Uploader: " + userAddress + breakline;
+   if (pageLanguage === "jp") {
+      userAddress = "<br/><br/>" + breakline + "&#25237;&#31295;&#32773;: " + userAddress + breakline;
+   } else {
+      userAddress = "<br/><br/>" + breakline + "Uploader: " + userAddress + breakline;
+   }
 
    if (checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId)) userAddress += ' &#8212; ' + addOtherChannels(video.extractor_key,video.uploader_id,video.uId) + breakline;
 
    userAddress += '<br/>';
 
    let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
+   if (pageLanguage === "jp") {
+     releaseDate = "&#20844;&#38283;&#26085;: " + video.upload_date + '<br/><br/>' + breakline;
+   }
 
    let descTmp = editDescription(video.description,video.extractor_key) + '<br/><br/>' + breakline;
 
@@ -1299,6 +1313,9 @@ function compileEntry(video) {
 
 function urlizeTags(tagsArray) {
    let strRet = "Tags:";
+   if (pageLanguage === "jp") {
+      strRet = "&#12479;&#12464;:";
+   }
 
    if (tagsArray.length > 0) {
       for (let p = 0; p < tagsArray.length; p++) {
@@ -1449,13 +1466,13 @@ function createPageLinks() {
 }
 
 // sitesList = [ {'site': 'Youtube',    'isIgnored
-function switchLister(pageN = 1,searchW = null,prev=null) {
+function switchLister(pageN = 1, searchW = null, prev = null, changeLang = null) {
    let retStr = [];
 
    let searchTmmp = searchWords;
    if (searchW !== null) searchTmmp = [searchW.trim()];
 
-   if (searchTmmp.length > 0) retStr.push('search=' + searchTmmp.join(" "));
+   if (searchTmmp.length > 0) retStr.push('search=' + encodeURIComponent(searchTmmp.join(" ")));
 
    if (searchingUser) retStr.push('uploader_id=' + searchedUser);
 
@@ -1471,7 +1488,11 @@ function switchLister(pageN = 1,searchW = null,prev=null) {
    if (prev !== null && (prev === false || prev === true)) prevTmp = prev;
    if (prevTmp) retStr.push('preview=' + prevTmp);
 
-   if (pageLanguage === 'jp') retStr.push('lang=jp');
+   if (pageLanguage === 'jp' && changeLang === null) retStr.push('lang=jp');
+   
+   // if (changeLang !== 'en' &&)
+   if (pageLanguage === 'en' && changeLang !== null && changeLang === 'jp') retStr.push('lang=' + changeLang);
+   if (pageLanguage === 'jp' && changeLang !== null) retStr.push('lang=' + changeLang);
 
    retStr.push(`${botCheckName}=${botCheckValue}`);
 
@@ -1492,17 +1513,29 @@ function makeSearchBar(searchStr = "",previewing = false) {
    if (boolTmp  && pageLanguage === "en") prevTxt1 = "Hide video previews";
    if (boolTmp  && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;OFF";
    let prevTxt2 = htmlLinkCompiler("results.html?" + switchLister(pageNumber,null,!boolTmp),prevTxt1,false);
+   
+   let searchText1 = 'Search for videos:';
+   if (pageLanguage === 'jp') searchText1 = '&#21205;&#30011;&#12434;&#26908;&#32034;:';
+   
+   let searchText2 = 'Search';
+   if (pageLanguage === 'jp') searchText2 = "&#26908;&#32034;";
 
-   let retStr = `Search for videos:<br/><br/>
+   let searchText3 = 'Exact word search';
+   if (pageLanguage === 'jp') searchText3 = "&#23436;&#20840;&#19968;&#33268;&#26908;&#32034;";
+
+   let searchText4 = 'Exclude from search:';
+   if (pageLanguage === 'jp') searchText4 = "&#26908;&#32034;&#12363;&#12425;&#38500;&#22806;:";
+
+   let retStr = `${searchText1}<br/><br/>
 <form action="results.html" method="GET">
 <input type="text" name="search" value="${searchStr.trim()}" />&nbsp;
-<input type="submit" value="Search" />&nbsp;&#124;
+<input type="submit" value="${searchText2}" />&nbsp;&#124;
 <input type="checkbox" id="exactSearch" name="exactSearch" value="true"`
    if (exactWordSearch) retStr += ' checked="yes"';
-   retStr += `><label for="exactSearch">&nbsp;Exact word search</label> &nbsp;&#124; ${prevTxt2}
+   retStr += `><label for="exactSearch">&nbsp;${searchText3}</label> &nbsp;&#124; ${prevTxt2}
 <input type="hidden" name="${botCheckName}" value="${botCheckValue}" />
 <br/><br/>
-Exclude from search:` + breakline;
+${searchText4}` + breakline;
 
    for (let y = 0; y < sitesList.length; y++) {
       retStr += `<input type="checkbox" id="${sitesList[y].site}" name="${sitesList[y].site}" value="true"`;
