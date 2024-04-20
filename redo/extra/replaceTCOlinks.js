@@ -10,9 +10,9 @@ const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
 const br =  '\r\n';
 
-var feats_HSL;
+let feats_HSL;
 
-var requ_HSL = new XMLHttpRequest_node();
+let requ_HSL = new XMLHttpRequest_node();
 requ_HSL.onreadystatechange = function() {
    console.log("Readystate = " + requ_HSL.readyState + ', Status = ' + requ_HSL.status);
    if (requ_HSL.readyState == 4 && (requ_HSL.status == 200 || requ_HSL.status == 301)){
@@ -34,20 +34,20 @@ requ_HSL.onreadystatechange = function() {
 //for (j = 1; j <= 27; j++) {
 //for (j = 16; j >= 16; j--) {
 
-  var dirName = folderName + 52;
+  let dirName = folderName + 53;
   console.log('Luetaan kansiota ' + dirName);
   //joining path of directory
-  var directoryPath = path.join(dirName);
+  let directoryPath = path.join(dirName);
   //passsing directoryPath and callback function
   fs.readdirSync(directoryPath).forEach(function (file) {
     if (file.localeCompare('desktop.ini') != 0) {
-       var filePath = dirName + '\\' + file;
-       var parsedVideo = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+       let filePath = dirName + '\\' + file;
+       let parsedVideo = JSON.parse(fs.readFileSync(filePath, 'utf8'));
        
        console.log(parsedVideo.upload_date + ' -- ' + parsedVideo.id);
        if (!(parsedVideo.description === undefined) && parsedVideo.extractor_key.indexOf("Twitter") != -1) {
           parsedVideo.description = findLinks(parsedVideo.description, 'https://t.co/');
-          var fileLoc = 'F:/Dropbox/NodeJS/massJsonTesting-1/' + parsedVideo.id + '-tco-link-patched.json';
+          let fileLoc = 'F:/Dropbox/NodeJS/massJsonTesting-1/' + parsedVideo.id + '-tco-link-patched.json';
           fs.writeFileSync(fileLoc, JSON.stringify(parsedVideo));
        } /*if (!(parsedVideo.description === undefined)) {
           parsedVideo.description = findLinks_b23(parsedVideo.description, 'b23.tv/');
@@ -85,8 +85,8 @@ console.log('Loaded!')  ;
      */
 
 function findLinks(ogDescription, searchString) {
-    var editedDescription = ogDescription;
-    var linkPos = editedDescription.indexOf(searchString);
+    let editedDescription = ogDescription;
+    let linkPos = editedDescription.indexOf(searchString);
 
     if (linkPos > -1) {
         while (linkPos != -1) {/*
@@ -98,9 +98,9 @@ function findLinks(ogDescription, searchString) {
                 endOfLink = tempp2;
             } */
             
-            var endOfLink = linkPos + 23;
+            let endOfLink = linkPos + 23;
 
-            var linkara = '';
+            let linkara = '';
             //console.log('End of link: ' + endOfLink);
 
 
@@ -124,10 +124,10 @@ function findLinks(ogDescription, searchString) {
                 linkingPark = linkingPark + '&nbsp;<code><a href="results.html?search=' + temperar + '">[Search with this ID]</a></code>';
             }   */
 
-            var tempStr1 = editedDescription.substring(0,linkPos);
-            var tempStr2 = editedDescription.substring(endOfLink);
+            let tempStr1 = editedDescription.substring(0,linkPos);
+            let tempStr2 = editedDescription.substring(endOfLink);
 
-            var linkingPark = linkara;
+            let linkingPark = linkara;
 
             /*
             // If the link has an ID to a video on YouTube, Niconico or Bilibili, this will add a link to search the archive with that ID
@@ -248,12 +248,14 @@ function findLinks(ogDescription, searchString) {
                 console.log(linkara);
                 requ_HSL.open("GET", linkara, false);
                 requ_HSL.send(null);
+                
+                let loccar = '';
 
                 if (feats_HSL != null)  {
                    console.log(feats_HSL);
-                   var lolTmp1 = feats_HSL.indexOf('location:');
-                   var lolTmp2 = feats_HSL.indexOf('\n', lolTmp1);
-                   var loccar = feats_HSL.substring(lolTmp1 + 'location:'.length, lolTmp2).trim();
+                   let lolTmp1 = feats_HSL.indexOf('location:');
+                   let lolTmp2 = feats_HSL.indexOf('\n', lolTmp1);
+                   loccar = feats_HSL.substring(lolTmp1 + 'location:'.length, lolTmp2).trim();
                    console.log (loccar);
                   /* loccar = 'https:' + loccar.trim();
                    loccar = loccar.substring(0,loccar.indexOf('?'));
@@ -272,7 +274,7 @@ function findLinks(ogDescription, searchString) {
             if (endOfLink != -1) {
                 editedDescription += tempStr2;
             }
-            var temmie = linkPos;
+            let temmie = linkPos;
 
             linkPos = editedDescription.indexOf(searchString, (temmie + linkingPark.length));
         }
@@ -282,12 +284,12 @@ function findLinks(ogDescription, searchString) {
 
 
 function findLinks_b23(ogDescription, searchString) {
-    var editedDescription = ogDescription + ' ';
-    var linkPos = editedDescription.indexOf(searchString);
+    let editedDescription = ogDescription + ' ';
+    let linkPos = editedDescription.indexOf(searchString);
 
     if (linkPos > -1) {
         while (linkPos != -1) {
-            var linkara = 'https://' + editedDescription.substring(linkPos, (searchString.length + 6));
+            let linkara = 'https://' + editedDescription.substring(linkPos, (searchString.length + 6));
                                                         /*
             var tempp1 = editedDescription.indexOf(' ', linkPos);
             var tempp2 = editedDescription.indexOf('\n', linkPos);
@@ -306,10 +308,10 @@ function findLinks_b23(ogDescription, searchString) {
             }   */
 
 
-            var tempStr1 = editedDescription.substring(0,linkPos);
-            var tempStr2 = editedDescription.substring(linkPos + searchString.length + 6);
+            let tempStr1 = editedDescription.substring(0,linkPos);
+            let tempStr2 = editedDescription.substring(linkPos + searchString.length + 6);
 
-            var linkingPark = linkara;
+            let linkingPark = linkara;
 
             
             //tarkLink = "https://t.co/";
@@ -317,12 +319,14 @@ function findLinks_b23(ogDescription, searchString) {
                 console.log(linkara);
                 requ_HSL.open("GET", linkara, false);
                 requ_HSL.send(null);
+                
+                let loccar = '';
 
                 if (feats_HSL != null)  {
                    console.log(feats_HSL);
-                   var lolTmp1 = feats_HSL.indexOf('location:');
-                   var lolTmp2 = feats_HSL.indexOf('\n', lolTmp1);
-                   var loccar = feats_HSL.substring(lolTmp1 + 'location:'.length, lolTmp2).trim();
+                   let lolTmp1 = feats_HSL.indexOf('location:');
+                   let lolTmp2 = feats_HSL.indexOf('\n', lolTmp1);
+                   loccar = feats_HSL.substring(lolTmp1 + 'location:'.length, lolTmp2).trim();
                    console.log (loccar);
 
                 }
@@ -336,7 +340,7 @@ function findLinks_b23(ogDescription, searchString) {
             if (endOfLink != -1) {
                 editedDescription += tempStr2;
             }    */
-            var temmie = linkPos;
+            let temmie = linkPos;
 
             linkPos = editedDescription.indexOf(searchString, (temmie + linkingPark.length));
         }

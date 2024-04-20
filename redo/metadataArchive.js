@@ -42,8 +42,8 @@ const videosPerPage = 15;
      for actual visitors. So far this has been surprisingly effective, but if bots ever
      learn to take this into consideration a more robust measure need to be implemented.
 */
-const botCheckName = "rumour_came_out";
-const botCheckValue = "lupinight_my_beloved";
+const botCheckName = "rumour_be_out";
+const botCheckValue = "kyokubox_my_beloved";
 
 /*
    Changes the language for the site. Currently only supports English and Japanese.
@@ -1595,7 +1595,7 @@ let srvr = http.createServer(function (req, res) {
 
 
       doThis = false;
-   }
+   }          */
 
    if (!botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
@@ -1609,7 +1609,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.end();
 
       doThis = false;
-   }    */
+   }
 
    // Results page
    if (botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
