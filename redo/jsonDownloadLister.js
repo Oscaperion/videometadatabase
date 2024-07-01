@@ -24,7 +24,7 @@ videoList += '<hr/>' + br;
 
 var rString = '';
 var tu;
-for (tu = 54; tu >= 0; tu--) {
+for (tu = 55; tu >= 0; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
 //var parsedVideos = JSON.parse(videoitaFile);
     var parsedVideos = JSON.parse(fs.readFileSync(('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json'), 'utf8'));

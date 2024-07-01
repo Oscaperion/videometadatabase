@@ -13,7 +13,7 @@ const JSONStream = require('JSONStream');
 console.log("Amane");
 
 // This determines how many JSON files are to be sorted
-const maxJsonAmount = 53;
+const maxJsonAmount = 55;
 
 /* These determine the time frame that will be processed. If a video was released outside
    of this time frame or has an undefined release date, its metadata won't be processed and

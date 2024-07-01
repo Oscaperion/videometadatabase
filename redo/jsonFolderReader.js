@@ -21,7 +21,7 @@ let readTwitterVids = changeHere;
 //let ignoreBilibiliPlaylists = changeHere;
 
 //for (j = 1; j <= 25; j++) {
-for (let j = 54; j >= 54; j--) {
+for (let j = 55; j >= 55; j--) {
 //for (let j = 0; j >= 0; j--) {
 
 //for (let j = 1; j <= 28; j++) {
