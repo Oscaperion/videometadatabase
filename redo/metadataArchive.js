@@ -9,7 +9,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/";
 //const jsonLocation = "vidJson2/";
 
 /*
@@ -26,8 +26,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202412;
-const minMonth = 200601;
+const maxMonth = 2024129;
+const minMonth = 2006010;
 //const minMonth = 201501;
 
 /*
@@ -472,18 +472,24 @@ function formatDuration_old(justSeconds) {
       there will be matches and the database should be able to process them quicker.
 */
 function optimizeSearching(searchWord,exactSearch) {
-    if (searchWord === undefined || searchWord === null || searchWord.trim().length === 0) {
+    if (searchWord === undefined || searchWord === null || (!Array.isArray(searchWord) && searchWord.trim().length === 0)) {
        searchWords = [];
        return undefined;
     }
 
+    let searchWord_tmp = searchWord;
+    
+    if (Array.isArray(searchWord_tmp)) {
+       searchWord_tmp = searchWord_tmp.join(' ');
+    }
+
     if (exactSearch) {
-       let ret = [searchWord.trim()];
+       let ret = [searchWord_tmp.trim()];
        searchWords = ret;
        return ret;
     }
 
-    let searchArray = searchWord.split(" ").filter(ent => ent.length > 0);
+    let searchArray = searchWord_tmp.split(" ").filter(ent => ent.length > 0);
     searchWords = searchArray;
 
     let tmp1 = searchArray.sort((a, b) => a.length - b.length);
@@ -1010,6 +1016,9 @@ function editLink(linkTmp) {
 
    let youtubeIdLength = 11;
 
+   let searchIdStr = "[Search ID]";
+   if (pageLanguage === 'jp') searchIdStr = "[ID&#12434;&#26908;&#32034;]";
+
    let addSearchLinkYoutube = false;
    let addSearchLinkNiconico = false;
 
@@ -1050,11 +1059,10 @@ function editLink(linkTmp) {
       if (tmpLinkerino2.indexOf(".") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf(")") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf(".");
       if (tmpLinkerino4 === 0) tmpLinkerino4 = tmpLinkerino2.length;
 
-      // let checkerCh = tmpLinkerino2.charAt(tmpLinkerino4);
-                                                                                                                           /*
-      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(linkTmp,tmpp1.substring(0,tmpLinkerino4)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2.substring(0,tmpLinkerino4), htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpLinkerino3 + tmpLinkerino4);   */
-                                                                                                                                                             // &#60;NONE&#62;
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2.substring(0,tmpLinkerino4)) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
+      // Checking if there is a video with this ID
+      
+
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2.substring(0,tmpLinkerino4)) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
    }
 
    if (addSearchLinkYoutube) {
@@ -1081,10 +1089,10 @@ function editLink(linkTmp) {
       //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
       //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
 
-      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
       //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
 
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code","[Search ID]"),false);
+      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
       //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
 
       //htmlLinkCompiler('results.html?search=' +
@@ -1507,6 +1515,9 @@ function makeSearchBar(searchStr = "",previewing = false) {
    //console.log("Hakase Fuyuki");
    //console.log(searchStr);
    //console.log(boolTmp);
+   
+   let searchStr_tmp = searchStr;
+   if (Array.isArray(searchStr)) searchStr_tmp = searchStr.join(' ');
 
    let prevTxt1 = "Show video previews";
    if (!boolTmp && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;ON";
@@ -1514,6 +1525,15 @@ function makeSearchBar(searchStr = "",previewing = false) {
    if (boolTmp  && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;OFF";
    let prevTxt2 = htmlLinkCompiler("results.html?" + switchLister(pageNumber,null,!boolTmp),prevTxt1,false);
    
+   let changeLangStr = '&#26085;&#26412;&#35486;&#12395;&#20999;&#12426;&#26367;&#12360;&#12427;';
+   if (pageLanguage === 'jp') changeLangStr = 'Change to English';
+   
+   let changeLangLink = 'results.html?';
+   if (pageLanguage === 'jp') changeLangLink += switchLister(pageNumber, null, null, "en");
+   else changeLangLink += switchLister(pageNumber, null, null, "jp");
+   
+   let changeLangStr2 = htmlLinkCompiler(changeLangLink,changeLangStr,false);
+
    let searchText1 = 'Search for videos:';
    if (pageLanguage === 'jp') searchText1 = '&#21205;&#30011;&#12434;&#26908;&#32034;:';
    
@@ -1526,9 +1546,11 @@ function makeSearchBar(searchStr = "",previewing = false) {
    let searchText4 = 'Exclude from search:';
    if (pageLanguage === 'jp') searchText4 = "&#26908;&#32034;&#12363;&#12425;&#38500;&#22806;:";
 
-   let retStr = `${searchText1}<br/><br/>
+   let retStr = `${changeLangStr2}<hr/>
+
+${searchText1}<br/><br/>
 <form action="results.html" method="GET">
-<input type="text" name="search" value="${searchStr.trim()}" />&nbsp;
+<input type="text" name="search" value="${searchStr_tmp.trim()}" />&nbsp;
 <input type="submit" value="${searchText2}" />&nbsp;&#124;
 <input type="checkbox" id="exactSearch" name="exactSearch" value="true"`
    if (exactWordSearch) retStr += ' checked="yes"';
@@ -1578,6 +1600,7 @@ let srvr = http.createServer(function (req, res) {
    let htmPage = '/YTPMV_Database';
    let searchTmp = quer.query.search;
    if (searchTmp === undefined) searchTmp = "";
+   if (Array.isArray(searchTmp)) searchTmp = searchTmp.join(' ');
    let pageTmp = quer.query.page;
    console.log(quer.pathname);
    console.log(quer.query);
@@ -1600,8 +1623,14 @@ let srvr = http.createServer(function (req, res) {
    if (uploaderTmp === undefined) {
       searchingUser = false;
    } else {
+      /* In case any values for uploader_id has been passed on as an array, this will take the array and
+         only use the first given uploader_id value as the search value.
+      */
+      let uploaderTmp2 = uploaderTmp;
+      if (Array.isArray(uploaderTmp2)) uploaderTmp2 = uploaderTmp[0];
+
       searchingUser = true;
-      searchedUser = uploaderTmp.trim();
+      searchedUser = uploaderTmp2.trim();
    }
 
    let previewTmp = quer.query.preview;
@@ -1693,7 +1722,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
          headTmo = "Searching";
 
          if (searchWords.length === 0) headTmo += ' all videos';
-         if (searchWords.length > 0) headTmo += ` "${searchTmp.trim()}"`;
+         if (!Array.isArray(searchWords) && searchWords.length > 0) headTmo += ` "${searchTmp.trim()}"`;
 
          if (searchingUser) headTmo += ` by ${searchedUser}`;
 
