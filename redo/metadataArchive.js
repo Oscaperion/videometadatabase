@@ -1101,7 +1101,7 @@ function editLink(linkTmp) {
 }
 
 function editDescription(ogDesc,descExtr) {
-   if (ogDesc === undefined || ogDesc === null || ogDesc.trim().length === 0) return htmlBlockCompiler("code","[No description]");
+   if (ogDesc === undefined || ogDesc === null || ogDesc.trim().length === 0) return putDescriptionInBox(htmlBlockCompiler("code","[No description]"));
 
    let descTmp = ogDesc.trim();
 
@@ -1111,7 +1111,7 @@ function editDescription(ogDesc,descExtr) {
 
    let lineBreakN = '\n';
    let lineBreakLoc = descTmp.indexOf(lineBreakN);
-   if (lineBreakLoc === -1) return descTmp.trim();
+   if (lineBreakLoc === -1) return putDescriptionInBox(descTmp.trim());
 
    let retDesc = "";
    let tmpPos = 0;
@@ -1122,7 +1122,11 @@ function editDescription(ogDesc,descExtr) {
       lineBreakLoc = descTmp.indexOf(lineBreakN,lineBreakLoc + 1);
    }
    retDesc += descTmp.substring(tmpPos);
-   return retDesc.trim();
+   return putDescriptionInBox(retDesc.trim());
+}
+
+function putDescriptionInBox(descr) {
+   return htmlBlockCompiler("div",descr,'class="videoDescription"');
 }
 
 /*
@@ -1310,7 +1314,7 @@ function compileEntry(video) {
      releaseDate = "&#20844;&#38283;&#26085;: " + video.upload_date + '<br/><br/>' + breakline;
    }
 
-   let descTmp = editDescription(video.description,video.extractor_key) + '<br/><br/>' + breakline;
+   let descTmp = editDescription(video.description,video.extractor_key) + '<br/>' + breakline;
 
    let tagsTmp = htmlBlockCompiler("code",urlizeTags(videoTags(video.tags)));
 
