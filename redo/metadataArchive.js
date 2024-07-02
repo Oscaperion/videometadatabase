@@ -9,7 +9,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/";
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
 //const jsonLocation = "vidJson2/";
 
 /*
@@ -26,8 +26,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 2024129;
-const minMonth = 2006010;
+const maxMonth = 202412;
+const minMonth = 200601;
 //const minMonth = 201501;
 
 /*
@@ -42,8 +42,8 @@ const videosPerPage = 15;
      for actual visitors. So far this has been surprisingly effective, but if bots ever
      learn to take this into consideration a more robust measure need to be implemented.
 */
-const botCheckName = "rumour_be_out";
-const botCheckValue = "kyokubox_my_beloved";
+const botCheckName = "rumour_do_be";
+const botCheckValue = "chio_be_chompi";
 
 /*
    Changes the language for the site. Currently only supports English and Japanese.
@@ -1507,7 +1507,7 @@ function switchLister(pageN = 1, searchW = null, prev = null, changeLang = null)
    return retStr.join("&");
 }
 
-// pageLanguage
+// pageLanguage               
 function makeSearchBar(searchStr = "",previewing = false) {
    let boolTmp = false;
    if (previewing !== false && previewing.trim().toLowerCase() === "true") boolTmp = true;
@@ -1516,8 +1516,8 @@ function makeSearchBar(searchStr = "",previewing = false) {
    //console.log(searchStr);
    //console.log(boolTmp);
    
-   let searchStr_tmp = searchStr;
-   if (Array.isArray(searchStr)) searchStr_tmp = searchStr.join(' ');
+   // let searchStr_tmp = searchStr;
+   // if (Array.isArray(searchStr)) searchStr_tmp = searchStr.join(' ');
 
    let prevTxt1 = "Show video previews";
    if (!boolTmp && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;ON";
@@ -1550,7 +1550,7 @@ function makeSearchBar(searchStr = "",previewing = false) {
 
 ${searchText1}<br/><br/>
 <form action="results.html" method="GET">
-<input type="text" name="search" value="${searchStr_tmp.trim()}" />&nbsp;
+<input type="text" name="search" value="${searchStr}" />&nbsp;
 <input type="submit" value="${searchText2}" />&nbsp;&#124;
 <input type="checkbox" id="exactSearch" name="exactSearch" value="true"`
    if (exactWordSearch) retStr += ' checked="yes"';
@@ -1590,56 +1590,83 @@ function htmlStrIndex(querie) {
    return htmlBlockCompiler("div",htmlStrIndex);
 }
 
+function urlValueCheker(urlValue) {
+   if (urlValue === undefined) return "";
+   
+   let isArray = Array.isArray(urlValue);
+   
+   if (isArray) return urlValue[0].trim();
+   
+   return urlValue.trim();
+}
+
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 let srvr = http.createServer(function (req, res) {
 
    let quer = url.parse(req.url, true);
    pageLanguage = 'en';
-   if (quer.query.lang !== undefined && quer.query.lang.trim().toLowerCase() === 'jp') pageLanguage = 'jp';
+   // if (quer.query.lang !== undefined && quer.query.lang.trim().toLowerCase() === 'jp') pageLanguage = 'jp';
+   if (urlValueCheker(quer.query.lang).toLowerCase() === 'jp') pageLanguage = 'jp';
 
    let htmPage = '/YTPMV_Database';
-   let searchTmp = quer.query.search;
-   if (searchTmp === undefined) searchTmp = "";
-   if (Array.isArray(searchTmp)) searchTmp = searchTmp.join(' ');
-   let pageTmp = quer.query.page;
+   // let searchTmp = quer.query.search;
+   // if (searchTmp === undefined) searchTmp = "";
+   // if (Array.isArray(searchTmp)) searchTmp = searchTmp.join(' ');
+   
+   let searchTmp = urlValueCheker(quer.query.search);
+
+   let pageTmp = urlValueCheker(quer.query.page);
+   
+   // let ipAddr = req.connection.remoteAddress; // || req.socket.remoteAddress;
+   // console.log('IP: ' + ipAddr);
    console.log(quer.pathname);
    console.log(quer.query);
-   if (pageTmp === undefined || isNaN(pageTmp.trim())) pageTmp = 1;
-   else pageTmp = parseInt(pageTmp.trim());
+   // if (pageTmp === undefined || isNaN(pageTmp.trim())) pageTmp = 1;
+   // console.log('Page number: \'' + pageTmp + '\' (' + isNaN(pageTmp) + ')');
+   if (isNaN(pageTmp) || pageTmp === '') pageTmp = 1;
+   else pageTmp = parseInt(pageTmp);
 
  {
    let exactTmp = false;
-   if (quer.query.exactSearch !== undefined && quer.query.exactSearch === 'true') exactTmp = true;
+   // if (quer.query.exactSearch !== undefined && quer.query.exactSearch === 'true') exactTmp = true;
+   if (urlValueCheker(quer.query.exactSearch) === 'true') exactTmp = true;
    exactWordSearch = exactTmp;
  }
 
  {
    for (let s = 0; s < sitesList.length; s++) {
-      if (quer.query[sitesList[s].site] !== undefined && quer.query[sitesList[s].site].trim() === 'true') sitesList[s].isIgnored = true;
+      // if (quer.query[sitesList[s].site] !== undefined && quer.query[sitesList[s].site].trim() === 'true') sitesList[s].isIgnored = true;
+      if (urlValueCheker(quer.query[sitesList[s].site]) === 'true') sitesList[s].isIgnored = true;
       else sitesList[s].isIgnored = false;
    }
 
-   let uploaderTmp = quer.query.uploader_id;
-   if (uploaderTmp === undefined) {
+   let uploaderTmp = urlValueCheker(quer.query.uploader_id);
+   // if (uploaderTmp === undefined) {
+   if (uploaderTmp === '') {
       searchingUser = false;
    } else {
       /* In case any values for uploader_id has been passed on as an array, this will take the array and
          only use the first given uploader_id value as the search value.
       */
-      let uploaderTmp2 = uploaderTmp;
-      if (Array.isArray(uploaderTmp2)) uploaderTmp2 = uploaderTmp[0];
+      // let uploaderTmp2 = uploaderTmp;
+      // if (Array.isArray(uploaderTmp2)) uploaderTmp2 = uploaderTmp[0];
 
+      // searchingUser = true;
+      // searchedUser = uploaderTmp2.trim();
+      
       searchingUser = true;
-      searchedUser = uploaderTmp2.trim();
+      searchedUser = uploaderTmp;
    }
 
-   let previewTmp = quer.query.preview;
-   if (previewTmp === undefined || previewTmp.trim() !== 'true') showVidPrev = false;
+   let previewTmp = urlValueCheker(quer.query.preview);
+   // if (previewTmp === undefined || previewTmp.trim() !== 'true') showVidPrev = false;
+   if (previewTmp !== 'true') showVidPrev = false;
    else showVidPrev = true;
  }
 
    let doThis = true;                                                                                            // botCheckName
-   let botCheckTmp = (quer.query[botCheckName] !== undefined && quer.query[botCheckName] === botCheckValue);     // botCheckValue
+   // let botCheckTmp = (quer.query[botCheckName] !== undefined && quer.query[botCheckName] === botCheckValue);     // botCheckValue
+   let botCheckTmp = (urlValueCheker(quer.query[botCheckName]) === botCheckValue);                               // botCheckValue
 
    //console.log( quer.query);
                 /*
@@ -1739,7 +1766,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
 
       if (headTmo === '') headTmo = htmlHeadCompiler();
 
-      res.write(headTmo + makeSearchBar(quer.query.search,quer.query.preview) + linksTmp  + compileList() + linksTmp + '</body></html>');
+      res.write(headTmo + makeSearchBar(urlValueCheker(quer.query.search),quer.query.preview) + linksTmp  + compileList() + linksTmp + '</body></html>');
 
       res.end();
 
