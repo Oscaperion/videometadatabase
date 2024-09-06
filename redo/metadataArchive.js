@@ -1723,6 +1723,12 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.writeHead(200, {'Content-Type': 'text/html'});
 
       let queryValues = quer.query;
+      
+      let listTitle = urlValueCheker(queryValues.title);
+      
+      let prevTxt2 = "";
+
+      if (listTitle !== "") prevTxt2 = htmlBlockCompiler("h3",listTitle) + "<hr/>" + breakline;
 
       let changeLangStr = '&#26085;&#26412;&#35486;&#12395;&#20999;&#12426;&#26367;&#12360;&#12427;';
       if (pageLanguage === 'jp') changeLangStr = 'Change to English';
@@ -1730,7 +1736,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       if (queryValues["lang"] === 'jp') queryValues["lang"] = 'en';
       else queryValues["lang"] = 'jp';
       
-      let prevTxt2 = htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${key}=${value}`).join("&"), changeLangStr, false) + '&nbsp;&#124;' + breakline;
+      prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${key}=${value}`).join("&"), changeLangStr, false) + '&nbsp;&#124;' + breakline;
 
       let boolTmp = showVidPrev;
       
