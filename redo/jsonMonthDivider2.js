@@ -15,7 +15,7 @@ const folderLocation = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_part
 // The folder where the further divided files are saved to
 const folderLocationDest = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/vids';
 const yearMax = 202412;
-const yearMin = 200601;
+const yearMin = 200401;
 
 for (let i = yearMax; i >= yearMin; i--) {
    let jsonFile;
