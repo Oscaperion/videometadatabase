@@ -36,6 +36,12 @@ const minMonth = 200601;
 const videosPerPage = 15;
 
 /*
+   Determines how many entries are allowed to be stacked for the page intended for
+     individual videos. I try to prevent someone making crazy long playlists.
+*/
+const limitForVideoPage = 30;
+
+/*
    These are used as part of crude bot prevention measures. Any queries provided
      without these values (&*botCheckName*=*botCheckValue*) will be redirected to a
      placeholder page, which will provide instructions on how to carry on with the query
@@ -918,8 +924,9 @@ function videoLinkCompiler(id,site) {
    if (site === "Youtube")  return htmlLinkCompiler('https://www.youtube.com/watch?v=' + id);
    if (site === "Niconico") return htmlLinkCompiler('https://www.nicovideo.jp/watch/' + id);
    if (site === "BiliBili") {
-      if (id.length === 2) return htmlLinkCompiler('https://www.bilibili.com/video/' + id[0]) + ' / ' + htmlLinkCompiler('https://www.bilibili.com/video/' + id[1],id[1]);
-      else if (id.length === 1) return htmlLinkCompiler('https://www.bilibili.com/video/' + id[0]);
+      let userUrl = 'https://www.bilibili.com/video/' + id[0];
+      if (id.length === 2) return htmlLinkCompiler(userUrl + '/', userUrl) + ' / ' + htmlLinkCompiler('https://www.bilibili.com/video/' + id[1] + '/',id[1]);
+      else if (id.length === 1) return htmlLinkCompiler(userUrl + '/', userUrl);
    }
 }
 
@@ -1270,7 +1277,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
 */
 function compileEntry(video) {
    console.log(video.id);
-   
+
    let searchUploaderStr = '[Search uploader]';
    if (pageLanguage === 'jp') searchUploaderStr = '[&#25237;&#31295;&#32773;&#12434;&#26908;&#32034;]';
 
@@ -1297,6 +1304,14 @@ function compileEntry(video) {
       titleTmp = htmlBlockCompiler("b",video.title) + ' (' + formatDuration(video.duration) + ')<br/>' + breakline;
       if (video.webpage_url !== undefined) titleTmp += htmlBlockCompiler("code",htmlLinkCompiler(video.webpage_url));
       else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
+
+      let linkDescForVid = "[Video Metadata Page]";
+      let singleVideoUrl = "video.html?id=" + video.id + '&' + botCheckName + '=' + botCheckValue;
+      if (pageLanguage === "jp") {
+         linkDescForVid = "[&#21205;&#30011;&#12398;&#12513;&#12479;&#12487;&#12540;&#12479;]";
+         singleVideoUrl += "&lang=jp";
+      }
+      titleTmp += htmlBlockCompiler("code"," &#8212; " + htmlLinkCompiler(singleVideoUrl,linkDescForVid, false));
    }
 
    if (pageLanguage === "jp") {
@@ -1367,6 +1382,7 @@ function createVideoPreview(vidId,vidSite) {
     return '';
 }
 
+// CURRENTLY NOT IN USE!!
 // The player keeps autoplaying the videos, I'll try tweak this later
 function createVideoPreviewBilibili(vidId) {
     let embbee = '<iframe src="https://player.bilibili.com/player.html?aid=' + vidId + '&autoplay=false" width="640" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>';
@@ -1428,6 +1444,7 @@ function createVideoPreviewTwitter(vidId) {
     return embbee;
 }
 
+// Creates the metadata header and part of the top of the page
 function htmlHeadCompiler(htmlTitle = null) {
 
    let htmlStrHead1 = `<!DOCTYPE html>
@@ -1457,6 +1474,7 @@ ${getHeaderText()}
    return htmlStrHead1 + htmlBlockCompiler("title",titleStr) + breakline + '</head>' + htmlStrGead2;
 }
 
+// Creates a set of links based on the current page
 function createPageLinks() {
    let currentPage = htmlBlockCompiler('b',`&#139;${pageNumber}&#155;`);
    //console.log(pageNumber + " / " + pageTotal);
@@ -1616,7 +1634,7 @@ let srvr = http.createServer(function (req, res) {
    // let searchTmp = quer.query.search;
    // if (searchTmp === undefined) searchTmp = "";
    // if (Array.isArray(searchTmp)) searchTmp = searchTmp.join(' ');
-   
+
    let searchTmp = urlValueCheker(quer.query.search);
 
    let pageTmp = urlValueCheker(quer.query.page);
@@ -1672,24 +1690,6 @@ let srvr = http.createServer(function (req, res) {
    // let botCheckTmp = (quer.query[botCheckName] !== undefined && quer.query[botCheckName] === botCheckValue);     // botCheckValue
    let botCheckTmp = (urlValueCheker(quer.query[botCheckName]) === botCheckValue);                               // botCheckValue
 
-   //console.log( quer.query);
-                /*
-   if ((htmPage + '/video.html') === quer.pathname) {
-      res.writeHead(200, {'Content-Type': 'text/html'});
-      
-      let tmpId = quer.query.id;
-      
-      if (tmpId === undefined) {
-          
-      }
-
-      let tmpStr = htmlHeadCompiler();
-
-
-
-      doThis = false;
-   }          */
-
    if (!botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
       let excepTmp = htmlHeadCompiler("Search bot prevention");
@@ -1698,6 +1698,93 @@ let srvr = http.createServer(function (req, res) {
 This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${key}=${value}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
 
       res.write(excepTmp + '</body></html>');
+
+      res.end();
+
+      doThis = false;
+   }
+   
+   if (!botCheckTmp && (htmPage + '/video.html') === quer.pathname) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      let excepTmp = htmlHeadCompiler("Search bot prevention");
+      excepTmp += htmlBlockCompiler("div",`<b>Search bot prevention</b>
+<br/><br/>
+This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("video.html?" + Object.entries(quer.query).map(([key, value]) => `${key}=${value}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
+
+      res.write(excepTmp + '</body></html>');
+
+      res.end();
+
+      doThis = false;
+   }
+
+   // Individual entry page
+   if (botCheckTmp && (htmPage + '/video.html') === quer.pathname) {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+
+      let queryValues = quer.query;
+
+      let changeLangStr = '&#26085;&#26412;&#35486;&#12395;&#20999;&#12426;&#26367;&#12360;&#12427;';
+      if (pageLanguage === 'jp') changeLangStr = 'Change to English';
+      
+      if (queryValues["lang"] === 'jp') queryValues["lang"] = 'en';
+      else queryValues["lang"] = 'jp';
+      
+      let prevTxt2 = htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${key}=${value}`).join("&"), changeLangStr, false) + '&nbsp;&#124;' + breakline;
+
+      let boolTmp = showVidPrev;
+      
+      queryValues["lang"] = pageLanguage;
+
+      if (queryValues["preview"] !== undefined) queryValues["preview"] = '' + !boolTmp;
+      else queryValues["preview"] = 'true';
+      //Object.entries(quer.query).map(([key, value]) => `${key}=${value}`)
+
+      let prevTxt1 = "Show video previews";
+      if (!boolTmp && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;ON";
+      if (boolTmp  && pageLanguage === "en") prevTxt1 = "Hide video previews";
+      if (boolTmp  && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;OFF";
+      prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${key}=${value}`).join("&"), prevTxt1, false);
+
+      let vidId = quer.query.id;
+      if (vidId === undefined) vidId = '';
+      if (!Array.isArray(vidId) && vidId.includes(',')) vidId = vidId.split(',');
+      if (!Array.isArray(vidId)) vidId = [vidId.trim()];
+
+      let txtHtml = prevTxt2 + breakline + '<hr/>' + breakline;
+
+      if (vidId[0] === '') {
+         txtHtml = htmlBlockCompiler("code","No IDs given!");
+         if (pageLanguage === 'jp') txtHtml = htmlBlockCompiler("code","ID&#12364;&#25351;&#23450;&#12373;&#12428;&#12390;&#12356;&#12414;&#12379;&#12435;&#65281;");
+      }
+
+      else {
+
+         let maxAmount = limitForVideoPage;
+         if (vidId.length < maxAmount) maxAmount = vidId.length;
+
+         for (let i = 0; i < maxAmount; i++) {
+            let searchId = vidId[i].trim();
+
+            let matchingVid = parsedVideos.find(vid => vid.id === searchId);
+
+            if (matchingVid === undefined) {
+               let notif = "No video found with the ID '" + searchId + "'!";
+               if (pageLanguage === 'jp') notif = 'ID&#12302;' + searchId + '&#12303;&#12398;&#21205;&#30011;&#12364;&#35211;&#12388;&#12363;&#12426;&#12414;&#12379;&#12435;&#65281;'
+               txtHtml += htmlBlockCompiler("code",notif);
+            }
+
+            else txtHtml += compileEntry(matchingVid);
+
+            txtHtml += breakline + '<hr/>' + breakline;
+         }
+
+      }
+      
+      let headerForPage = "Showing video(s) with IDs: " + vidId.join(', ') ;
+      if (pageLanguage === 'jp') headerForPage = "ID&#12302;" + vidId.join(', ') + "&#12303;&#12398;&#21205;&#30011;&#12434;&#34920;&#31034;&#20013;"
+
+      res.write(htmlHeadCompiler(headerForPage) + txtHtml + '</body></html>');
 
       res.end();
 

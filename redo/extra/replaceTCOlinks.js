@@ -15,6 +15,7 @@ let feats_HSL;
 let requ_HSL = new XMLHttpRequest_node();
 requ_HSL.onreadystatechange = function() {
    console.log("Readystate = " + requ_HSL.readyState + ', Status = ' + requ_HSL.status);
+   console.log(requ_HSL.responseText);
    if (requ_HSL.readyState == 4 && (requ_HSL.status == 200 || requ_HSL.status == 301)){
       //alert(req.responseText);
       //rawdata_HSL = requ_HSL.responseText;
@@ -34,7 +35,7 @@ requ_HSL.onreadystatechange = function() {
 //for (j = 1; j <= 27; j++) {
 //for (j = 16; j >= 16; j--) {
 
-  let dirName = folderName + 55;
+  let dirName = folderName + 56;
   console.log('Luetaan kansiota ' + dirName);
   //joining path of directory
   let directoryPath = path.join(dirName);

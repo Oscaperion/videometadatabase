@@ -15,16 +15,19 @@ let videoList = '';
 
 let toBeSortedList = [];
 
-let changeHere = false;
+//let changeHere = false;
 
-let readTwitterVids = changeHere;
+let readTwitterVids = false;
+
 //let ignoreBilibiliPlaylists = changeHere;
 
 //for (j = 1; j <= 25; j++) {
-for (let j = 55; j >= 55; j--) {
+for (let j = 59; j >= 59; j--) {
 //for (let j = 0; j >= 0; j--) {
 
-//for (let j = 1; j <= 28; j++) {
+  if (j === 0) readTwitterVids = true;
+  else readTwitterVids = false;
+
   let dirName = folderName + j;
   console.log('Reading the folder: ' + dirName);
   //joining path of directory
