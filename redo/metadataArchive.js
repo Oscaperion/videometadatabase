@@ -9,7 +9,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/";
 //const jsonLocation = "vidJson2/";
 
 /*
@@ -26,8 +26,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202412;
-const minMonth = 200601;
+const maxMonth = 2024129;
+const minMonth = 2006010;
 //const minMonth = 201501;
 
 /*
@@ -513,6 +513,8 @@ function optimizeSearching(searchWord,exactSearch) {
 
        if (includeStr) tmp2.push(tmp1[k].toLowerCase());
     }
+    
+    console.log(tmp2);
 
     return tmp2.sort((a, b) => b.length - a.length);
 }
@@ -675,41 +677,73 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return undefined;
          if (!hasSearchWords(searchTmp,ent)) return undefined;
          return ind;
-      }).filter(ent => ent !== undefined);    
+      }).filter(ent => ent !== undefined);
       */
 
       let startTmp1 = 0;
       let startTmp2 = videosPerPage;
-
+                                               /*
       let pageTmp = reqPage;
       if (pageTmp < 1) pageTmp = 1;
       let endTmp1 = (pageTmp - 1) * videosPerPage;
       let endTmp2 = pageTmp * videosPerPage;
-      pageNumber = pageTmp;
-
+      // pageNumber = pageTmp;
+                                             */
       //console.log(itIsFirstPage);
       let foundVidAmount = 0;
-      let vidTmp1 = [];
+      // let vidTmp1 = [];
       let foundMore = false;
 
       // FOR OFFLINE BLACLISTING PURPOSES
       // amountBlack = {};
       // amountWhite = {};
      
-     {
-      let itIsFirstPage = (startTmp1 === endTmp1);
+
+      // let itIsFirstPage = (startTmp1 === endTmp1);
       let foundVidAmoun2 = 0;
       let alreadyEnough = false;
 
       //console.log(`Values : ${startTmp1} - ${startTmp2} > ${endTmp1} - ${endTmp2}`);
 
+      let vidTmp_ = parsedVideos.map((val, ind) => ind).filter(ind => {
+         {
+            let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === parsedVideos[ind].extractor_key);
+            if (tmp2 === -1) tmp2 = sitesList.length - 1;
+            if (sitesList[tmp2].isIgnored) return false;
+         }
+         if (searchUploaderToo && !isSameUser(searchUploaderId,parsedVideos[ind])) return false;
+         return hasSearchWords(searchTmp,parsedVideos[ind]);
 
-      let vidTmp_ = parsedVideos.filter((ent,ind) => {
-         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
-         if (tmp2 === -1) tmp2 = sitesList.length - 1;
-         if (sitesList[tmp2].isIgnored) return false;
+         // return true;
+
+      });
+
+      pageTotal = Math.ceil(vidTmp_.length / videosPerPage);
+      /*
+      console.log(vidTmp_);
+      console.log( vidTmp_.length / videosPerPage);
+      console.log(pageTotal);  */
+      let pageTmp = reqPage;
+      if (pageTmp > pageTotal || pageTmp < 1) pageTmp = 1;
+      pageNumber = pageTmp;
+
+      let startVidInd = (pageTmp - 1) * videosPerPage;
+      let endVidInd   = pageTmp * videosPerPage;
+      if (endVidInd > (pageTotal * videosPerPage)) endVidInd = vidTmp_.length;
+
+      // vidTmp_
+
+      foundVids = vidTmp_.slice(startVidInd,endVidInd);
+
+      /*
+      let vidTmp_ = parsedVideos.map((val, ind) => ind).filter(ind => {
+         {
+            let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === parsedVideos[ind].extractor_key);
+            if (tmp2 === -1) tmp2 = sitesList.length - 1;
+            if (sitesList[tmp2].isIgnored) return false;
+         }
          if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
-         if (!hasSearchWords(searchTmp,ent)) return false;
+         if (!hasSearchWords(searchTmp,parsedVideos[ind])) return false;
 
          //console.log(ind);
 
@@ -718,41 +752,33 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             foundVidAmount++;
             foundVidAmoun2++;
             if (itIsFirstPage && foundVidAmoun2 >= videosPerPage) alreadyEnough = true;
-            vidTmp1.push(ind);
-            return false;
+            // vidTmp1.push(ind);
+            return true;
          }
 
          if (!alreadyEnough && endTmp1 <= foundVidAmount && endTmp2 > foundVidAmount) {
             if (!foundMore) {
                foundMore = true;
-               vidTmp1 = [];
+               // vidTmp1 = [];
             }
             // console.log("lol2");
             foundVidAmount++;
             foundVidAmoun2++;
             if (foundVidAmoun2 >= (videosPerPage * 2)) alreadyEnough = true;
-            vidTmp1.push(ind);
-            return false;
+            // vidTmp1.push(ind);
+            return true;
          }
 
          foundVidAmount++;
          return false;
-      });
-     }
+      });     */
+
      
       // blaclListCheck();
       //console.log(vidTmp1);
 
       //let foundVidAmount = vidTmp1.length;
-      pageTotal = Math.ceil(foundVidAmount / videosPerPage);
 
-      if (!foundMore) {
-      //if (foundVidAmount <= videosPerPage) {
-         pageNumber = 1;
-         //itIsFirstPage = true;
-      }
-      
-      foundVids = vidTmp1;
 
       //if (foundVidAmount)
       /*
@@ -768,6 +794,23 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 // let amountWhite = {};
 
 function hasSearchWords(searchWord,video) {
+   if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
+   
+   return searchWord.every(srcWrd => { 
+         if ((video.id !== undefined && video.id.toLowerCase().includes(srcWrd)) ||
+             (video.title !== undefined && video.title !== null && video.title.toLowerCase().includes(srcWrd)) ||
+             (video.description !== undefined && video.description !== null && video.description.toLowerCase().includes(srcWrd)) ||
+             videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
+             (video.uploader !== undefined && video.uploader !== null && video.uploader.toLowerCase().includes(srcWrd)) ||
+             (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) ||
+             (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)) ||
+             (video.uploader_id !== undefined && video.uploader_id !== null && video.uploader_id.toLowerCase().includes(srcWrd)) ||
+             video.upload_date.toLowerCase().includes(srcWrd)
+             ) return true;
+
+         return false;
+      });
+
    /*
    if (video.uId !== undefined) {
       if (amountWhite[youtubeUserList[video.uId][0]] === undefined) amountWhite[youtubeUserList[video.uId][0]] = 0;
@@ -779,6 +822,7 @@ function hasSearchWords(searchWord,video) {
    }
    */
 
+   /*
 
    if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
 
@@ -793,7 +837,10 @@ function hasSearchWords(searchWord,video) {
    //if (video.uId !== undefined) tmpVid.push(...youtubeUserList[video.uId]);
 
    // USE THIS FOR NORMAL ONLINE USE
-   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) || (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
+   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) ||
+                                     videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
+                                     (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) || 
+                                     (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));  */
 
    // FOR OFFLINE BLACKLISTING PURPOSES
    /*
@@ -1078,8 +1125,8 @@ function editLink(linkTmp) {
       // Checking if there is a video with this ID
       let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
       if (matchingVid !== undefined) {
-         let linkStr = '"' + matchingVid.title + '" by ' + matchingVid.uploader;
-         if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#12398;&#12302;" + matchingVid.title + "&#12303;";
+         let linkStr = '&#12302;' + matchingVid.title + '&#12303;by ' + matchingVid.uploader;
+         if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
                 + htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",videoMetaStr),false) + " "
@@ -1115,21 +1162,24 @@ function editLink(linkTmp) {
       //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
       let extractedId = tmpLinkerino2;
       let linkStr = linkTmp;
+      let metadatStr = "";
       {
         let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
         if (matchingVid !== undefined) {
-           linkStr = '"' + matchingVid.title + '" by ' + matchingVid.uploader;
-           if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#12398;&#12302;" + matchingVid.title + "&#12303;";
+           linkStr = '&#12302;' + matchingVid.title + '&#12303;by ' + matchingVid.uploader;
+           if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
+           metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`,videoMetaStr);
         }
       }
 
       if (checkerCh !== '&' && checkerCh !== '?') {
       return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength), linkStr) + " "
+             + htmlBlockCompiler("code",metadatStr) + " "
              + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
       }
       //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
 
-      return htmlLinkCompiler(linkTmp, linkStr) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
+      return htmlLinkCompiler(linkTmp, linkStr) + " " + htmlBlockCompiler("code",metadatStr) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
       //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
 
       //htmlLinkCompiler('results.html?search=' +
