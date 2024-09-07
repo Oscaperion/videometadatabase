@@ -1023,8 +1023,15 @@ function editLink(linkTmp) {
 
    let youtubeIdLength = 11;
 
+   let langStr = "";
    let searchIdStr = "[Search ID]";
-   if (pageLanguage === 'jp') searchIdStr = "[ID&#12434;&#26908;&#32034;]";
+   let videoMetaStr = "[Video Metadata Page]";
+
+   if (pageLanguage === 'jp') {
+      langStr = "&lang=jp";
+      searchIdStr = "[ID&#12434;&#26908;&#32034;]";
+      videoMetaStr = "[&#21205;&#30011;&#12398;&#12513;&#12479;&#12487;&#12540;&#12479;]";
+   }
 
    let addSearchLinkYoutube = false;
    let addSearchLinkNiconico = false;
@@ -1066,10 +1073,21 @@ function editLink(linkTmp) {
       if (tmpLinkerino2.indexOf(".") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf(")") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf(".");
       if (tmpLinkerino4 === 0) tmpLinkerino4 = tmpLinkerino2.length;
 
-      // Checking if there is a video with this ID
-      
+      let extractedId = tmpLinkerino2.substring(0,tmpLinkerino4);
 
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2.substring(0,tmpLinkerino4)) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
+      // Checking if there is a video with this ID
+      let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
+      if (matchingVid !== undefined) {
+         let linkStr = '"' + matchingVid.title + '" by ' + matchingVid.uploader;
+         if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#12398;&#12302;" + matchingVid.title + "&#12303;";
+
+         return htmlLinkCompiler(linkTmp, linkStr) + " "
+                + htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",videoMetaStr),false) + " "
+                + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
+      }
+
+      return htmlLinkCompiler(linkTmp) + " "
+             + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
    }
 
    if (addSearchLinkYoutube) {
@@ -1095,11 +1113,23 @@ function editLink(linkTmp) {
       let linkTmp2 = linkTmp;
       //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
       //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
+      let extractedId = tmpLinkerino2;
+      let linkStr = linkTmp;
+      {
+        let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
+        if (matchingVid !== undefined) {
+           linkStr = '"' + matchingVid.title + '" by ' + matchingVid.uploader;
+           if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#12398;&#12302;" + matchingVid.title + "&#12303;";
+        }
+      }
 
-      if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      if (checkerCh !== '&' && checkerCh !== '?') {
+      return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength), linkStr) + " "
+             + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+      }
       //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
 
-      return htmlLinkCompiler(linkTmp) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
+      return htmlLinkCompiler(linkTmp, linkStr) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
       //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
 
       //htmlLinkCompiler('results.html?search=' +
