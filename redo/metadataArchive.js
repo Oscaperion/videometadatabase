@@ -712,7 +712,8 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             if (sitesList[tmp2].isIgnored) return false;
          }
          if (searchUploaderToo && !isSameUser(searchUploaderId,parsedVideos[ind])) return false;
-         return hasSearchWords(searchTmp,parsedVideos[ind]);
+         // return hasSearchWords(searchTmp,parsedVideos[ind]);
+         return hasSearchWords(searchTmp,ind);
 
          // return true;
 
@@ -793,18 +794,20 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 // let amountBlack = {};
 // let amountWhite = {};
 
-function hasSearchWords(searchWord,video) {
+function hasSearchWords(searchWord,videoInd) {
    if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
    
+   let video = parsedVideos[videoInd];
+
    return searchWord.every(srcWrd => { 
-         if ((video.id !== undefined && video.id.toLowerCase().includes(srcWrd)) ||
-             (video.title !== undefined && video.title !== null && video.title.toLowerCase().includes(srcWrd)) ||
-             (video.description !== undefined && video.description !== null && video.description.toLowerCase().includes(srcWrd)) ||
+         if ((video.id && video.id.toLowerCase().includes(srcWrd)) ||
+             (video.title && video.title.toLowerCase().includes(srcWrd)) ||
+             (video.description && video.description.toLowerCase().includes(srcWrd)) ||
              videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
-             (video.uploader !== undefined && video.uploader !== null && video.uploader.toLowerCase().includes(srcWrd)) ||
+             (video.uploader && video.uploader.toLowerCase().includes(srcWrd)) ||
              (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) ||
              (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)) ||
-             (video.uploader_id !== undefined && video.uploader_id !== null && video.uploader_id.toLowerCase().includes(srcWrd)) ||
+             (video.uploader_id && video.uploader_id.toLowerCase().includes(srcWrd)) ||
              video.upload_date.toLowerCase().includes(srcWrd)
              ) return true;
 
@@ -1786,7 +1789,7 @@ let srvr = http.createServer(function (req, res) {
       let excepTmp = htmlHeadCompiler("Search bot prevention");
       excepTmp += htmlBlockCompiler("div",`<b>Search bot prevention</b>
 <br/><br/>
-This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${key}=${value}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
+This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
 
       res.write(excepTmp + '</body></html>');
 
@@ -1800,7 +1803,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       let excepTmp = htmlHeadCompiler("Search bot prevention");
       excepTmp += htmlBlockCompiler("div",`<b>Search bot prevention</b>
 <br/><br/>
-This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("video.html?" + Object.entries(quer.query).map(([key, value]) => `${key}=${value}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
+This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("video.html?" + Object.entries(quer.query).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
 
       res.write(excepTmp + '</body></html>');
 
@@ -1827,7 +1830,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       if (queryValues["lang"] === 'jp') queryValues["lang"] = 'en';
       else queryValues["lang"] = 'jp';
       
-      prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${key}=${value}`).join("&"), changeLangStr, false) + '&nbsp;&#124;' + breakline;
+      prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&"), changeLangStr, false) + '&nbsp;&#124;' + breakline;
 
       let boolTmp = showVidPrev;
       
@@ -1841,7 +1844,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       if (!boolTmp && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;ON";
       if (boolTmp  && pageLanguage === "en") prevTxt1 = "Hide video previews";
       if (boolTmp  && pageLanguage === "jp") prevTxt1 = "&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;OFF";
-      prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${key}=${value}`).join("&"), prevTxt1, false);
+      prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&"), prevTxt1, false);
 
       let vidId = quer.query.id;
       if (vidId === undefined) vidId = '';
