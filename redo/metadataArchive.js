@@ -1702,6 +1702,17 @@ function urlValueCheker(urlValue) {
    return urlValue.trim();
 }
 
+function checkUserInputs(userStr) {
+    return userStr
+       .replace(/&/g, "&amp;")
+       .replace(/</g, "&lt;")
+       .replace(/>/g, "&gt;")
+       .replace(/{/g, "&lbrace;")
+       .replace(/}/g, "&rbrace;")
+       .replace(/"/g, "&quot;")
+       .replace(/'/g, "&#039;");
+}
+
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 let srvr = http.createServer(function (req, res) {
 
@@ -1783,7 +1794,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
 
       doThis = false;
    }
-   
+
    if (!botCheckTmp && (htmPage + '/video.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
       let excepTmp = htmlHeadCompiler("Search bot prevention");
@@ -1808,7 +1819,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       
       let prevTxt2 = "";
 
-      if (listTitle !== "") prevTxt2 = htmlBlockCompiler("h3",listTitle) + "<hr/>" + breakline;
+      if (listTitle !== "") prevTxt2 = htmlBlockCompiler("h3",checkUserInputs(listTitle)) + "<hr/>" + breakline;
 
       let changeLangStr = '&#26085;&#26412;&#35486;&#12395;&#20999;&#12426;&#26367;&#12360;&#12427;';
       if (pageLanguage === 'jp') changeLangStr = 'Change to English';
@@ -1855,8 +1866,8 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
             let matchingVid = parsedVideos.find(vid => vid.id === searchId);
 
             if (matchingVid === undefined) {
-               let notif = "No video found with the ID '" + searchId + "'!";
-               if (pageLanguage === 'jp') notif = 'ID&#12302;' + searchId + '&#12303;&#12398;&#21205;&#30011;&#12364;&#35211;&#12388;&#12363;&#12426;&#12414;&#12379;&#12435;&#65281;'
+               let notif = "No video found with the ID '" + checkUserInputs(searchId) + "'!";
+               if (pageLanguage === 'jp') notif = 'ID&#12302;' + checkUserInputs(searchId) + '&#12303;&#12398;&#21205;&#30011;&#12364;&#35211;&#12388;&#12363;&#12426;&#12414;&#12379;&#12435;&#65281;'
                txtHtml += htmlBlockCompiler("code",notif);
             }
 
@@ -1864,11 +1875,11 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
 
             txtHtml += breakline + '<hr/>' + breakline;
          }
-
+                                      
       }
       
-      let headerForPage = "Showing video(s) with IDs: " + vidId.join(', ') ;
-      if (pageLanguage === 'jp') headerForPage = "ID&#12302;" + vidId.join(', ') + "&#12303;&#12398;&#21205;&#30011;&#12434;&#34920;&#31034;&#20013;"
+      let headerForPage = "Showing video(s) with IDs: " + checkUserInputs(vidId.join(', ')) ;
+      if (pageLanguage === 'jp') headerForPage = "ID&#12302;" + checkUserInputs(vidId.join(', ')) + "&#12303;&#12398;&#21205;&#30011;&#12434;&#34920;&#31034;&#20013;"
 
       res.write(htmlHeadCompiler(headerForPage) + txtHtml + '</body></html>');
 
@@ -1918,8 +1929,8 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
             else headTmo += " from no site (Why would you exclude every site, you dumbass?)";
          }
          
-         headTmo = htmlHeadCompiler(headTmo + ` - &#12506;&#12540;&#12472;: ${pageNumber}/${pageTotal}`);
-
+         headTmo = htmlHeadCompiler(checkUserInputs(headTmo) + ` - &#12506;&#12540;&#12472;: ${pageNumber}/${pageTotal}`);
+                                          
         }
 
         else {
@@ -1937,7 +1948,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
             else headTmo += " from no site (Why would you exclude every site, you dumbass?)";
          }
 
-         headTmo = htmlHeadCompiler(headTmo + ` - Page: ${pageNumber}/${pageTotal}`);
+         headTmo = htmlHeadCompiler(checkUserInputs(headTmo) + ` - Page: ${pageNumber}/${pageTotal}`);
         }
       }
 
