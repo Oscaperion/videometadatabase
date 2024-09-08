@@ -279,7 +279,7 @@ let sitesList = [ {'site': 'Youtube',    'isIgnored':true},
                   {'site': 'Soundcloud', 'isIgnored':true},
                   {'site': 'VK',         'isIgnored':true},
                   {'site': 'Kakao',      'isIgnored':true}];
-                  //{'site': 'Others',     'isIgnored':false}];
+                //{'site': 'Others',     'isIgnored':false}];
 
 const otherSitePlaceholder = "Others";
 {
@@ -325,45 +325,6 @@ console.log('Loading metadata...');
       }
    }
 }
-         /*
-//async function readAndProcessFiles() {
-  for (let y = maxMonth; y >= minMonth; y--) {
-    const terappi = jsonLocation + 'vids' + y + '.json';
-    console.log('Loading ' + terappi);
-
-    try {
-      console.log('Zumi');
-      const readStream = fs.createReadStream(terappi, { encoding: 'utf8' });
-      let fileContent = '';
-
-      readStream.on('data', (chunk) => {
-        fileContent += chunk;
-      console.log('Dokumi');
-      });
-
-      readStream.on('end', () => {
-        const jsonData = JSON.parse(fileContent);
-        parsedVideos.push(...jsonData);
-
-        // Process parsedVideos here if needed
-
-        // Clear the content of parsedVideos after processing
-        parsedVideos.length = 0;
-
-        console.log('Loaded and processed!');
-        forceGC(); // Optional: To manually trigger garbage collection
-      });
-
-      readStream.on('error', (err) => {
-        console.log("Error reading file:", err);
-      });
-    } catch (e) {
-      console.log("Oh wait, that doesn't exist or there was an error:", e);
-    }
-  }   */
-//}
-
-//readAndProcessFiles();
 
 console.log('All metadata loaded!');
 console.log("Total number of entries: " + parsedVideos.length);
@@ -404,71 +365,8 @@ function formatDuration(justSeconds) {
         mins = mins - minute;
     }
 
-    /*
-    let retStr = hours + ':';
-
-    if (mins < 10) {
-        retStr = retStr + '0';
-    }
-
-    retStr = retStr + mins + ':';
-
-    if (secs < 10) {
-        retStr = retStr + '0';
-    }
-
-    retStr = retStr + secs;
-    */
-
     return hours + ':' + ("" + mins).padStart(2, '0') + ':' + ("" + secs).padStart(2, '0');
 }
-
-/*
-   Used to turn seconds into more sensible form.
-
-function formatDuration_old(justSeconds) {
-    let minute = 60;
-
-    let mins = 0;
-    let secs = Math.ceil(justSeconds);
-
-    while (secs >= minute) {
-        mins++;
-        secs = secs - minute;
-    }
-
-    if (secs < 10 && mins < 60) {
-        return mins + ':0' + secs;
-    }
-
-    if (mins < 60) {
-        return mins + ':' + secs;
-    }
-
-    let hours = 0;
-
-    while (mins >= minute) {
-        hours++;
-        mins = mins - minute;
-    }
-
-    let retStr = hours + ':';
-
-    if (mins < 10) {
-        retStr = retStr + '0';
-    }
-
-    retStr = retStr + mins + ':';
-
-    if (secs < 10) {
-        retStr = retStr + '0';
-    }
-
-    retStr = retStr + secs;
-
-    return retStr;
-}
-*/
 
 /*
    In case of separate search words, this optimizes them in two ways:
@@ -490,7 +388,7 @@ function optimizeSearching(searchWord,exactSearch) {
     }
 
     if (exactSearch) {
-       let ret = [searchWord_tmp.trim()];
+       let ret = [searchWord_tmp.trim().toLowerCase()];
        searchWords = ret;
        return ret;
     }
@@ -513,7 +411,7 @@ function optimizeSearching(searchWord,exactSearch) {
 
        if (includeStr) tmp2.push(tmp1[k].toLowerCase());
     }
-    
+
     console.log(tmp2);
 
     return tmp2.sort((a, b) => b.length - a.length);
@@ -523,34 +421,6 @@ function optimizeSearching(searchWord,exactSearch) {
 
 */
 function isSameUser(searchUserStr,videoInd) {
-   /*
-   let hasAltAccounts = checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId);
-   console.log(hasAltAccounts);
-
- if (hasAltAccounts) {
-   let checkingArray = true;
-   let checkingUser = video.uId;
-   if (checkingUser === undefined) {
-      checkingUser = video.uploader_id;
-      checkingArray = false;
-   } else {
-      checkingUser = youtubeUserList[video.uId];
-   }
-
-   if (!checkingArray) {
-      for (let i = 0; i < sameUserList.length; i++) {
-         if (Object.values(sameUserList[i]).includes(searchUserStr.trim())) return true;
-      }
-   } if (checkingArray) {
-      let userIds = youtubeUserList[youtubeUserList.findIndex(ent => ent.includes(searchUserStr.trim()))];
-
-      for (let j = 0; j < userIds.length; j++) {
-         for (let i = 0; i < sameUserList.length; i++) {
-            if (Object.values(sameUserList[i]).includes(userIds[j])) return true;
-         }
-      }
-   }
- }     */
    let video = parsedVideos[videoInd];
    let tmpStr = [searchUserStr.trim()];
 
@@ -602,30 +472,18 @@ function compileList() {
    }
 
    return retStr;
-
-  /*
-   let retStr = '<hr/>' + breakline;
-
-   let start_tmp = 0;
-   if (foundVids.length > 15 && pageNumber > 1) start_tmp = videosPerPage;
-
-   for (let i = start_tmp; i < foundVids.length; i++) {
-      retStr += compileEntry(foundVids[i]) + breakline + '<hr/>' + breakline;
-      //retStr += compileEntry(parsedVideos[foundVids[i]]) + breakline + '<hr/>' + breakline;
-   }
-
-   return retStr;  */
 }
 
 let searchedUploaderHasAlts = false;
 let uploadersAlts = [];
-
+                                            
 function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId = null) {
    searchedUploaderHasAlts = false;
    uploadersAlts = [];
   {
    let showAllVideos = false;
    foundVids = [];
+   console.log(exactSearch);
    let searchTmp = optimizeSearching(searchWord,exactSearch);
    //console.log(searchTmp);
    if (!searchTmp && !searchUploaderId && !ignoredSitesPresent()) showAllVideos = true;
@@ -715,9 +573,6 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
          if (searchUploaderToo && !isSameUser(searchUploaderId,ind)) return false;
          // return hasSearchWords(searchTmp,parsedVideos[ind]);
          return hasSearchWords(searchTmp,ind);
-
-         // return true;
-
       });
 
       pageTotal = Math.ceil(vidTmp_.length / videosPerPage);
@@ -736,56 +591,6 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       // vidTmp_
 
       foundVids = vidTmp_.slice(startVidInd,endVidInd);
-
-      /*
-      let vidTmp_ = parsedVideos.map((val, ind) => ind).filter(ind => {
-         {
-            let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === parsedVideos[ind].extractor_key);
-            if (tmp2 === -1) tmp2 = sitesList.length - 1;
-            if (sitesList[tmp2].isIgnored) return false;
-         }
-         if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return false;
-         if (!hasSearchWords(searchTmp,parsedVideos[ind])) return false;
-
-         //console.log(ind);
-
-         if (!alreadyEnough && startTmp1 <= foundVidAmount && startTmp2 > foundVidAmount) {
-            // console.log("lol");
-            foundVidAmount++;
-            foundVidAmoun2++;
-            if (itIsFirstPage && foundVidAmoun2 >= videosPerPage) alreadyEnough = true;
-            // vidTmp1.push(ind);
-            return true;
-         }
-
-         if (!alreadyEnough && endTmp1 <= foundVidAmount && endTmp2 > foundVidAmount) {
-            if (!foundMore) {
-               foundMore = true;
-               // vidTmp1 = [];
-            }
-            // console.log("lol2");
-            foundVidAmount++;
-            foundVidAmoun2++;
-            if (foundVidAmoun2 >= (videosPerPage * 2)) alreadyEnough = true;
-            // vidTmp1.push(ind);
-            return true;
-         }
-
-         foundVidAmount++;
-         return false;
-      });     */
-
-     
-      // blaclListCheck();
-      //console.log(vidTmp1);
-
-      //let foundVidAmount = vidTmp1.length;
-
-
-      //if (foundVidAmount)
-      /*
-      foundVids = vidTmp1.filter((ent,ind) => (ind >= ((pageNumber - 1) * videosPerPage) && ind < (pageNumber * videosPerPage)));
-      */
    }
   }
    forceGC();
@@ -816,53 +621,6 @@ function hasSearchWords(searchWord,videoInd) {
          return false;
       });
 
-   /*
-   if (video.uId !== undefined) {
-      if (amountWhite[youtubeUserList[video.uId][0]] === undefined) amountWhite[youtubeUserList[video.uId][0]] = 0;
-      amountWhite[youtubeUserList[video.uId][0]]++;
-   }
-   else {
-      if (amountWhite[video.uploader_id] === undefined) amountWhite[video.uploader_id] = 0;
-      amountWhite[video.uploader_id]++;
-   }
-   */
-
-   /*
-
-   if (searchWord === undefined || searchWord === null || searchWord.length === 0) return true;
-
-   let tmpVid = Object.values(video).filter((ent,ind) => {
-      let compTmp = Object.keys(video)[ind];
-      if (compTmp === "tags" || compTmp === "uId" || compTmp === "duration" || compTmp === "extractor_key" || compTmp === "webpage_url" || compTmp === "uploader_url") return false;
-      return true;
-   }).join(" ").toLowerCase();
-
-   //tmpVid.push(...videoTags(video.tags));
-
-   //if (video.uId !== undefined) tmpVid.push(...youtubeUserList[video.uId]);
-
-   // USE THIS FOR NORMAL ONLINE USE
-   return searchWord.every(srcWrd => tmpVid.includes(srcWrd) ||
-                                     videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
-                                     (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) || 
-                                     (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));  */
-
-   // FOR OFFLINE BLACKLISTING PURPOSES
-   /*
-   let retVal = searchWord.every(srcWrd => tmpVid.includes(srcWrd) || videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) || (video.uId !== undefined && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)));
-
-   if (retVal) {
-      if (video.uId !== undefined) {
-         if (amountBlack[youtubeUserList[video.uId][0]] === undefined) amountBlack[youtubeUserList[video.uId][0]] = 0;
-         amountBlack[youtubeUserList[video.uId][0]]++;
-      }
-      else {  
-         if (amountBlack[video.uploader_id] === undefined) amountBlack[video.uploader_id] = 0;
-         amountBlack[video.uploader_id]++;
-      }
-   }
-   */
-   
    return retVal;
 }
 
@@ -1260,18 +1018,6 @@ function idPresentInAltList(checkUploaderId) {
 }
 
 function idPlacementInAltList(checkUploaderId) {
-   /*
-   sameUserList.forEach(item => {
-      Object.values(item).forEach(value => {
-         if (Array.isArray(value)) {
-            //valueArr.push(...value);
-         } else {
-            if ()
-            //valueArr.push(value);
-         }
-      });
-   });    */
-   
    for (let i = 0; i < sameUserList.length; i++) {
        let tmop = Object.values(sameUserList[i]);
        if (tmop.includes(checkUploaderId.trim())) return i;
@@ -1473,12 +1219,12 @@ function createVideoPreview(vidId,vidSite) {
        tmpStr += `<code><b>NOTE:</b> Original upload deleted! The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
     }
 
-    if (tmpSite === 'Youtube') return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + breakline;
-    if (tmpSite === 'Niconico') return tmpStr  + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + breakline;
-    if (tmpSite === 'Twitter') return tmpStr  + createVideoPreviewTwitter(tmpId) + breakline;
-    if (tmpSite === 'Soundcloud') return tmpStr  + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + breakline;
-    if (tmpSite === 'Vimeo') return tmpStr  + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + breakline;
-    if (tmpSite === 'Kakao') return tmpStr  + createVideoPreviewKakao(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Youtube')     return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Niconico')    return tmpStr  + createVideoPreviewNiconico(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Twitter')     return tmpStr  + createVideoPreviewTwitter(tmpId) + breakline;
+    if (tmpSite === 'Soundcloud')  return tmpStr  + createAudioPreviewSoundcloud(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Vimeo')       return tmpStr  + createVideoPreviewVimeo(tmpId) + '<br/><br/>' + breakline;
+    if (tmpSite === 'Kakao')       return tmpStr  + createVideoPreviewKakao(tmpId) + '<br/><br/>' + breakline;
     if (tmpSite === 'Dailymotion') return tmpStr  + createVideoPreviewDailymotion(tmpId) + '<br/><br/>' + breakline;
     // Autoplays the video as of now, so I've decided to disable this until I figure out how to stop it from doing that
     // if (tmpSite === 'BiliBili') return tmpStr + createVideoPreviewBilibili(tmpId) + '<br/><br/>' + br;
@@ -1677,7 +1423,7 @@ ${searchText1}<br/><br/>
 <form action="results.html" method="GET">
 <input type="text" name="search" value="${searchStr}" />&nbsp;
 <input type="submit" value="${searchText2}" />&nbsp;&#124;
-<input type="checkbox" id="exactSearch" name="exactSearch" value="true"`
+<input type="checkbox" id="exactSearch" name="exactSearch" value="true"`;
    if (exactWordSearch) retStr += ' checked="yes"';
    retStr += `><label for="exactSearch">&nbsp;${searchText3}</label> &nbsp;&#124; ${prevTxt2}
 <input type="hidden" name="${botCheckName}" value="${botCheckValue}" />
