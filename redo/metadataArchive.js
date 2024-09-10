@@ -907,7 +907,8 @@ function editLink(linkTmp) {
       let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
       if (matchingVid) {
          let linkStr = '&#12302;' + matchingVid.title + '&#12303;by ' + matchingVid.uploader;
-         if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
+         let langStr = "";
+         if (pageLanguage === 'jp') linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
                 + htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",videoMetaStr),false) + " "
@@ -1172,7 +1173,7 @@ function compileEntry(videoInd) {
          singleVideoUrl += "&lang=jp";
       }
       singleVideoUrl += '&' + botCheckName + '=' + botCheckValue;
-      titleTmp += htmlBlockCompiler("code"," &#8212; " + htmlLinkCompiler(singleVideoUrl,linkDescForVid, false));
+      titleTmp += htmlBlockCompiler("code"," &#8887; " + htmlLinkCompiler(singleVideoUrl,linkDescForVid, false));
    }
 
    if (pageLanguage === "jp") {
@@ -1228,7 +1229,14 @@ function createVideoPreview(vidId,vidSite) {
 
        tmpId = tmp1.reup;
        tmpSite = tmp1.reup_site;
-       tmpStr += `<code><b>NOTE:</b> Original upload deleted! The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
+       if (pageLanguage === 'jp') tmpStr += "<code><b>&#27880;&#24847;:</b> " + 
+          htmlLinkCompiler('video.html?id=' + encodeURIComponent(tmpId) + `&lang=jp&${botCheckName}=${botCheckValue}`,tmpId) +
+          `(${tmpSite})&#12363;&#12425;&#12398;&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;&#12391;&#12377;&#12290;</code><br/><br/>`;
+       else tmpStr += // `<code><b>NOTE:</b> The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
+          "<code><b>NOTE:</b> The following video preview is from " +
+          htmlLinkCompiler('video.html?id=' + encodeURIComponent(tmpId) + `&${botCheckName}=${botCheckValue}`, tmpId) +
+          ` (${tmpSite})</code><br/><br/>`;
+
     }
 
     if (tmpSite === 'Youtube')     return tmpStr  + createVideoPreviewYoutube(tmpId) + '<br/><br/>' + breakline;
