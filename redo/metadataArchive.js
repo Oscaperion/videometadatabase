@@ -856,7 +856,7 @@ function editLink(linkTmp) {
    let videoMetaStr = "[Video Metadata Page]";
 
    if (pageLanguage === 'jp') {
-      langStr = "&lang=jp";
+      langStr = "&lang=jp";                       
       searchIdStr = "[ID&#12434;&#26908;&#32034;]";
       videoMetaStr = "[&#21205;&#30011;&#12398;&#12513;&#12479;&#12487;&#12540;&#12479;]";
    }
@@ -968,6 +968,13 @@ function editLink(linkTmp) {
    return htmlLinkCompiler(linkTmp);
 }
 
+// This is what ChatGPT suggested for conversion, testing it here
+function convertToHTMLEntities(str) {
+    return str.replace(/[\u00A0-\u9999]/g, function(i) {
+        return '&#'+i.charCodeAt(0)+';';
+    });
+}
+
 function editDescription(ogDesc,descExtr) {
    if (!ogDesc || ogDesc.trim().length === 0) return putDescriptionInBox(htmlBlockCompiler("code","[No description]"));
 
@@ -993,8 +1000,8 @@ function editDescription(ogDesc,descExtr) {
    return putDescriptionInBox(retDesc.trim());
 }
 
-function putDescriptionInBox(descr) {
-   return htmlBlockCompiler("div",descr,'class="videoDescription"');
+function putDescriptionInBox(descr) {          
+   return htmlBlockCompiler("div",convertToHTMLEntities(descr),'class="videoDescription"');
 }
 
 /*
@@ -1140,28 +1147,31 @@ function compileEntry(videoInd) {
          if (video.extractor_key === "Youtube") {
              // tmpConsole = video;
              //if (video.uId === undefined) console.log(video);
-             userAddress = userLinkCompiler(video.uploader,video.uId,video.extractor_key);
+             userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),video.uId,video.extractor_key);
          }
-         if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(video.uploader,niconicoUserList[video.uId],video.extractor_key);
+         if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),niconicoUserList[video.uId],video.extractor_key);
       }
-      else { 
+      else {
          // console.log(video);
-         userAddress = userLinkCompiler(video.uploader,video.uploader_id,video.extractor_key);
+         userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),video.uploader_id,video.extractor_key);
       }
    }
 
    let titleTmp = videoLinkCompiler(video.id, video.extractor_key) + ' (' + formatDuration(video.duration) + ')';
    if (video.extractor_key !== "Twitter") {
-      titleTmp = htmlBlockCompiler("b",video.title) + ' (' + formatDuration(video.duration) + ')<br/>' + breakline;
+      titleTmp = htmlBlockCompiler("b",convertToHTMLEntities(video.title)) + ' (' + formatDuration(video.duration) + ')<br/>' + breakline;
       if (video.webpage_url) titleTmp += htmlBlockCompiler("code",htmlLinkCompiler(video.webpage_url));
       else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
 
       let linkDescForVid = "[Video Metadata Page]";
-      let singleVideoUrl = "video.html?id=" + video.id + '&' + botCheckName + '=' + botCheckValue;
+      let singleVideoUrl = "video.html?id=";
+      if (Array.isArray(video.id)) singleVideoUrl += video.id[0];
+      else singleVideoUrl += video.id;
       if (pageLanguage === "jp") {
          linkDescForVid = "[&#21205;&#30011;&#12398;&#12513;&#12479;&#12487;&#12540;&#12479;]";
          singleVideoUrl += "&lang=jp";
       }
+      singleVideoUrl += '&' + botCheckName + '=' + botCheckValue;
       titleTmp += htmlBlockCompiler("code"," &#8212; " + htmlLinkCompiler(singleVideoUrl,linkDescForVid, false));
    }
 
@@ -1197,7 +1207,7 @@ function urlizeTags(tagsArray) {
 
    if (tagsArray.length > 0) {
       for (let p = 0; p < tagsArray.length; p++) {
-         strRet += " " + htmlLinkCompiler("results.html?" + switchLister(1,tagsArray[p]),tagsArray[p],false);
+         strRet += " " + htmlLinkCompiler("results.html?" + switchLister(1,tagsArray[p]),convertToHTMLEntities(tagsArray[p]),false);
       }
    } else strRet += " &#60;NONE&#62;";
 
@@ -1590,19 +1600,20 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       
       let prevTxt2 = "";
 
-      if (listTitle !== "") prevTxt2 = htmlBlockCompiler("h3",checkUserInputs(listTitle)) + "<hr/>" + breakline;
+      if (listTitle !== "") prevTxt2 = htmlBlockCompiler("h3",convertToHTMLEntities(checkUserInputs(listTitle))) + "<hr/>" + breakline;
 
       let changeLangStr = '&#26085;&#26412;&#35486;&#12395;&#20999;&#12426;&#26367;&#12360;&#12427;';
       if (pageLanguage === 'jp') changeLangStr = 'Change to English';
       
-      if (queryValues["lang"] === 'jp') queryValues["lang"] = 'en';
+      if (queryValues["lang"] === 'jp') delete queryValues["lang"]; // queryValues["lang"] = 'en';
       else queryValues["lang"] = 'jp';
       
       prevTxt2 += htmlLinkCompiler("video.html?" + Object.entries(queryValues).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&"), changeLangStr, false) + '&nbsp;&#124;' + breakline;
 
       let boolTmp = showVidPrev;
-      
+
       queryValues["lang"] = pageLanguage;
+      if (queryValues["lang"] === 'en') delete queryValues["lang"];
 
       if (queryValues["preview"]) queryValues["preview"] = '' + !boolTmp;
       else queryValues["preview"] = 'true';
@@ -1634,7 +1645,9 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
          for (let i = 0; i < maxAmount; i++) {
             let searchId = vidId[i].trim();
 
-            let matchingVid = parsedVideos.findIndex(vid => vid.id === searchId);
+            let matchingVid = parsedVideos.findIndex(vid => vid.id === searchId  ||
+                                                           // This is for video IDs that are saved as arrays. Usually the case with BiliBili videos
+                                                           (Array.isArray(vid.id) && vid.id.includes(searchId)));
 
             if (matchingVid === -1) {
                let notif = "No video found with the ID '" + checkUserInputs(searchId) + "'!";
