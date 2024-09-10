@@ -9,7 +9,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/";
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
 //const jsonLocation = "vidJson2/";
 
 /*
@@ -26,8 +26,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 2024129;
-const minMonth = 2006010;
+const maxMonth = 202412;
+const minMonth = 200601;
 //const minMonth = 201501;
 
 /*
@@ -483,7 +483,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
   {
    let showAllVideos = false;
    foundVids = [];
-   console.log(exactSearch);
+   // console.log(exactSearch);
    let searchTmp = optimizeSearching(searchWord,exactSearch);
    //console.log(searchTmp);
    if (!searchTmp && !searchUploaderId && !ignoredSitesPresent()) showAllVideos = true;
@@ -606,7 +606,9 @@ function hasSearchWords(searchWord,videoInd) {
    let video = parsedVideos[videoInd];
 
    return searchWord.every(srcWrd => { 
-         if ((video.id && video.id.toLowerCase().includes(srcWrd)) ||
+         // console.log(video.id);
+         if ((video.id && !Array.isArray(video.id) && video.id.toLowerCase().includes(srcWrd)) ||
+             (video.id && Array.isArray(video.id)  && video.id.join(" ").toLowerCase().includes(srcWrd)) ||
              (video.title && video.title.toLowerCase().includes(srcWrd)) ||
              (video.description && video.description.toLowerCase().includes(srcWrd)) ||
              // videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
