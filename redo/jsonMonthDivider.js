@@ -450,9 +450,10 @@ function entryEditor(entryVid,targetMonth) {
        let tmpTagss = [];
 
        if (tmpVid.extractor_key === "Niconico") {
-          let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
-          if (tmpTags === undefined) tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
-          if (tmpTags !== undefined) {
+          if (!tmpVid.tags) {
+            let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
+            if (tmpTags === undefined) tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
+            if (tmpTags !== undefined) {
                let checkingTags = tmpTags.tags;
 
                let checkke = [["&#x27;","'"],["&amp;","&"],["_"," "]];
@@ -472,16 +473,21 @@ function entryEditor(entryVid,targetMonth) {
                if (checkingTags.length > 0) checkingTags = optimizeTags(checkingTags);
 
                tmpTagss = checkingTags;
-          }
+            }
+          } 
           
+          if (tmpVid.tags && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
+
           // If the uploader ID is present in the external list of IDs, this'll add the ID matching that list
           if (niconicoUserList.includes(tmpVid.uploader_id)) {
              tmpVid["uId"] = niconicoUserList.indexOf(tmpVid.uploader_id);
              delete tmpVid["uploader_id"];
           }
        }
-       if (tmpVid.extractor_key !== "Niconico") {
-          if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
+       else {
+       // if (tmpVid.extractor_key !== "Niconico") {
+          if (tmpVid.tags && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
+          // if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
        }
 
        tmpVid["tags"] = tmpTagss;
