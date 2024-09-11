@@ -604,26 +604,38 @@ function hasSearchWords(searchWord,videoInd) {
    if (!searchWord) return true;
 
    let video = parsedVideos[videoInd];
+   let tagsTmp = videoTags(videoInd).join(" ").toLowerCase();
+   let uploaderIdTmp = "";
+   
+   {
+      if (video.uId !== undefined) {
+         if (video.extractor_key === "Niconico") uploaderIdTmp = niconicoUserList[video.uId];
+         if (video.extractor_key === "Youtube") uploaderIdTmp = youtubeUserList[video.uId].join(" ").toLowerCase();
+      }
+      else if (video.uploader_id) uploaderIdTmp = video.uploader_id.toLowerCase();
+   }
 
-   return searchWord.every(srcWrd => { 
+   return searchWord.every(srcWrd => {
          // console.log(video.id);
          if ((video.id && !Array.isArray(video.id) && video.id.toLowerCase().includes(srcWrd)) ||
              (video.id && Array.isArray(video.id)  && video.id.join(" ").toLowerCase().includes(srcWrd)) ||
              (video.title && video.title.toLowerCase().includes(srcWrd)) ||
              (video.description && video.description.toLowerCase().includes(srcWrd)) ||
              // videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
-             videoTags(videoInd).join(" ").toLowerCase().includes(srcWrd) ||
+             // videoTags(videoInd).join(" ").toLowerCase().includes(srcWrd) ||
+             tagsTmp.includes(srcWrd) ||
              (video.uploader && video.uploader.toLowerCase().includes(srcWrd)) ||
+             /*
              (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) ||
              (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)) ||
              (video.uploader_id && video.uploader_id.toLowerCase().includes(srcWrd)) ||
+             */
+             uploaderIdTmp.includes(srcWrd) ||
              video.upload_date.toLowerCase().includes(srcWrd)
              ) return true;
 
          return false;
       });
-
-   return retVal;
 }
 
 /*
@@ -907,7 +919,6 @@ function editLink(linkTmp) {
       let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
       if (matchingVid) {
          let linkStr = '&#12302;' + matchingVid.title + '&#12303;by ' + matchingVid.uploader;
-         let langStr = "";
          if (pageLanguage === 'jp') linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
@@ -971,6 +982,8 @@ function editLink(linkTmp) {
 
 // This is what ChatGPT suggested for conversion, testing it here
 function convertToHTMLEntities(str) {
+    if (!str) return str;
+
     return str.replace(/[\u00A0-\u9999]/g, function(i) {
         return '&#'+i.charCodeAt(0)+';';
     });
