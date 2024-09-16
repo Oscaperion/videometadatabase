@@ -450,7 +450,10 @@ function entryEditor(entryVid,targetMonth) {
        let tmpTagss = [];
 
        if (tmpVid.extractor_key === "Niconico") {
-          if (!tmpVid.tags) {
+          if (!tmpVid.tags || tmpVid.tags.length === 0) {
+            
+            // console.log("Testoriinoni");
+
             let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
             if (tmpTags === undefined) tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
             if (tmpTags !== undefined) {

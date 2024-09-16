@@ -17,6 +17,9 @@ const folderLocationDest = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_
 const yearMax = 202412;
 const yearMin = 200401;
 
+//const yearMax = 201412;
+//const yearMin = 201412;
+
 for (let i = yearMax; i >= yearMin; i--) {
    let jsonFile;
 
@@ -26,10 +29,10 @@ for (let i = yearMax; i >= yearMin; i--) {
       continue;
    }
 
-   for (let j = 6; j > 0; j--) {
-      let maxDate = j * 5;
-      if (j === 6) maxDate++;
-      let minDate = ((j - 1) * 5) + 1;
+   for (let j = 8; j > 0; j--) {
+      let maxDate = j * 4;
+      if (j === 8) maxDate++;
+      let minDate = ((j - 1) * 4) + 1;
 
       maxDate = i + maxDate.toString().padStart(2, '0');
       minDate = i + minDate.toString().padStart(2, '0');

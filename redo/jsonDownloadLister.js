@@ -45,6 +45,8 @@ for (tu = 59; tu >= 0; tu--) {
 
        if (parsedVideos.videos[i].extractor_key === "BiliBili" && Array.isArray(parsedVideos.videos[i].id)) tmpId = parsedVideos.videos[i].id[0];
 
+       // console.log(tu + " ----- " + tmpId + " ----- " + parsedVideos.videos[i].extractor_key);
+
        let vidoId = parsedVideos.videos[i].extractor_key.toLowerCase() + ' ' + tmpId;
 
        rString += vidoId + '\n';

@@ -41,6 +41,8 @@ let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive 
 
 let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 
+console.log(replll.find(ent => ent.id === "sm44100685").tags);
+
 let orttt = 0;
 
 while (orttt < vids.videos.length) {
