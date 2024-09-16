@@ -83,7 +83,14 @@ for (let j = 59; j >= 59; j--) {
               let testRun = true;
               let idsFound = false;
 
-              if (parsedJSON._old_archive_ids !== undefined) {
+              if (Array.isArray(parsedJSON.id)) {
+                 idTmp = parsedJSON.id;
+
+                 testRun = false;
+                 idsFound = true;
+              }
+
+              if (!idsFound && parsedJSON._old_archive_ids !== undefined) {
                  idTmp = [];
 
                  let tmp1 = parsedJSON._old_archive_ids[0].substring(8).trim();

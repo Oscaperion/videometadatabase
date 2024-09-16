@@ -1,5 +1,5 @@
 const fs = require('fs');
-const readline = require('readline');
+//const readline = require('readline');
 const url = require('url');
 const http = require('http');
 const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -985,7 +985,7 @@ function convertToHTMLEntities(str) {
     if (!str) return str;
 
     return str.replace(/[\u00A0-\u9999]/g, function(i) {
-        return '&#'+i.charCodeAt(0)+';';
+       return '&#'+i.charCodeAt(0)+';';
     });
 }
 
