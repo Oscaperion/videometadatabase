@@ -15,6 +15,9 @@ let videoList = '';
 
 let toBeSortedList = [];
 
+// For finding bugged Niconico entries
+let buggedNiconico = [];
+
 //let changeHere = false;
 
 let readTwitterVids = false;
@@ -22,7 +25,8 @@ let readTwitterVids = false;
 //let ignoreBilibiliPlaylists = changeHere;
 
 //for (j = 1; j <= 25; j++) {
-for (let j = 59; j >= 59; j--) {
+//for (let j = 12; j >= 12; j--) {
+for (let j = 50; j >= 1; j--) {
 //for (let j = 0; j >= 0; j--) {
 
   if (j === 0) readTwitterVids = true;
@@ -306,6 +310,7 @@ for (let j = 59; j >= 59; j--) {
         
         if (newVideoInfo.extractor_key === "Niconico" && newVideoInfo.upload_date === undefined) {
            console.log("Niconico with undefined release date: not adding");
+	   buggedNiconico.push(newVideoInfo.id);
            return;
            //willBeAdded = false;
         }
@@ -423,6 +428,9 @@ for (let j = 59; j >= 59; j--) {
 
     fs.writeFileSync(nimii, JSON.stringify({videos: toBeSortedList}));
     //fs.writeFileSync('videoita.json', JSON.stringify({videos: sortedList}));
+
+    fs.writeFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids' + j + '.json', JSON.stringify({ids: buggedNiconico}));
+
     console.log("Saved");
     toBeSortedList = [];
     }
