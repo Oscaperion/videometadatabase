@@ -7,8 +7,6 @@ This script takes the JSON files from a folder and then compiles them into a sin
 //requiring path and fs modules
 let path = require('path');
 let fs = require('fs');
-const url = require('url');
-const http = require('http');
 
 const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
 let videoList = '';
@@ -181,7 +179,7 @@ for (let j = 61; j >= 61; j--) {
                  if (tmpStr.includes("_")) {
                     tmpStr = parsedJSON.webpage_url_basename.substring(0, parsedJSON.webpage_url_basename.indexOf("_"));
                  }
-                 
+
                  if (tmpStr.substring(0,2) === 'bv') {
                     tmpStr = "BV" + tmpStr.substring(2);
                  }
