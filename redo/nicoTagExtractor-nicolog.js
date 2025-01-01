@@ -30,7 +30,7 @@ requ_HSL.onreadystatechange = function() {
       codeTmp = requ_HSL.status;
    } else {
       console.log("Not fetched");
-      feats_HSL = ' ';
+      feats_HSL = undefined;
    }
 };
 
@@ -92,6 +92,11 @@ function checkVideo(videoId) {
    console.log(webString);
    requ_HSL.open("GET", webString, false);
    requ_HSL.send(null);
+   
+   if (feats_HSL === undefined) {
+      console.log("Nothing to add");
+      return;
+   }
 
    let tmp1 = feats_HSL.indexOf(keyword1);
    feats_HSL = feats_HSL.substring(tmp1);
