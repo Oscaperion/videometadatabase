@@ -918,7 +918,7 @@ function editLink(linkTmp) {
       // Checking if there is a video with this ID
       let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
       if (matchingVid) {
-         let linkStr = '&#12302;' + matchingVid.title + '&#12303;by ' + matchingVid.uploader;
+         let linkStr = '&#34;' + matchingVid.title + '&#34; by ' + matchingVid.uploader;
          if (pageLanguage === 'jp') linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
@@ -959,7 +959,7 @@ function editLink(linkTmp) {
       {
         let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
         if (matchingVid) {
-           linkStr = '&#12302;' + matchingVid.title + '&#12303;by ' + matchingVid.uploader;
+           linkStr = '&#34;' + matchingVid.title + '&#34; by ' + matchingVid.uploader;
            if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
            metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`,videoMetaStr);
         }
@@ -1671,7 +1671,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
                                                            (Array.isArray(vid.id) && vid.id.includes(searchId)));
 
             if (matchingVid === -1) {
-               let notif = "No video found with the ID '" + checkUserInputs(searchId) + "'!";
+               let notif = "No video found with the ID &#34;" + checkUserInputs(searchId) + "&#34;!";
                if (pageLanguage === 'jp') notif = 'ID&#12302;' + checkUserInputs(searchId) + '&#12303;&#12398;&#21205;&#30011;&#12364;&#35211;&#12388;&#12363;&#12426;&#12414;&#12379;&#12435;&#65281;'
                txtHtml += htmlBlockCompiler("code",notif);
             }

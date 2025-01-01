@@ -26,6 +26,7 @@ requ_HSL.onreadystatechange = function() {
    } else {
       console.log("Not fetched");
       feats_HSL = ' ';
+      codeTmp = requ_HSL.status;
    }
 };
 
@@ -36,7 +37,7 @@ const search2 = '</div>';
 
 let foundTags;
 
-let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids59.json', 'utf8'));
+let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids61.json', 'utf8'));
 //var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202206.json', 'utf8')) };
 
 let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
@@ -117,7 +118,7 @@ function checkVideo(videoId) {
 
       //findJsonLink(webString, readLine);
    }
-   
+
    teee['tags'] = foundTags;
    //console.log(teee);
 

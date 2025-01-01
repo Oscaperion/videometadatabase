@@ -31,9 +31,9 @@ function handleLine(readLine) {
   // https://web.archive.org/web/20150000000000/https://www.youtube.com/watch?v=
   // https://web.archive.org/web/20240000000000/https://www.youtube.com/watch?v=
   
-  // fs.appendFileSync('wayb.txt', 'https://web.archive.org/web/20060000000000/http://www.youtube.com/watch?v=' + readLine + '\n');
-  fs.appendFileSync('wayb77.txt', 'https://web.archive.org/web/20150000000000/https://www.youtube.com/watch?v=' + readLine + '\n');
-  // fs.appendFileSync('wayb.txt', 'https://web.archive.org/web/20240000000000/https://www.youtube.com/watch?v=' + readLine + '\n');
+  //  fs.appendFileSync('wayb.txt', 'https://web.archive.org/web/20060000000000/http://www.youtube.com/watch?v=' + readLine + '\n');
+  fs.appendFileSync('waybdsda.txt', 'https://web.archive.org/web/20060000000000/https://www.youtube.com/watch?v=' + readLine + '\n');
+  //  fs.appendFileSync('wayb.txt', 'https://web.archive.org/web/20240000000000/https://www.youtube.com/watch?v=' + readLine + '\n');
   console.log("Added " + readLine + "!");
 }
 

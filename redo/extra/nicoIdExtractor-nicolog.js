@@ -34,8 +34,8 @@ teee['id'] = [];
 //checkVideo("nm7328662");
 
 //let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
-let pages = ["https://www.nicolog.jp/user/21833555?page=2",
-             "https://www.nicolog.jp/user/21833555?page=1"
+let pages = ["https://www.nicolog.jp/user/130573352",
+             "https://www.nicolog.jp/user/130573352?page=2"
              ];
 
 for (let i = 0; i < pages.length; i++) {
@@ -62,9 +62,9 @@ function checkPage(pageUrl) {
 
       console.log(extractedId);
       teee['id'].push(extractedId);
-      
+
       idIndex = feats_HSL.indexOf(checkStr);
    }
 }
 
-fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-stein.json', JSON.stringify(teee));
+fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-kon.json', JSON.stringify(teee));

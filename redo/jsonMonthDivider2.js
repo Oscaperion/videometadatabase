@@ -14,11 +14,11 @@ let fs = require('fs');
 const folderLocation = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids';
 // The folder where the further divided files are saved to
 const folderLocationDest = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/vids';
-const yearMax = 202412;
+const yearMax = 202512;
 const yearMin = 200401;
 
-//const yearMax = 201412;
-//const yearMin = 201412;
+// const yearMax = 202012;
+// const yearMin = 202012;
 
 for (let i = yearMax; i >= yearMin; i--) {
    let jsonFile;
@@ -28,18 +28,28 @@ for (let i = yearMax; i >= yearMin; i--) {
    } catch (error) {
       continue;
    }
+   
+   let splitNumber = 5;
+   let maxVal = Math.ceil(31 / splitNumber);
+   
+   for (let j = maxVal; j > 0; j--) {
+      let maxDate = j * splitNumber;
+      if (j === maxVal) maxDate++;
+      let minDate = ((j - 1) * splitNumber) + 1;
 
+   /*
    for (let j = 8; j > 0; j--) {
       let maxDate = j * 4;
       if (j === 8) maxDate++;
-      let minDate = ((j - 1) * 4) + 1;
+      let minDate = ((j - 1) * 4) + 1;  */
 
       maxDate = i + maxDate.toString().padStart(2, '0');
       minDate = i + minDate.toString().padStart(2, '0');
 
       let filteredJson = jsonFile.filter(ent => (ent.upload_date >= minDate) && (ent.upload_date <= maxDate)
       // TEMPORARY! This makes the script ignore BiliBili videos. Those videos remain in the original JSON files
-        && (ent.extractor_key !== "BiliBili"));
+         && (ent.extractor_key !== "BiliBili")
+        );
       
       if (filteredJson.length > 0) fs.writeFileSync(folderLocationDest + i + j + '.json', JSON.stringify(filteredJson));
       console.log('Saved ' + folderLocationDest + i + j);

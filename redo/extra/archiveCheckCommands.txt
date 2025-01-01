@@ -2,5 +2,5 @@
 
 cd ..
 Get-Content .\big-chungus2.txt | Set-Content -Encoding utf8 big-chungus-utf8.txt
-node F:\Dropbox\NodeJS\git_folder\videometadata\videometadatabase\redo\extra\readCommandFeed-nicovideo.js
+node F:\Dropbox\NodeJS\git_folder\videometadata\videometadatabase\redo\extra\readCommandFeed.js
 node F:\Dropbox\NodeJS\git_folder\videometadata\videometadatabase\redo\extra\checkArchiveForVideos.js
