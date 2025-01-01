@@ -22,6 +22,7 @@ fs.readdirSync(directoryPath).forEach(function (file) {
         let userIdNum  = parsedVideo.channel_id;
 
         let matchedNumId = userList.findIndex(item => (item.id === userIdNum));
+        console.log();
 
         if (matchedNumId > -1) {
            let alreadyPresent = userList[matchedNumId].handle.includes(userIdText);
@@ -35,16 +36,16 @@ fs.readdirSync(directoryPath).forEach(function (file) {
 
               userList[matchedNumId] = tmpVal;
            }
+        } else {
+           let newVal = { };
+           newVal["id"] = userIdNum;
+           newVal["handle"] = [userIdText];
+
+           console.log("Adding a new user ID! -- " + userIdText + " (" + userIdNum + ")");
+           changed = true;
+
+           userList.push(newVal);
         }
-
-        let newVal = { };
-        newVal["id"] = userIdNum;
-        newVal["handle"] = [userIdText];
-
-        console.log("Adding a new user ID! -- " + userIdText + " (" + userIdNum + ")");
-        changed = true;
-
-        userList.push(newVal);
      }
   }
 });
