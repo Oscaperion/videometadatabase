@@ -4,13 +4,14 @@ var fs = require('fs');
 const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
 let userList =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', 'utf8'));
 
-let dirName = folderName + 61;
-console.log('Luetaan kansiota ' + dirName);
+let dirName = folderName + 53;
+console.log('Reading folder ' + dirName);
 let directoryPath = path.join(dirName);
 let changed = false;
 
 fs.readdirSync(directoryPath).forEach(function (file) {
-  if (file.localeCompare('desktop.ini') != 0) {
+                                               // This will check, if video's title only had numbers.
+  if (file.localeCompare('desktop.ini') != 0 && (/^\d+$/.test(file.split('.')[0]))) {
      let filePath = dirName + '\\' + file;
      let parsedVideo = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
