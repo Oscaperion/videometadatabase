@@ -773,9 +773,11 @@ function videoLinkCompiler(id,site) {
 // These will recognize Niconico ID and mylist/ values in descriptions.
 const smIdRegex = /(sm\d+)/g; // /(^sm\d+)|(?!.*\/)sm\d+/g;
 const mylistRegex = /(mylist\/\d+)/g; // /(^mylist\/\d+)|(?!.*\/)mylist\/\d+/g;
+const smIdRegexNeg = /([=\/]sm\d+)/g;
+const mylistRegexNeg = /([=\/]mylist\/\d+)/g;
 
 function addLinks(descri) {
-   
+
 
     
    //console.log(descri);
@@ -786,7 +788,7 @@ function addLinks(descri) {
    let descr = descri.split("\n").join(" <br/>");
 
    let retArr = [];
-   let retArr2 = descr;
+   // let retArr2 = descr;
 
    let tmpHt = descr.indexOf(checkHttp1);
 
@@ -816,55 +818,69 @@ function addLinks(descri) {
 
      }
      retArr.push(descr);
-     retArr2 = retArr.join("");
-   }
-
-   console.log (retArr2);
+     retArr = retArr.join("");
+   } else retArr = descr;
    
    // This is for identifying any video and mylist IDs related to Niconico videos, as well as trying to weed out full URLs
 
-   let smMatches = Array.from(retArr2.matchAll(smIdRegex), (m) => ({
+   let smMatches = Array.from(retArr.matchAll(smIdRegex), (m) => ({
       id: m[0],
       strIndex: m.index
     }));
-    
-    console.log(smMatches);
-    
-   // if (!smMatches && !mylistMatches) return retArr;
+   let smMatchesNeg = Array.from(retArr.matchAll(smIdRegexNeg), (m) => (
+      m.index + 1
+    ));
+
+   // console.log(smMatches);
+   // console.log( smMatchesNeg);
+
+   let noURLs = false;
+   if (smMatchesNeg) noURLs = true;
+
    let indexOffSet = 0;
 
    for (let i = 0; i < smMatches.length; i++) {
+      if (smMatchesNeg.includes(smMatches[i].strIndex)) continue;
 
-      let newLink = htmlLinkCompiler('https://www.nicovideo.jp/watch/' + smMatches[i].id, smMatches[i].id);
+      //if (retArr.charAt[smMatches[i].strIndex - 1 + indexOffSet] === '/') continue;
+
+      // let newLink = htmlLinkCompiler('https://www.nicovideo.jp/watch/' + smMatches[i].id, smMatches[i].id);
+      let newLink = editLink('https://www.nicovideo.jp/watch/' + smMatches[i].id,true);
       let substringTmp = smMatches[i].strIndex + smMatches[i].id.length + indexOffSet;
 
-      retArr2 = retArr2.substring(0,(smMatches[i].strIndex + indexOffSet)) + newLink + retArr2.substring(substringTmp);
+      retArr = retArr.substring(0,(smMatches[i].strIndex + indexOffSet)) + newLink + retArr.substring(substringTmp);
 
       indexOffSet = indexOffSet + newLink.length - smMatches[i].id.length;
    }
    
    indexOffSet = 0;
 
-   let mylistMatches = Array.from(retArr2.matchAll(mylistRegex), (m) => ({
+   let mylistMatches = Array.from(retArr.matchAll(mylistRegex), (m) => ({
       id: m[0],
       strIndex: m.index
     }));
+   let mylistMatchesNeg = Array.from(retArr.matchAll(mylistRegexNeg), (m) => (
+      m.index + 1
+    ));
     
    for (let j = 0; j < mylistMatches.length; j++) {
+      if (mylistMatchesNeg.includes(mylistMatches[j].strIndex)) continue;
 
       let newLink = htmlLinkCompiler('https://www.nicovideo.jp/' + mylistMatches[j].id, mylistMatches[j].id);
       let substringTmp = mylistMatches[j].strIndex + mylistMatches[j].id.length + indexOffSet;
 
-      retArr2 = retArr2.substring(0,(mylistMatches[j].strIndex + indexOffSet)) + newLink + retArr2.substring(substringTmp);
+      retArr = retArr.substring(0,(mylistMatches[j].strIndex + indexOffSet)) + newLink + retArr.substring(substringTmp);
 
       indexOffSet = indexOffSet + newLink.length - mylistMatches[j].id.length;
-   }
+   }  
    
-   return retArr2;
+   return retArr;
 }
 
-function editLink(linkTmp) {
+function editLink(linkTmp, onlyShowId = false) {
    let tmpp1 = linkTmp;
+   
+   // if (linkTmp.substring(0,2) === "sm") tmpp1 = 'https://www.nicovideo.jp/watch/' + linkTmp;
 
    let youTubeChecking   = ["youtu.be/","youtube.com/watch?v=","youtube.com/shorts/"];
    let nicovideoChecking = ["nicovideo.jp/watch/","nico.ms/"];
@@ -963,6 +979,7 @@ function editLink(linkTmp) {
       //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
       let extractedId = tmpLinkerino2;
       let linkStr = linkTmp;
+      if (onlyShowId) linkStr = extractedId;
       let metadatStr = "";
       {
         let matchingVid = parsedVideos.find(vid => vid.id === extractedId);

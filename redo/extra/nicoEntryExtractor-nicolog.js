@@ -31,18 +31,18 @@ requ_HSL.onreadystatechange = function() {
 
 // console.log('Arguments: ', process.argv);
 
-//checkVideo(process.argv[2].trim());
+checkVideo(process.argv[2].trim());
 
 //checkVideo("sm33168752");
 
 // let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
 
-
+/*
 let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-kon.json', 'utf8')).id;
 
 for (let i = 0; i < idList.length; i++) {
    checkVideo(idList[i]);
-}   
+} */  
 
 
 function checkVideo(videoId) {
