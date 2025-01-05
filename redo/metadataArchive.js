@@ -770,33 +770,30 @@ function videoLinkCompiler(id,site) {
    }
 }
 
+// These will recognize Niconico ID and mylist/ values in descriptions.
+const smIdRegex = /(sm\d+)/g; // /(^sm\d+)|(?!.*\/)sm\d+/g;
+const mylistRegex = /(mylist\/\d+)/g; // /(^mylist\/\d+)|(?!.*\/)mylist\/\d+/g;
+
 function addLinks(descri) {
-   //return descri;
+   
+
+    
+   //console.log(descri);
 
    let checkHttp1 = 'http';
-   //let checkHttp2 = ['\n',' '];
-   //let checkHttp2 = ['<br/>',' '];
    let checkHttp2 = [' '];
-   // let checkHttp3 = ['youtu.be/'];
 
    let descr = descri.split("\n").join(" <br/>");
 
    let retArr = [];
+   let retArr2 = descr;
 
    let tmpHt = descr.indexOf(checkHttp1);
-               /*
-   for (let j = 0; j < checkHttp3.length; j++) {
-      let tmpCh = descr.indexOf(checkHttp3[j]);
-      if ((tmpHt === -1) || (tmpCh !== -1 && tmpHt > tmpCh)) {
-         tmpHt = tmpCh;
-      }
-   }         */
 
-   if (tmpHt === -1) return descri;
 
-   //let tmppp = 0;
+   if (tmpHt > -1) {
 
-   while (tmpHt > -1) {
+     while (tmpHt > -1) {
       retArr.push(descr.substring(0,tmpHt));
 
       descr = descr.substring(tmpHt);
@@ -816,43 +813,54 @@ function addLinks(descri) {
       descr = descr.substring(tmppp);
 
       tmpHt = descr.indexOf(checkHttp1);
-         /*
-      for (let j = 0; j < checkHttp3.length; j++) {
-         let tmpCh = descr.indexOf(checkHttp3[j]);
-         if ((tmpHt === -1) || (tmpCh !== -1 && tmpHt > tmpCh)) {
-            tmpHt = tmpCh;
-         }
-      }    */
+
+     }
+     retArr.push(descr);
+     retArr2 = retArr.join("");
    }
 
-   retArr.push(descr);
+   console.log (retArr2);
+   
+   // This is for identifying any video and mylist IDs related to Niconico videos, as well as trying to weed out full URLs
 
-   /*
-   while (tmpHt > -1) {
-      tmppp = -1;
-      let arrrtmp = [];
-      //console.log(tmpHt);
-      for (let i = 0; i < checkHttp2.length; i++) {
-         arrrtmp.push(descr.indexOf(checkHttp2[i]));
-         //if (tmppp === -1 || tmppp > descr.indexOf(checkHttp2[i],tmpHt + 1)) tmppp = descr.indexOf(checkHttp2[i],tmpHt + 1);
-      }
-      tmppp = Math.min(...arrrtmp);
-      //console.log("A " + tmppp);
+   let smMatches = Array.from(retArr2.matchAll(smIdRegex), (m) => ({
+      id: m[0],
+      strIndex: m.index
+    }));
+    
+    console.log(smMatches);
+    
+   // if (!smMatches && !mylistMatches) return retArr;
+   let indexOffSet = 0;
 
-      retArr.push(descr.substring(0,tmpHt));
-      //let linkPart   = "";
-      if (tmppp === -1) retArr.push(editLink(descr.substring(tmpHt)));
-      else retArr.push(editLink(descr.substring(tmpHt,tmppp)));
-      let secondPart = "";
-      if (tmppp > -1) secondPart = descr.substring(tmppp);
-      descr = secondPart;
+   for (let i = 0; i < smMatches.length; i++) {
 
-      tmpHt = descr.indexOf(checkHttp1);
+      let newLink = htmlLinkCompiler('https://www.nicovideo.jp/watch/' + smMatches[i].id, smMatches[i].id);
+      let substringTmp = smMatches[i].strIndex + smMatches[i].id.length + indexOffSet;
 
-      if (tmpHt === -1) retArr.push(descr);
-   } */
+      retArr2 = retArr2.substring(0,(smMatches[i].strIndex + indexOffSet)) + newLink + retArr2.substring(substringTmp);
 
-   return retArr.join("");
+      indexOffSet = indexOffSet + newLink.length - smMatches[i].id.length;
+   }
+   
+   indexOffSet = 0;
+
+   let mylistMatches = Array.from(retArr2.matchAll(mylistRegex), (m) => ({
+      id: m[0],
+      strIndex: m.index
+    }));
+    
+   for (let j = 0; j < mylistMatches.length; j++) {
+
+      let newLink = htmlLinkCompiler('https://www.nicovideo.jp/' + mylistMatches[j].id, mylistMatches[j].id);
+      let substringTmp = mylistMatches[j].strIndex + mylistMatches[j].id.length + indexOffSet;
+
+      retArr2 = retArr2.substring(0,(mylistMatches[j].strIndex + indexOffSet)) + newLink + retArr2.substring(substringTmp);
+
+      indexOffSet = indexOffSet + newLink.length - mylistMatches[j].id.length;
+   }
+   
+   return retArr2;
 }
 
 function editLink(linkTmp) {
@@ -994,7 +1002,7 @@ function editDescription(ogDesc,descExtr) {
 
    let descTmp = ogDesc.trim();
 
-   if (!descTmp.includes('</a>') && descTmp.includes('http')) {
+   if (!descTmp.includes('</a>')) { // && (descTmp.includes('http') || descTmp.includes('sm') || descTmp.includes('mylist'))) {
       descTmp = addLinks(ogDesc);
    }
 
