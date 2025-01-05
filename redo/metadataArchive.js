@@ -771,9 +771,9 @@ function videoLinkCompiler(id,site) {
 }
 
 // These will recognize Niconico ID and mylist/ values in descriptions.
-const smIdRegex = /(sm\d+)/g; // /(^sm\d+)|(?!.*\/)sm\d+/g;
-const mylistRegex = /(mylist\/\d+)/g; // /(^mylist\/\d+)|(?!.*\/)mylist\/\d+/g;
-const smIdRegexNeg = /([=\/]sm\d+)/g;
+const smIdRegex = /([sn]m\d+)/g; // Covers both sm and nm IDs
+const mylistRegex = /(mylist\/\d+)/g; 
+const smIdRegexNeg = /([=\/][sn]m\d+)/g;
 const mylistRegexNeg = /([=\/]mylist\/\d+)/g;
 
 function addLinks(descri) {
@@ -872,7 +872,7 @@ function addLinks(descri) {
       retArr = retArr.substring(0,(mylistMatches[j].strIndex + indexOffSet)) + newLink + retArr.substring(substringTmp);
 
       indexOffSet = indexOffSet + newLink.length - mylistMatches[j].id.length;
-   }  
+   }
    
    return retArr;
 }
