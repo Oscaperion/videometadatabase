@@ -26,7 +26,7 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202412;
+const maxMonth = 202512;
 const minMonth = 200601;
 //const minMonth = 201501;
 
@@ -918,7 +918,7 @@ function editLink(linkTmp) {
       // Checking if there is a video with this ID
       let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
       if (matchingVid) {
-         let linkStr = '&#34;' + matchingVid.title + '&#34; by ' + matchingVid.uploader;
+         let linkStr = matchingVid.title + ' by ' + matchingVid.uploader;
          if (pageLanguage === 'jp') linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
@@ -959,7 +959,7 @@ function editLink(linkTmp) {
       {
         let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
         if (matchingVid) {
-           linkStr = '&#34;' + matchingVid.title + '&#34; by ' + matchingVid.uploader;
+           linkStr =  matchingVid.title + ' by ' + matchingVid.uploader;
            if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
            metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`,videoMetaStr);
         }
@@ -994,7 +994,7 @@ function editDescription(ogDesc,descExtr) {
 
    let descTmp = ogDesc.trim();
 
-   if (descExtr !== "Niconico" && descTmp.includes('http')) {
+   if (!descTmp.includes('</a>') && descTmp.includes('http')) {
       descTmp = addLinks(ogDesc);
    }
 
