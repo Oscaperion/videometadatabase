@@ -387,31 +387,54 @@ function videoEntryWithId(videoId, videoSite = null) {
 
    if (videoSite && vidTmp) vidTmp = parsedVideos.find(vid => (vid.id === videoId && vid.extractor_key === videoSite));
    if (!vidTmp) return undefined;
-   
+
    return videoEntryConverter(vidTmp);
 }
 
-function videoEntryConverter(tmpVid) {
-   // let tmpVid = { ...vidEnt };
+function videoEntryConverter(vidEnt) {
+   let tmpTags = vidEnt.tags;
 
-   if (tmpVid.tags) {
-      for (let i = 0; i < tmpVid.tags.length; i++) {
-         if (Number.isInteger(tmpVid.tags[i])) tmpVid.tags[i] = tagsList[tmpVid.tags[i]];
-      }
+   // Helper function to convert tags when requested
+   function getConvertedTags() {
+      if (!tmpTags) return [];
+        
+      return tmpTags.map(tag => {
+         if (Number.isInteger(tag)) return tagsList[tag];
+         return tag; // Return non-integer tags as-is
+      });
    }
-
-   if (tmpVid.uId) {
-      if (tmpVid.extractor_key === "Niconico") {
-         tmpVid["uploader_id"] = niconicoUserList[tmpVid.uId];
-         delete tmpVid.uId;
+   
+   // Helper function for uploader_id
+   function getUploaderId() {
+      // Look for uId and convert based on the extractor
+      if (vidEnt.uId) {
+         switch(vidEnt.extractor_key) {
+            case "Niconico":
+               return niconicoUserList[vidEnt.uId];
+            case "Youtube":
+               return youtubeUserList[vidEnt.uId];
+            default:
+               return undefined; // If extractor_key doesn't match known cases
+         }
       }
-      if (tmpVid.extractor_key === "Youtube") {
-         tmpVid["uploader_id"] = youtubeUserList[tmpVid.uId];
-         delete tmpVid.uId;
+      return vidEnt.uploader_id; // If uId is not present, return existing uploader_id or undefined
+   }
+   
+   // Define getters for tags and uploader_id
+   Object.defineProperties(vidEnt, {
+      'tags_': {
+         get: getConvertedTags,
+         enumerable: true,
+         configurable: true
+      },
+      'uploader_id_': {
+         get: getUploaderId,
+         enumerable: true,
+         configurable: true
       }
-   }    
+   });
 
-   return tmpVid;
+   return vidEnt;
 }
 
 /*
@@ -1589,8 +1612,12 @@ function checkUserInputs(userStr) {
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 let srvr = http.createServer(function (req, res) {
 
+   console.log(parsedVideos[0].tags);
+   console.log(parsedVideos[0].uploader_id);
    console.log(videoEntryFromParsedVideo(0));
-   console.log(parsedVideos);
+   console.log(parsedVideos[0].uploader_id_);
+   console.log(parsedVideos[0].tags);
+   console.log(parsedVideos[0].tags_);
    // console.log(videoEntryWithId("5tVWU3LAaII"));
 
    let quer = url.parse(req.url, true);
