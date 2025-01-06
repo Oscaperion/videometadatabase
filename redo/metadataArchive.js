@@ -4,6 +4,9 @@ const url = require('url');
 const http = require('http');
 const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 
+// This is here in order to help the match-all run in the older NodeJS version on A2hosting. (For function "addLinks")
+// require('core-js/modules/es.string.match-all');
+
 // let tmpConsole = '';
 
 /*
