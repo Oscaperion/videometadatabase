@@ -371,6 +371,49 @@ function formatDuration(justSeconds) {
     return hours + ':' + ("" + mins).padStart(2, '0') + ':' + ("" + secs).padStart(2, '0');
 }
 
+// These are for converting video metadata into more decipherable form.
+
+// parsedVideosId: the index in the parsedVideos array.
+function videoEntryFromParsedVideo(parsedVideosId) {
+   if (parsedVideos[parsedVideosId]) return videoEntryConverter(parsedVideos[parsedVideosId]);
+
+   return undefined;
+}
+
+// videoId: ID of the searched video
+// videoSite: The site where we want to find the video (Optional, has to be in form of site's extractor_key)
+function videoEntryWithId(videoId, videoSite = null) {
+   let vidTmp = parsedVideos.find(vid => vid.id === videoId);
+
+   if (videoSite && vidTmp) vidTmp = parsedVideos.find(vid => (vid.id === videoId && vid.extractor_key === videoSite));
+   if (!vidTmp) return undefined;
+   
+   return videoEntryConverter(vidTmp);
+}
+
+function videoEntryConverter(tmpVid) {
+   // let tmpVid = { ...vidEnt };
+
+   if (tmpVid.tags) {
+      for (let i = 0; i < tmpVid.tags.length; i++) {
+         if (Number.isInteger(tmpVid.tags[i])) tmpVid.tags[i] = tagsList[tmpVid.tags[i]];
+      }
+   }
+
+   if (tmpVid.uId) {
+      if (tmpVid.extractor_key === "Niconico") {
+         tmpVid["uploader_id"] = niconicoUserList[tmpVid.uId];
+         delete tmpVid.uId;
+      }
+      if (tmpVid.extractor_key === "Youtube") {
+         tmpVid["uploader_id"] = youtubeUserList[tmpVid.uId];
+         delete tmpVid.uId;
+      }
+   }    
+
+   return tmpVid;
+}
+
 /*
    In case of separate search words, this optimizes them in two ways:
    1. Gets rid of search words that might already be part of other search words. For
@@ -1545,6 +1588,10 @@ function checkUserInputs(userStr) {
 
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 let srvr = http.createServer(function (req, res) {
+
+   console.log(videoEntryFromParsedVideo(0));
+   console.log(parsedVideos);
+   // console.log(videoEntryWithId("5tVWU3LAaII"));
 
    let quer = url.parse(req.url, true);
    pageLanguage = 'en';
