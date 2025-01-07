@@ -19,7 +19,7 @@ const maxJsonAmount = 62;
    of this time frame or has an undefined release date, its metadata won't be processed and
    included.                                                                                   
 */
-const maxMonth = 202512;
+const maxMonth = 202306;
 const minMonth = 200401;
 
 //const maxMonth = 202204;
@@ -87,15 +87,18 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
        if (tu === 0) {
-          let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json';
+          // let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json';
+          let filepath = 'C:/Users/Public/test/split_parts/finnredo.json';
           pathsS.push(filepath);
        }
        if (tu === -1) {
-          let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids0.json';
+          // let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids0.json';
+          let filepath = 'C:/Users/Public/test/split_parts/vids0.json';
           pathsS.push(filepath);
        }
        if (tu > 0) {
-          let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';
+          // let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';
+          let filepath = 'C:/Users/Public/test/split_parts/vids' + tu + '.json';
           pathsS.push(filepath);
        }
 }
@@ -144,7 +147,7 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
       console.log ("Fuyo " + pathsS[jj] + " " + mont);
 
       let tmpMo2 = [];
-      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly(pathsS[jj],mont /* ,dRangeId */ );
+      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly_redoAttempt(pathsS[jj],mont /* ,dRangeId */ );
       else console.log("Skipping " + mont);
 
       tmpMo.push(...tmpMo2);
@@ -198,39 +201,15 @@ function listId(id_entry) {
 function readFileMonthly_redoAttempt(pathh,targetMonth,dayRangeId) {
     let tmpRet = [];
 
-
     let tmpArray = JSON.parse(fs.readFileSync(pathh, 'utf8'));
     if (!pathh.includes('finnredo')) tmpArray = tmpArray.videos;
     let tmpTarg = '' + targetMonth;
-    let tmpPos = tmpArray.findIndex(ent => ( (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) && ((ent.upload_date >= (tmpTarg + dayRange[dayRangeId][0])) && (ent.upload_date <= (tmpTarg + dayRange[dayRangeId][1]))) ));
 
-    if (tmpPos === -1)  return tmpRet;
+    tmpRet = tmpArray.filter(ent => ( (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg)));
 
+    if (!tmpRet)  return [];
 
-    //for (let iop = 0; iop < tmpArray.length; iop++) {
-    while (tmpPos !== -1) {
-       let tmppVid = entryEditor(tmpArray[tmpPos],tmpTarg);
-
-       if (tmppVid === undefined) {
-          tmpPos = tmpArray.findIndex((ent,ind) => ( (ind > tmpPos) && (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) && ((ent.upload_date >= (tmpTarg + dayRange[dayRangeId][0])) && (ent.upload_date <= (tmpTarg + dayRange[dayRangeId][1]))) ));
-          continue;
-       }
-
-       //let monthThmp = tmppVid.upload_date.substring(0,6);
-
-       /*
-       if (tmpTarg !== monthThmp) {
-          console.log(tmppVid.id + " doesn't fit upload month");
-          continue;
-       }      */
-         console.log(pathh);
-         console.log("Adding to " + tmpTarg);
-         //gatheredIds.push(tmppVid.id);
-         tmpRet.push(tmppVid);
-         listId(tmppVid.id);
-         tmpPos = tmpArray.findIndex((ent,ind) => ( (ind > tmpPos) && (ent.upload_date !== undefined) && (ent.upload_date.substring(0,6) === tmpTarg) && ((ent.upload_date >= (tmpTarg + dayRange[dayRangeId][0])) && (ent.upload_date <= (tmpTarg + dayRange[dayRangeId][1]))) ));
-    }
-    return tmpRet;
+    return tmpRet.map(ent => entryEditor(ent,tmpTarg));
 }
 
 function readFileMonthly(pathh,targetMonth) {
@@ -261,8 +240,8 @@ function readFileMonthly(pathh,targetMonth) {
           console.log(tmppVid.id + " doesn't fit upload month");
           continue;
        }      */
-         console.log(pathh);
-         console.log("Adding to " + tmpTarg);
+         // console.log(pathh);
+         // console.log("Adding to " + tmpTarg);
          //gatheredIds.push(tmppVid.id);
          tmpRet.push(tmppVid);
          listId(tmppVid.id);
@@ -550,12 +529,12 @@ function entryEditor(entryVid,targetMonth) {
        }
 
        if (addForSure) {
-          console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
+          // console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
           let tmp_id = tmpVid.id;
           if (Array.isArray(tmpVid.id)) tmp_id = tmpVid.id[0];
 
           if (gatheredIds.includes(tmp_id)) {
-             console.log("Video (" + tmp_id + ") already added");
+             // console.log("Video (" + tmp_id + ") already added");
              return undefined; // continue;
           }
 
@@ -574,10 +553,10 @@ function entryEditor(entryVid,targetMonth) {
           } else {
              gatheredIds.push(tmpVid.id);
           }
-          
+
           return tmpVid;
        } else {
-          console.log("Ignoring: " + tmpVid.upload_date + " -- " + tmpVid.id);
+          // console.log("Ignoring: " + tmpVid.upload_date + " -- " + tmpVid.id);
           return undefined;
        }
    }

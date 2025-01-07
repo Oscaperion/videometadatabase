@@ -508,8 +508,8 @@ function optimizeSearching(searchWord,exactSearch) {
 /*
 
 */
-function isSameUser(searchUserStr,videoInd) {
-   let video = parsedVideos[videoInd];
+function isSameUser(searchUserStr,video) {
+   // let video = parsedVideos[videoInd];
    let tmpStr = [searchUserStr.trim()];
 
    if (searchedUploaderHasAlts) {
@@ -570,6 +570,8 @@ function compileList() {
 
    return retStr;
 }
+
+
 
 let searchedUploaderHasAlts = false;
 let uploadersAlts = [];
@@ -662,14 +664,15 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       //console.log(`Values : ${startTmp1} - ${startTmp2} > ${endTmp1} - ${endTmp2}`);
 
       let vidTmp_ = parsedVideos.map((val, ind) => ind).filter(ind => {
+         let val = parsedVideos[ind];
          {
-            let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === parsedVideos[ind].extractor_key);
+            let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === val.extractor_key);
             if (tmp2 === -1) tmp2 = sitesList.length - 1;
             if (sitesList[tmp2].isIgnored) return false;
          }
-         if (searchUploaderToo && !isSameUser(searchUploaderId,ind)) return false;
+         if (searchUploaderToo && !isSameUser(searchUploaderId,val)) return false;
          // return hasSearchWords(searchTmp,parsedVideos[ind]);
-         return hasSearchWords(searchTmp,ind);
+         return hasSearchWords(searchTmp,val);
       });
 
       pageTotal = Math.ceil(vidTmp_.length / videosPerPage);
@@ -697,13 +700,16 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
 // let amountBlack = {};
 // let amountWhite = {};
 
-function hasSearchWords(searchWord,videoInd) {
+function hasSearchWords(searchWord,video) {
    if (!searchWord) return true;
 
-   let video = parsedVideos[videoInd];
-   let tagsTmp = videoTags(videoInd).join(" ").toLowerCase();
+   // let video = parsedVideos[videoInd];
+   let tagsTmp = videoTags2(video).join(" ").toLowerCase();
    let uploaderIdTmp = getUploaderId(video);
+   console.log(video);
+   // console.log(uploaderIdTmp);
    if (video.extractor_key === "Youtube") uploaderIdTmp = uploaderIdTmp.join(" ");
+   if (!uploaderIdTmp) uploaderIdTmp = "";
 
    /*
    {
@@ -851,6 +857,14 @@ function videoTags(vidInd) {
 }
 
 
+function videoTags2(vidEnt) {
+   if (!vidEnt.tags) return [];
+
+   return vidEnt.tags.map(tag => {
+         if (Number.isInteger(tag)) return tagsList[tag];
+         return tag;
+      });
+}
 
 /*
 function videoTags(vidTags) {

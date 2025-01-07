@@ -19,6 +19,7 @@ const yearMin = 200401;
 
 // const yearMax = 202012;
 // const yearMin = 202012;
+// let tmpArr = [];
 
 for (let i = yearMax; i >= yearMin; i--) {
    let jsonFile;
@@ -29,6 +30,9 @@ for (let i = yearMax; i >= yearMin; i--) {
       continue;
    }
    
+
+   
+
    let splitNumber = 5;
    let maxVal = Math.ceil(31 / splitNumber);
    
@@ -50,8 +54,12 @@ for (let i = yearMax; i >= yearMin; i--) {
       // TEMPORARY! This makes the script ignore BiliBili videos. Those videos remain in the original JSON files
          && (ent.extractor_key !== "BiliBili")
         );
-      
+        
+      // tmpArr.push(...jsonFile.filter(ent => (!ent.uId) && (ent.extractor_key === "Youtube")));
+
       if (filteredJson.length > 0) fs.writeFileSync(folderLocationDest + i + j + '.json', JSON.stringify(filteredJson));
       console.log('Saved ' + folderLocationDest + i + j);
    }
 }
+
+// console.log(tmpArr);
