@@ -47,4 +47,5 @@ for (let j = 0; j < vids.length; j++) {
 }
 
 console.log("Dun");
+console.log(replll.length);
 fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', JSON.stringify(replll));
