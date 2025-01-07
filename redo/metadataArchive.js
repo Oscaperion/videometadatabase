@@ -330,6 +330,9 @@ console.log('Loading metadata...');
 }
 
 console.log('All metadata loaded!');
+// parsedVideos.forEach(entry => videoEntryConverter(entry));
+// console.log('All metadata processed!');
+
 console.log("Total number of entries: " + parsedVideos.length);
 
 mostRecentDate = parsedVideos[0].upload_date;
@@ -392,13 +395,12 @@ function videoEntryWithId(videoId, videoSite = null) {
 }
 
 function videoEntryConverter(vidEnt) {
-   let tmpTags = vidEnt.tags;
-
+   
    // Helper function to convert tags when requested
    function getConvertedTags() {
-      if (!tmpTags) return [];
+      if (!vidEnt.tags) return [];
         
-      return tmpTags.map(tag => {
+      return vidEnt.tags.map(tag => {
          if (Number.isInteger(tag)) return tagsList[tag];
          return tag; // Return non-integer tags as-is
       });
@@ -422,12 +424,12 @@ function videoEntryConverter(vidEnt) {
    
    // Define getters for tags and uploader_id
    Object.defineProperties(vidEnt, {
-      'tags_': {
+      '_tags': {
          get: getConvertedTags,
          enumerable: true,
          configurable: true
       },
-      'uploader_id_': {
+      '_uploader_id': {
          get: getUploaderId,
          enumerable: true,
          configurable: true
@@ -436,6 +438,23 @@ function videoEntryConverter(vidEnt) {
 
    return vidEnt;
 }
+
+function getUploaderId(vidEnt) {
+   // Look for uId and convert based on the extractor
+   if (vidEnt.uId) {
+      switch(vidEnt.extractor_key) {
+         case "Niconico":
+            return niconicoUserList[vidEnt.uId];
+         case "Youtube":
+            return youtubeUserList[vidEnt.uId];
+         default:
+            return undefined; // If extractor_key doesn't match known cases
+      }
+   }
+   return vidEnt.uploader_id; // If uId is not present, return existing uploader_id or undefined
+}
+
+
 
 /*
    In case of separate search words, this optimizes them in two ways:
@@ -497,7 +516,7 @@ function isSameUser(searchUserStr,videoInd) {
       tmpStr = uploadersAlts;
    }
 
-   if (video.uId === undefined && video.extractor_key !== "Twitter") return tmpStr.includes(video.uploader_id); // return video.uploader_id === searchUserStr.trim();
+   // if (video.uId === undefined && video.extractor_key !== "Twitter") return tmpStr.includes(video.uploader_id); // return video.uploader_id === searchUserStr.trim();
    if (video.extractor_key === "Twitter") {
       let twtTmp = twitterUserList.find(ent => ent.handle.includes(video.uploader_id) || ent.id === video.uploader_id);
       //console.log(twtTmp);
@@ -509,16 +528,25 @@ function isSameUser(searchUserStr,videoInd) {
       return tmpStr.includes(twtTmp.id);
       // return (twtTmp.id === searchUserStr.trim() ||  twtTmp.handle.includes(searchUserStr.trim()));
    }
-   
+   /*
+
    if (video.uId !== undefined && video.extractor_key === "Niconico") {
       return tmpStr.includes(niconicoUserList[video.uId]);
    }
 
    for (let p = 0; p < tmpStr.length; p++) {
       if (youtubeUserList[video.uId].includes(tmpStr[p])) return true;
+   }     */
+   
+   let upIdTmp = getUploaderId(video);
+   if (Array.isArray(upIdTmp)) {
+      for (let p = 0; p < tmpStr.length; p++) {
+         if (upIdTmp.includes(tmpStr[p])) return true;
+      }
+      return false;
    }
    
-   return false;
+   return tmpStr.includes(upIdTmp);
 
    //let userArr = youtubeUserList[video.uId];
 
@@ -674,15 +702,17 @@ function hasSearchWords(searchWord,videoInd) {
 
    let video = parsedVideos[videoInd];
    let tagsTmp = videoTags(videoInd).join(" ").toLowerCase();
-   let uploaderIdTmp = "";
-   
+   let uploaderIdTmp = getUploaderId(video);
+   if (video.extractor_key === "Youtube") uploaderIdTmp = uploaderIdTmp.join(" ");
+
+   /*
    {
       if (video.uId !== undefined) {
          if (video.extractor_key === "Niconico") uploaderIdTmp = niconicoUserList[video.uId];
          if (video.extractor_key === "Youtube") uploaderIdTmp = youtubeUserList[video.uId].join(" ").toLowerCase();
       }
       else if (video.uploader_id) uploaderIdTmp = video.uploader_id.toLowerCase();
-   }
+   } */
 
    return searchWord.every(srcWrd => {
          // console.log(video.id);
@@ -699,7 +729,7 @@ function hasSearchWords(searchWord,videoInd) {
              (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)) ||
              (video.uploader_id && video.uploader_id.toLowerCase().includes(srcWrd)) ||
              */
-             uploaderIdTmp.includes(srcWrd) ||
+             uploaderIdTmp.toLowerCase().includes(srcWrd) ||
              video.upload_date.toLowerCase().includes(srcWrd)
              ) return true;
 
@@ -802,6 +832,7 @@ function userAddressCompiler(id_,site) {
 function videoTags(vidInd) {
    if (!parsedVideos[vidInd].tags) return [];
 
+   /*
    let vidTags = parsedVideos[vidInd].tags;
 
    let tagsTmp = [];
@@ -811,8 +842,15 @@ function videoTags(vidInd) {
       else tagsTmp.push(vidTags[i]);
    }
 
-   return tagsTmp;
+   return tagsTmp;  */
+
+   return parsedVideos[vidInd].tags.map(tag => {
+         if (Number.isInteger(tag)) return tagsList[tag];
+         return tag;
+      });
 }
+
+
 
 /*
 function videoTags(vidTags) {
@@ -1612,13 +1650,9 @@ function checkUserInputs(userStr) {
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 let srvr = http.createServer(function (req, res) {
 
-   console.log(parsedVideos[0].tags);
-   console.log(parsedVideos[0].uploader_id);
-   console.log(videoEntryFromParsedVideo(0));
-   console.log(parsedVideos[0].uploader_id_);
-   console.log(parsedVideos[0].tags);
-   console.log(parsedVideos[0].tags_);
-   // console.log(videoEntryWithId("5tVWU3LAaII"));
+   // console.log(parsedVideos);
+   console.log(videoEntryWithId("sm44501923"));
+   console.log(videoEntryWithId("sm44501923")._tags);
 
    let quer = url.parse(req.url, true);
    pageLanguage = 'en';
