@@ -22,10 +22,45 @@ let readTwitterVids = false;
 
 //let ignoreBilibiliPlaylists = changeHere;
 
+function takeOutLinks(ogDescription) {
+   if (!ogDescription || (!ogDescription.includes("</a>") && !ogDescription.includes("<br"))) return ogDescription;
+
+   console.log(ogDescription);
+   
+   let tmpDescription = ogDescription;
+   
+   tmpDescription = tmpDescription.replace(/<br\s*\/?>/gi, "\n");
+
+   let checkTmp1 = "<a";
+   let checkTmp2 = ">";
+   let checkTmp3 = "</a>";
+
+   let linkPresentIndex = tmpDescription.indexOf(checkTmp1);
+   let newDescription = "";
+
+   while (linkPresentIndex > -1) {
+      newDescription = newDescription + tmpDescription.substring(0,linkPresentIndex);
+      
+      let linkOpenerEnd = tmpDescription.indexOf(checkTmp2, linkPresentIndex) + checkTmp2.length;
+      let linkEnd       = tmpDescription.indexOf(checkTmp3);
+
+      newDescription = newDescription + tmpDescription.substring(linkOpenerEnd,linkEnd);
+
+      tmpDescription = tmpDescription.substring(linkEnd + checkTmp3.length);
+      
+      linkPresentIndex = tmpDescription.indexOf(checkTmp1);
+   }
+   
+   console.log("Took out links and HTML breaklines");
+   console.log(newDescription + tmpDescription);
+   
+   return newDescription + tmpDescription;
+}
+
 //for (j = 1; j <= 25; j++) {
 //for (let j = 12; j >= 12; j--) {
 for (let j = 62; j >= 62; j--) {
-//for (let j = 50; j >= 1; j--) {
+//for (let j = 61; j >= 7; j--) {
 //for (let j = 0; j >= 0; j--) {
 
   if (j === 0) readTwitterVids = true;
@@ -240,6 +275,8 @@ for (let j = 62; j >= 62; j--) {
 
             ext_tmp = "Youtube";
         }
+        
+        let editDesc = takeOutLinks(parsedJSON.description);
 
         let newVideoInfo = {
             upload_date: parsedJSON.upload_date,
@@ -251,7 +288,7 @@ for (let j = 62; j >= 62; j--) {
             uploader_url: uPage,
             channel_id: parsedJSON.channel_id,
             duration: parsedJSON.duration,
-            description: parsedJSON.description,
+            description: editDesc,
             tags: parsedJSON.tags,
             extractor_key: ext_tmp
         };

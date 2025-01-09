@@ -147,7 +147,7 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
       console.log ("Fuyo " + pathsS[jj] + " " + mont);
 
       let tmpMo2 = [];
-      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly_redoAttempt(pathsS[jj],mont /* ,dRangeId */ );
+      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly(pathsS[jj],mont /* ,dRangeId */ );
       else console.log("Skipping " + mont);
 
       tmpMo.push(...tmpMo2);
