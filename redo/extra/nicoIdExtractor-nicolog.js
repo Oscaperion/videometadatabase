@@ -34,8 +34,7 @@ teee['id'] = [];
 //checkVideo("nm7328662");
 
 //let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
-let pages = ["https://www.nicolog.jp/user/16228385",
-             "https://www.nicolog.jp/user/13413052"
+let pages = ["https://www.nicolog.jp/user/8876497"
              ];
 
 for (let i = 0; i < pages.length; i++) {

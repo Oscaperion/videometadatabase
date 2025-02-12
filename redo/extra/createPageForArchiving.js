@@ -15,11 +15,12 @@ for (var i = minn; i<= maxx; i++) {
    // var tmp2 = '<a href="https://archive.ph/?run=1&url=https://finnrepo.a2hosted.com/YTPMV_Database/results.html?hey_didyou_know=selentatsuki_is_cool%26page=' + i +  '%26uploader_id=Rlcemaster3" target="_blank">Archive Page ' + i +  '</a><br/><br/>';
    // var tmp2 = '<a href="https://archive.ph/?run=1&url=https://finnrepo.a2hosted.com/YTPMV_Database/results.html?hey_didyou_know=selentatsuki_is_cool%26page=' + i +  '" target="_blank">Archive Page ' + i +  '</a><br/><br/>';
    // var tmp2 = '<a href="https://archive.ph/?run=1&url=https://finnrepo.a2hosted.com/YTPMV_Database/results.html?hey_didyou_know=selentatsuki_is_cool%26search=202209%26page=' + i +  '" target="_blank">Archive Page ' + i +  '</a><br/><br/>';
-   var tmp2 = '<a href="https://archive.ph/?run=1&url=https://w.atwiki.jp/onseimad/pages/' + i +  '.html" target="_blank">Archive Page ' + i +  '</a><br/><br/>';
+   // var tmp2 = '<a href="https://archive.ph/?run=1&url=https://w.atwiki.jp/onseimad/pages/' + i +  '.html" target="_blank">Archive Page ' + i +  '</a><br/><br/>';
+   var tmp2 = '<a href="https://archive.ph/?run=1&url=https://finnrepo.a2hosted.com/YTPMV_Database/results.html?page=' + i +  '%26preview=true%26rumour_do_be=chio_be_chompi" target="_blank">Archive Page ' + i +  '</a><br/><br/>';
 
    tmp = tmp + tmp2;
 }
 
 tmp = tmp + "</body></html>";
 
-fs.writeFileSync('archivalPage-atwiki2.html', tmp);
+fs.writeFileSync('archivalPage-cheri4.html', tmp);
