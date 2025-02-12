@@ -154,7 +154,8 @@ for (let jj = 0; jj < pathsS.length; jj++) {
 
 let gatheredIds = [];
 let parsedData2 = {};
-
+        
+        /*
 for (let i = 0; i < parsedData.length; i++) {
    for (let j = 0; j < parsedData[i].length; j++) {
       let idTmp = parsedData[i][j].id;
@@ -174,16 +175,105 @@ for (let i = 0; i < parsedData.length; i++) {
       parsedData2[parsedData[i][j].upload_date.substring(0,6)].push(tmpEnt);
 
       if (Array.isArray(parsedData[i][j].id)) gatheredIds.push(...parsedData[i][j].id);
-      gatheredIds.push(parsedData[i][j].id);
+      else gatheredIds.push(parsedData[i][j].id);
 
       console.log(parsedData[i][j].upload_date.substring(0,6) + " --- " + parsedData[i][j].id);
    }
    // console.log(parsedData2);
+}    
+     */
+     
+let indexList = [];
+
+for (let i = 0; i < parsedData.length; i++) {
+   for (let j = 0; j < parsedData[i].length; j++) {
+      let tmpIndLi  = {};
+      tmpIndLi.ind1 = i;
+      tmpIndLi.ind2 = j;
+      indexList.push(tmpIndLi);
+   }
 }
 
+console.log("Marco");
+
+let idList = indexList.map(ent => { return parsedData[ent.ind1][ent.ind2].id });
+
+indexList = indexList.filter((ent, ind) => {
+
+  if (!parsedData[ent.ind1][ent.ind2].upload_date) return false;
+
+  // if (idList.indexOf(idList[ind]) !== ind) return false;
+
+  return true;
+
+});
+
+let months = [];
+
+for (let yyyy = 2025; yyyy >= 2004; yyyy--) {
+   for (let mm = 12; mm >= 1; mm--) {
+      let strMont = "" + yyyy + ("" + mm).padStart(2,"0");
+      months.push(strMont);
+      console.log(strMont);
+   }
+}
+
+console.log(months);
+
+console.log("Polo");
+
+for (let m = 0; m < months.length; m++) {
+  
+   let gatheredIds = [];
+
+   let tmpList = indexList.filter((ent, ind) => {
+      if (parsedData[ent.ind1][ent.ind2].upload_date.substring(0,6) !== months[m]) return false;
+      
+      if (gatheredIds.includes(parsedData[ent.ind1][ent.ind2].id)) return false;
+      gatheredIds.push(parsedData[ent.ind1][ent.ind2].id);
+
+      // if (idList.indexOf(idList[ind]) === ind) return true;
+
+      return true;
+   });
+
+   // tmpList = indexList.filter((ent, ind) => { if (idList.indexOf(parsedData[ent.ind1][ent.ind2].id) === ind) return true; return false; });
+   
+   if (tmpList.length === 0) continue;
+
+   tmpList = tmpList.sort((a,b) => {
+      let tmpEntA = parsedData[a.ind1][a.ind2];
+      let tmpEntB = parsedData[b.ind1][b.ind2];
+
+      if (tmpEntA.upload_date + tmpEntA.title + tmpEntA.id > tmpEntB.upload_date + tmpEntB.title + tmpEntB.id) return -1
+      return 1;
+   });
+   
+   tmpList = tmpList.map(ent => { return entryEditor(parsedData[ent.ind1][ent.ind2]) });
+
+   tmpList = tmpList.filter(ent => { if (!ent) return false; return true; } );
+
+   console.log("Handling: " + months[m]);
+   fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + months[m] + '.json', JSON.stringify(tmpList));
+}
+
+/*
+indexList = indexList.sort((a,b) => {
+
+   let tmpEntA = parsedData[a.ind1][a.ind2];
+   let tmpEntB = parsedData[b.ind1][b.ind2];
+
+   if (tmpEntA.upload_date + tmpEntA.title + tmpEntA.id > tmpEntB.upload_date + tmpEntB.title + tmpEntB.id) return -1
+   return 1;
+});
+
+console.log(indexList);
+console.log(parsedData[indexList[0].ind1][indexList[0].ind2]);  */
+
+        /*
 for (let k = 0; k < Object.keys(parsedData2).length; k++) {
    let keyTmp = Object.keys(parsedData2)[k];
-   
+
    console.log("Handling: " + keyTmp);
 
    let monthlyArray = parsedData2[keyTmp].sort((a,b) => {
@@ -198,7 +288,7 @@ for (let k = 0; k < Object.keys(parsedData2).length; k++) {
 
    //parsedData2
    fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + keyTmp + '.json', JSON.stringify(monthlyArray));
-}
+}     */
 
 /*
 
