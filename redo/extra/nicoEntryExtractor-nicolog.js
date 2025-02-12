@@ -33,7 +33,7 @@ requ_HSL.onreadystatechange = function() {
 
 checkVideo(process.argv[2].trim());
 
-//checkVideo("sm33168752");
+//checkVideo("sm14226299");
 
 // let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
 

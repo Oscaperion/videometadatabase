@@ -4,7 +4,7 @@ var fs = require('fs');
 const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
 let userList =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', 'utf8'));
 
-let dirName = folderName + 62;
+let dirName = folderName + 63;
 console.log('Reading folder ' + dirName);
 let directoryPath = path.join(dirName);
 let changed = false;

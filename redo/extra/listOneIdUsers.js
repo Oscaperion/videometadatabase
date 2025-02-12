@@ -63,7 +63,7 @@ for (var ty = 202412; ty > 200600; ty--) {
     ) */
 
     for (let k = 0; k < checkingFile.length; k++) {
-       if (checkingFile[k].extractor_key === 'Youtube' && presentIds.includes(checkingFile[k].uId) && checkingFile[k].uploader.includes(searchPhrase)) {
+       if (checkingFile[k] && checkingFile[k].extractor_key === 'Youtube' && presentIds.includes(checkingFile[k].uId) && checkingFile[k].uploader.includes(searchPhrase)) {
           console.log(k);
           console.log(checkingFile[k]);
           console.log(k);

@@ -5,5 +5,5 @@ node .\niconicoUserLogger.js
 node .\nicoTagExtractor.js
 node .\nicoTagExtractor-nicolog.js
 node .\tagsLogger.js
-node .\jsonMonthDivider.js     
+node .\jsonMonthDivider_gradual.js OR node .\jsonMonthDivider_bulk.js   
 node .\jsonMonthDivider2.js     
