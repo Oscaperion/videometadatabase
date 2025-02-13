@@ -90,9 +90,9 @@ youtubeUserList.forEach((userIds, index) => {
 });
     
 let allEntries = {};
-// let pathsS = [];
+let pathsS = [];
 // let pathCurrent = 0;
-let parsedData = [];
+//let parsedData = [];
 
 for (let tu = maxJsonAmount; tu >= -1; tu--) {
 // for (let tu = 0; tu >= -1; tu--) {
@@ -105,27 +105,27 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
        if (tu === 0) {
           let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json';
           // let filepath = 'C:/Users/Public/test/split_parts/finnredo.json';
-          // pathsS.push(filepath);
+          pathsS.push(filepath);
           console.log(filepath);
-          let tmpArrar = JSON.parse(fs.readFileSync(filepath, 'utf8'));
-          parsedData.push(tmpArrar);
+          // let tmpArrar = JSON.parse(fs.readFileSync(filepath, 'utf8'));
+          // parsedData.push(tmpArrar);
        }
        if (tu === -1) {
           let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids0.json';
           // let filepath = 'C:/Users/Public/test/split_parts/vids0.json';
-          // pathsS.push(filepath);
+          pathsS.push(filepath);
           console.log(filepath);
-          let tmpArrar =  JSON.parse(fs.readFileSync(filepath, 'utf8')).videos;
-          parsedData.push(tmpArrar);
+          // let tmpArrar =  JSON.parse(fs.readFileSync(filepath, 'utf8')).videos;
+          // parsedData.push(tmpArrar);
        }
        if (tu > 0) {
           let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';
           console.log(filepath);
           // let filepath = 'C:/Users/Public/test/split_parts/vids' + tu + '.json';
-          // pathsS.push(filepath);
-          let tmpArrar = JSON.parse(fs.readFileSync(filepath, 'utf8')).videos;
+          pathsS.push(filepath);
+          // let tmpArrar = JSON.parse(fs.readFileSync(filepath, 'utf8')).videos;
           // console.log(tmpArrar);
-          parsedData.push(tmpArrar);
+          // parsedData.push(tmpArrar);
        }
 }
 
@@ -166,37 +166,48 @@ for (let jj = 0; jj < pathsS.length; jj++) {
 
 //const dayRange = [[1,10],[11,20],[21,31]];
 
-let gatheredIds = [];
 let parsedData2 = {};
-        
-        /*
-for (let i = 0; i < parsedData.length; i++) {
-   for (let j = 0; j < parsedData[i].length; j++) {
-      let idTmp = parsedData[i][j].id;
-      console.log((i + 1) + "/" + parsedData.length + " --- " + (j + 1) + "/" + parsedData[i].length);
-      if (!parsedData[i][j].upload_date) { console.log("Video with ID " + idTmp + " doesn't have upload date"); continue; }
+const gatheredIds = new Set();
+
+for (let i = 0; i < pathsS.length; i++) {
+   const parsedData = JSON.parse(fs.readFileSync(pathsS[i], 'utf8')).videos;
+   console.log("Checking: " + pathsS[i]);
+
+   for (let j = 0; j < parsedData.length; j++) {
+      let idTmp = parsedData[j].id;
+      //console.log((i + 1) + "/" + pathsS.length + " --- " + (j + 1) + "/" + parsedData.length);
+      if (!parsedData[j].upload_date) { 
+         //console.log("Video with ID " + idTmp + " doesn't have upload date");
+         continue;
+      }
 
       if (Array.isArray(idTmp)) idTmp = idTmp[0];
 
-      if (gatheredIds.includes(idTmp)) { console.log("Video with ID " + idTmp + " already present"); continue; }
+      if (gatheredIds.has(idTmp)) { 
+         console.log("Video with ID " + idTmp + " already present");
+         continue;
+      }
+
+      let tmpEnt = entryEditor(parsedData[j]);
+
+      if (!tmpEnt) { 
+         //console.log("Video with ID " + idTmp + " was discarded due to entryEditor");
+         continue;
+      }
       
-      let tmpEnt = entryEditor(parsedData[i][j]);
+      if (!parsedData2[parsedData[j].upload_date.substring(0,6)]) parsedData2[parsedData[j].upload_date.substring(0,6)] = [];
 
-      if (!tmpEnt) { console.log("Video with ID " + idTmp + " was discarded due to entryEditor"); continue; }
-      
-      if (!parsedData2[parsedData[i][j].upload_date.substring(0,6)]) parsedData2[parsedData[i][j].upload_date.substring(0,6)] = [];
+      parsedData2[parsedData[j].upload_date.substring(0,6)].push(tmpEnt);
 
-      parsedData2[parsedData[i][j].upload_date.substring(0,6)].push(tmpEnt);
+      if (Array.isArray(parsedData[j].id)) parsedData[j].id.forEach(id => gatheredIds.add(id));
+      else gatheredIds.add(parsedData[j].id);
 
-      if (Array.isArray(parsedData[i][j].id)) gatheredIds.push(...parsedData[i][j].id);
-      else gatheredIds.push(parsedData[i][j].id);
-
-      console.log(parsedData[i][j].upload_date.substring(0,6) + " --- " + parsedData[i][j].id);
+      // console.log(parsedData[j].upload_date.substring(0,6) + " --- " + parsedData[j].id);
    }
    // console.log(parsedData2);
 }    
-     */
-     
+
+              /*
 let indexList = [];
 
 for (let i = 0; i < parsedData.length; i++) {
@@ -269,7 +280,7 @@ for (let m = 0; m < months.length; m++) {
 
    console.log("Handling: " + months[m]);
    fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + months[m] + '.json', JSON.stringify(tmpList));
-}
+}     */
 
 /*
 indexList = indexList.sort((a,b) => {
@@ -284,7 +295,7 @@ indexList = indexList.sort((a,b) => {
 console.log(indexList);
 console.log(parsedData[indexList[0].ind1][indexList[0].ind2]);  */
 
-        /*
+
 for (let k = 0; k < Object.keys(parsedData2).length; k++) {
    let keyTmp = Object.keys(parsedData2)[k];
 
@@ -302,7 +313,7 @@ for (let k = 0; k < Object.keys(parsedData2).length; k++) {
 
    //parsedData2
    fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + keyTmp + '.json', JSON.stringify(monthlyArray));
-}     */
+}
 
 /*
 
@@ -569,7 +580,7 @@ function entryEditor(entryVid) {
            if (tmpUserInfo.nicologEntry) {
               entry["uploader_id"] = tmpUserInfo.uId;
               entry["uploader"] = tmpUserInfo.uploader;
-              console.log("User info patched for " + entry.id + ": " + tmpUserInfo.uploader + " (" + tmpUserInfo.uId + ")");
+              //console.log("User info patched for " + entry.id + ": " + tmpUserInfo.uploader + " (" + tmpUserInfo.uId + ")");
            }
         }
      }
