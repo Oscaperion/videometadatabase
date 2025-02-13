@@ -74,6 +74,20 @@ let ignoreUsers = [];
 }
 
 console.log(ignoreUsers);
+
+const missingNicoUsers_idSet = new Set(missingNicoUsers.map(item => item.id));
+const ignoreUsersSet = new Set(ignoreUsers);
+const nicoTagsMap  = new Map(nicoTags.map(item => [item.id, item]));
+const nicoTags2Map = new Map(nicoTags2.map(item => [item.id, item]));
+const niconicoUserListSet = new Set(niconicoUserList);
+const tagsListMap = new Map(tagsList.map((tag, index) => [tag.toLowerCase().trim(), index]));
+
+const youtubeUserListMap = new Map();
+youtubeUserList.forEach((userIds, index) => {
+    userIds.forEach(id => {
+        youtubeUserListMap.set(id, index);
+    });
+});
     
 let allEntries = {};
 // let pathsS = [];
@@ -337,12 +351,17 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
  // }
 }      */
 
+
 function optimizeTags(tagsArray) {
    let tmpTags = [];
 
    for (let k = 0; k < tagsArray.length; k++) {
-      let tmpIndex = tagsList.findIndex(ent => ent === tagsArray[k].toLowerCase().trim());
-      if (tmpIndex >= 0) tmpTags.push(tmpIndex);
+      let normalizedTag = tagsArray[k].toLowerCase().trim();
+      let tmpIndex = tagsListMap.get(normalizedTag);
+      if (tmpIndex !== undefined) tmpTags.push(tmpIndex);
+
+      // let tmpIndex = tagsList.findIndex(ent => ent === tagsArray[k].toLowerCase().trim());
+      // if (tmpIndex >= 0) tmpTags.push(tmpIndex);
       else tmpTags.push(tagsArray[k]);
    }
 
@@ -528,7 +547,12 @@ function writeFiles() {
 }
 
 function entryEditor(entryVid) {
+   if (ignoreUsersSet.has(entryVid.channel_id) || ignoreUsersSet.has(entryVid.uploader_id)) return undefined;
+   
+   if (!entryVid.upload_date) return undefined;
+
    let entry = entryVid;
+
    //let parsedVideos = vidds[tu];
    //if (entry.upload_date > minDate && entry.upload_date < maxDate) return undefined;
    {
@@ -539,8 +563,8 @@ function entryEditor(entryVid) {
      // let tmpUploader   = entry.uploader;
 
      // For Niconico entries that are missing uploader info
-     if (entry.extractor_key === "Niconico" && (entry.uploader_id === undefined || entry.uploader_id === null)) {
-        if (missingNicoUsers.map(item => item.id).includes(entry.id)) {
+     if (entry.extractor_key === "Niconico" && (!entry.uploader_id)) {
+        if (missingNicoUsers_idSet.has(entryVid.id)) {
            let tmpUserInfo = missingNicoUsers.find(item => item.id === entry.id);
            if (tmpUserInfo.nicologEntry) {
               entry["uploader_id"] = tmpUserInfo.uId;
@@ -550,34 +574,20 @@ function entryEditor(entryVid) {
         }
      }
 
-     if (ignoreUsers.includes(entry.channel_id) || ignoreUsers.includes(entry.uploader_id)) return undefined;
+     /*
      let tttmp_id = entry.id;
      if (Array.isArray(entry.id)) tttmp_id = entry.id[0];
-     if (gatheredIds.includes(tttmp_id)) return undefined;
+     if (gatheredIds.includes(tttmp_id)) return undefined;   */
    }
 
-   if (entry.upload_date === undefined || entry.upload_date === null) {
-   //if (entry.extractor_key === "BiliBili" && entry.upload_date === undefined) {
-      // console.log("Bilibili with undefined release date: not adding");
-      return undefined;
-   }
-   //console.log(entry.upload_date.substring(0,6) + " --- " + targetMonth + (entry.upload_date.substring(0,6) === targetMonth));
-   // if (entry.upload_date.substring(0,6) !== targetMonth) return undefined;
-
-   //if (parsedVideos[oi].upload_date > minDate && parsedVideos.videos[oi].upload_date < maxDate)
    {
 
        let tmpVid =  entry;
        //if (tmpVid.uploader_id.includes("UCC_kncD0fjZiTlEM7Wdnv3g")) console.log("ZIIIIIIIIIIIIIIIIIIIIIIIP1");
        let addForSure = true;
-              /*
-       // if (tmpVid.extractor_key === "Youtube" && (tmpVid.uploader_id === undefined || tmpVid.uploader_id === null)) {
-       if (tmpVid.extractor_key === "Youtube" && (tmpVid.channel_id === undefined || tmpVid.channel_id === null)) {
-          // console.log(tmpVid);
-          tmpVid["uploader_id"] = tmpVid.channel_id;
-       }    */
 
-       if (ignoreUsers.includes(tmpVid.uploader_id)) return undefined; // addForSure = false;
+
+       // if (ignoreUsers.includes(tmpVid.uploader_id)) return undefined; // addForSure = false;
 
        if (tmpVid.extractor_key === "Twitter") {
           let truId = tmpVid.webpage_url.substring(tmpVid.webpage_url.indexOf('/status/') + 8);
@@ -596,11 +606,12 @@ function entryEditor(entryVid) {
 
        if (tmpVid.extractor_key === "Niconico") {
           if (!tmpVid.tags || tmpVid.tags.length === 0) {
-            
+
             // console.log("Testoriinoni");
 
-            let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
-            if (tmpTags === undefined) tmpTags = nicoTags.find(ent => ent.id === tmpVid.id);
+            let tmpTags = nicoTags2Map.get(tmpVid.id);
+            // let tmpTags = nicoTags2.find(ent => ent.id === tmpVid.id);
+            if (!tmpTags) tmpTags = nicoTagsMap.get(tmpVid.id); // nicoTags.find(ent => ent.id === tmpVid.id);
             if (tmpTags !== undefined) {
                let checkingTags = tmpTags.tags;
 
@@ -622,24 +633,26 @@ function entryEditor(entryVid) {
 
                tmpTagss = checkingTags;
             }
-          } 
-          
+          }
+
           if (tmpVid.tags && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
 
           // If the uploader ID is present in the external list of IDs, this'll add the ID matching that list
-          if (niconicoUserList.includes(tmpVid.uploader_id)) {
+          // if (niconicoUserList.includes(tmpVid.uploader_id)) {
+          if (niconicoUserListSet.has(tmpVid.uploader_id)) {
              tmpVid["uId"] = niconicoUserList.indexOf(tmpVid.uploader_id);
              delete tmpVid["uploader_id"];
           }
        }
        else {
        // if (tmpVid.extractor_key !== "Niconico") {
-          if (tmpVid.tags && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
-          // if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
+          // if (tmpVid.tags && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
+          if (tmpVid.tags !== undefined && tmpVid.tags !== null && tmpVid.tags.length > 0) tmpTagss = optimizeTags(tmpVid.tags);
        }
 
        tmpVid["tags"] = tmpTagss;
 
+       /*
        if (tmpVid.extractor_key === "Youtube" && addForSure) {
           let uploader_id_tmp = -1 // tmpVid.uploader_id;
           let uploaderFound = false;
@@ -666,6 +679,18 @@ function entryEditor(entryVid) {
 
           delete tmpVid["uploader_id"];
           delete tmpVid["channel_id"];
+       }    */
+       
+       if (tmpVid.extractor_key === "Youtube" && addForSure) {
+          let userIid = tmpVid.channel_id || tmpVid.uploader_id;
+          if (userIid) {
+             let uId = youtubeUserListMap.get(userIid);
+             if (uId !== undefined) {
+                tmpVid["uId"] = uId;
+             }
+             delete tmpVid["uploader_id"];
+             delete tmpVid["channel_id"];
+         }
        }
 
        /*
@@ -694,31 +719,7 @@ function entryEditor(entryVid) {
 
        }
 
-       if (addForSure) {      /*
-          // console.log("Found: " + tmpVid.upload_date + " -- " + tmpVid.id);
-          let tmp_id = tmpVid.id;
-          if (Array.isArray(tmpVid.id)) tmp_id = tmpVid.id[0];
-
-          if (gatheredIds.includes(tmp_id)) {
-             // console.log("Video (" + tmp_id + ") already added");
-             return undefined; // continue;
-          }
-
-
-          if (!gatheredIds.includes(tmp_id)) {
-             toBeSortedList.push(tmpVid);
-          } else {
-             console.log("Video (" + tmp_id + ") already added");
-             continue;
-          }
-
-          if (Array.isArray(tmpVid.id)) {
-             for (let i = 0; i < tmpVid.id.length; i++) {
-                gatheredIds.push(tmpVid.id[i]);
-             }
-          } else {
-             gatheredIds.push(tmpVid.id);
-          }    */
+       if (addForSure) {
 
           return tmpVid;
        } else {
