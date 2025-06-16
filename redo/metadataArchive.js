@@ -1,5 +1,4 @@
 const fs = require('fs');
-//const readline = require('readline');
 const url = require('url');
 const http = require('http');
 const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -30,8 +29,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      months.
 */
 const maxMonth = 202512;
-const minMonth = 200601;
-//const minMonth = 201501;
+//const minMonth = 200401;
+const minMonth = 201001;
 
 /*
    Determines how many entries are being shown per page.
@@ -111,18 +110,16 @@ function getLastUpdated() {
 */
 
 const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf8'));
-//const tagsList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
 //const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
 const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList2.json', 'utf8'));
-//const youtubeUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
 //const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
 const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
 
 const sameUserListLoc = jsonLocationComp + 'sameUsers.json';
-//const sameUserListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/sameUsers.json';
 //const sameUserListLoc = 'vidJson2/sameUsers.json';
+
 let sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
 
 const reuploadListLoc = jsonLocationComp + 'reuploads.json';
@@ -146,8 +143,8 @@ function getHeaderText() {
 }
 
 /*
-   If JSON files for reuploadShowing, twitterUserList or sameUserList are changed, they will be
-     reread by the database.
+   If JSON files for reuploadShowing, twitterUserList, sameUserList or headers are changed,
+     they will be reread by the database.
 */
 fs.watchFile(reuploadListLoc, (curr,prev) => {
    try {
@@ -198,7 +195,6 @@ fs.watchFile(headerTextJpLoc, (curr,prev) => {
        console.log ("Noperiino");
    }
 });
-
 
 /*
    In case an uploader ID hasn't been specified in an entry, this string is used as a
@@ -253,21 +249,14 @@ let searchedUser = "";
 let searchingUser = false;
 
 /*
-   This determines, whether or not the database will process a query or show all the 
-      videos in the database. If no search query is given, the database shows all
-      videos by default.
-*/
-//var showAllVideos = true;
-
-/*
    These are to be used as part of queries that specify certain dates. Also used to 
      ensure that the user won't just input whatever they please.
 */
-let mostRecentDate;
-let leastRecentDate;
-let dateQueried1;
-let dateQueried2;
-let customRangeApplied = false;
+//let mostRecentDate;
+//let leastRecentDate;
+//let dateQueried1;
+//let dateQueried2;
+//let customRangeApplied = false;
 
 /*
    These are used as part of a method to determine, whether or not to exclude particular
@@ -335,10 +324,10 @@ console.log('All metadata loaded!');
 
 console.log("Total number of entries: " + parsedVideos.length);
 
-mostRecentDate = parsedVideos[0].upload_date;
-leastRecentDate = parsedVideos[parsedVideos.length - 1].upload_date;
-dateQueried1 = mostRecentDate;
-dateQueried1 = leastRecentDate;
+//mostRecentDate = parsedVideos[0].upload_date;
+//leastRecentDate = parsedVideos[parsedVideos.length - 1].upload_date;
+//dateQueried1 = mostRecentDate;
+//dateQueried1 = leastRecentDate;
 
 /*
    Used to turn seconds into more readable form.
@@ -372,6 +361,20 @@ function formatDuration(justSeconds) {
     }
 
     return hours + ':' + ("" + mins).padStart(2, '0') + ':' + ("" + secs).padStart(2, '0');
+}
+
+function getUploadDate(entry) {
+   if (!entry.timestamp) return entry.upload_date + " &#63;&#63;:&#63;&#63;:&#63;&#63; UTC";
+
+   let dateTmp = new Date(entry.timestamp * 1000);
+   const entYear = dateTmp.getUTCFullYear();
+   const entMonth = String(dateTmp.getUTCMonth() + 1).padStart(2, '0');
+   const entDay = String(dateTmp.getUTCDate()).padStart(2, '0');
+   const entHours = String(dateTmp.getUTCHours()).padStart(2, '0');
+   const entMinutes = String(dateTmp.getUTCMinutes()).padStart(2, '0');
+   const entSeconds = String(dateTmp.getUTCSeconds()).padStart(2, '0');
+
+   return `${entYear}${entMonth}${entDay} ${entHours}:${entMinutes}:${entSeconds} UTC`;
 }
 
 // These are for converting video metadata into more decipherable form.
@@ -422,6 +425,7 @@ function videoEntryConverter(vidEnt) {
       return vidEnt.uploader_id; // If uId is not present, return existing uploader_id or undefined
    }
    
+   /*
    // Define getters for tags and uploader_id
    Object.defineProperties(vidEnt, {
       '_tags': {
@@ -434,7 +438,7 @@ function videoEntryConverter(vidEnt) {
          enumerable: true,
          configurable: true
       }
-   });
+   });        */
 
    return vidEnt;
 }
@@ -571,8 +575,6 @@ function compileList() {
    return retStr;
 }
 
-
-
 let searchedUploaderHasAlts = false;
 let uploadersAlts = [];
                                             
@@ -706,9 +708,9 @@ function hasSearchWords(searchWord,video) {
    // let video = parsedVideos[videoInd];
    let tagsTmp = videoTags2(video).join(" ").toLowerCase();
    let uploaderIdTmp = getUploaderId(video);
-   console.log(video);
+   // console.log(video);
    // console.log(uploaderIdTmp);
-   if (video.extractor_key === "Youtube") uploaderIdTmp = uploaderIdTmp.join(" ");
+   if (video.extractor_key === "Youtube" && Array.isArray(uploaderIdTmp)) uploaderIdTmp = uploaderIdTmp.join(" ");
    if (!uploaderIdTmp) uploaderIdTmp = "";
 
    /*
@@ -735,8 +737,7 @@ function hasSearchWords(searchWord,video) {
              (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)) ||
              (video.uploader_id && video.uploader_id.toLowerCase().includes(srcWrd)) ||
              */
-             uploaderIdTmp.toLowerCase().includes(srcWrd) ||
-             video.upload_date.toLowerCase().includes(srcWrd)
+             uploaderIdTmp.toLowerCase().includes(srcWrd) //|| video.upload_date.toLowerCase().includes(srcWrd)
              ) return true;
 
          return false;
@@ -959,9 +960,36 @@ function addLinks(descri) {
    if (smMatchesNeg) noURLs = true;
 
    let indexOffSet = 0;
+   
+   let linkChek1 = ['<a','</a>'];
+   let linkChek2 = retArr.indexOf(linkChek1[0]);
+   let linkChek3 = [];
+   while (linkChek2 > -1) {
+      let linkChek4 = retArr.indexOf(linkChek1[1],linkChek2);
+      
+      linkChek3.push(linkChek2);
+      linkChek3.push(linkChek4);
+      
+      linkChek2 = retArr.indexOf(linkChek1[0],linkChek4);
+   }
 
    for (let i = 0; i < smMatches.length; i++) {
       if (smMatchesNeg.includes(smMatches[i].strIndex)) continue;
+
+      let checkTmp = 0;
+      let checkTmp2 = true;
+      while ((checkTmp < linkChek3.length) && checkTmp2) {
+         // console.log("Foapofi");
+         if (smMatches[i].strIndex > linkChek3[checkTmp] && smMatches[i].strIndex < linkChek3[checkTmp + 1]) {
+            console.log("Foapofifsf");
+            checkTmp2 = false;
+            continue;
+         }
+         console.log("Foapofi");
+         // console.log("Foapofi "+ linkChek3 + " " + linkChek3[checkTmp] + " - " + smMatches[i].strIndex + " - " + linkChek3[checkTmp + 1]);
+         checkTmp = checkTmp + 2;
+      }
+      if (!checkTmp2) continue;
 
       //if (retArr.charAt[smMatches[i].strIndex - 1 + indexOffSet] === '/') continue;
 
@@ -1343,11 +1371,13 @@ function compileEntry(videoInd) {
 
    if (checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId)) userAddress += ' &#8212; ' + addOtherChannels(video.extractor_key,video.uploader_id,video.uId) + breakline;
 
-   userAddress += '<br/>';
+   userAddress += '<br/>';                              getUploadDate
 
-   let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
+   // let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
+   let releaseDate = "Release date: " + getUploadDate(video) + '<br/><br/>' + breakline;
    if (pageLanguage === "jp") {
-     releaseDate = "&#20844;&#38283;&#26085;: " + video.upload_date + '<br/><br/>' + breakline;
+     // releaseDate = "&#20844;&#38283;&#26085;: " + video.upload_date + '<br/><br/>' + breakline;
+     releaseDate = "&#20844;&#38283;&#26085;: " + getUploadDate(video) + '<br/><br/>' + breakline;
    }
 
    let descTmp = editDescription(video.description,video.extractor_key) + '<br/>' + breakline;
@@ -1666,7 +1696,7 @@ let srvr = http.createServer(function (req, res) {
 
    // console.log(parsedVideos);
    console.log(videoEntryWithId("sm44501923"));
-   console.log(videoEntryWithId("sm44501923")._tags);
+   // console.log(videoEntryWithId("sm44501923")._tags);
 
    let quer = url.parse(req.url, true);
    pageLanguage = 'en';

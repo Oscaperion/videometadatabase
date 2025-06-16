@@ -3,7 +3,7 @@ let fs = require('fs');
 const folderLocation = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids';
 const saveLocation = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid.json';
 let noUidVids = [];
-const yearMax = 202412;
+const yearMax = 202512;
 const yearMin = 200601;
 
 for (let i = yearMax; i >= yearMin; i--) {

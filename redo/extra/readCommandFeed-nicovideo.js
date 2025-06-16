@@ -3,9 +3,9 @@ const readline = require('readline');
 const utf8 = require('utf8');
 
 let printString = '';
-let gatheredIds = [];
-const checkStr1 = 'ERROR: [niconico]';
-const checkStr2 = ':';
+var gatheredIds = [];
+const checkStr1 = '[niconico]'; // 'ERROR: [niconico]';
+const checkStr2 = ': Downloading API JSON';  // ':';
 
 /*
 try {
@@ -27,14 +27,21 @@ readInterface.on('line', (line) => {
   if (line.includes(checkStr1)) handleLine(line);
 });
 
+readInterface.on('close', (line) => {
+  let retList = {"id": gatheredIds};
+  fs.writeFileSync('F:/Dropbox/NodeJS/delNicovids5.json', JSON.stringify(retList));
+});
+
 function handleLine(readLine) {
 
   let tmpPos1 = readLine.indexOf(checkStr1);
   let tmpStr1 = readLine.substring(checkStr1.length + tmpPos1);
   let tmpPos2 = tmpStr1.indexOf(checkStr2);
+  if (tmpPos2 < 0) return;
   let tmpStr2 = tmpStr1.substring(0,tmpPos2).trim();
 
-  fs.appendFileSync('F:/Dropbox/NodeJS/delNicovids.txt', tmpStr2 + '\n');
+  gatheredIds.push(tmpStr2);
+  // fs.appendFileSync('F:/Dropbox/NodeJS/delNicovids4.txt', tmpStr2 + '\n');
   console.log("Added " + tmpStr2 + "!");
 
   /*
@@ -53,3 +60,7 @@ function handleLine(readLine) {
       }
    } */
 }
+
+//console.log(gatheredIds);
+//let retList = {"id": gatheredIds};
+//fs.writeFileSync('F:/Dropbox/NodeJS/delNicovids4.json', JSON.stringify(gatheredIds));

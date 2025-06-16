@@ -47,7 +47,7 @@ function takeOutLinks(ogDescription) {
       newDescription = newDescription + tmpDescription.substring(linkOpenerEnd,linkEnd);
 
       tmpDescription = tmpDescription.substring(linkEnd + checkTmp3.length);
-      
+
       linkPresentIndex = tmpDescription.indexOf(checkTmp1);
    }
    
@@ -61,7 +61,7 @@ function takeOutLinks(ogDescription) {
 //for (let j = 12; j >= 12; j--) {
 //for (let j = 61; j >= 7; j--) {
 //for (let j = 0; j >= 0; j--) {
-for (let j = 63; j >= 63; j--) {
+for (let j = 65; j >= 65; j--) {
 
   if (j === 0) readTwitterVids = true;
   else readTwitterVids = false;
@@ -255,6 +255,12 @@ for (let j = 63; j >= 63; j--) {
 
         if (tmp1 === "Twitter") {
             webbUrl = "https://twitter.com/" + parsedJSON.uploader_id + "/status/" + parsedJSON.display_id;
+            parsedJSON.title = "";
+        }
+        
+        if (tmp1 === "Bluesky") {
+            uPage = parsedJSON.channel_url;
+            parsedJSON.title = "";
         }
 
         // let cmpStr = parsedJSON.upload_date + ' ' + parsedJSON.title + ' ' + parsedJSON.id + ' ' + parsedJSON.uploader + ' ' +  parsedJSON.uploader_url;
@@ -279,7 +285,7 @@ for (let j = 63; j >= 63; j--) {
         let editDesc = takeOutLinks(parsedJSON.description);
 
         let newVideoInfo = {
-            upload_date: parsedJSON.upload_date,
+            // upload_date: parsedJSON.upload_date,
             id: vidId,
             webpage_url: webbUrl,
             title: parsedJSON.title,
@@ -292,6 +298,27 @@ for (let j = 63; j >= 63; j--) {
             tags: parsedJSON.tags,
             extractor_key: ext_tmp
         };
+        
+        // This will apply either "upload_date" or "timestamp" on the metadata.
+        // Timestamp is UNIX timestamp of video's release date (in UTC)
+        // If video metadata doesn't include timestamp, include upload_date (YYYYMMDD) instead
+        if (!parsedJSON.release_timestamp && !parsedJSON.timestamp) {
+           newVideoInfo["upload_date"] = parsedJSON.upload_date;
+        } else {
+           let timestampTmp1 = parsedJSON.release_timestamp;
+           let timestampTmp2 = parsedJSON.timestamp;
+           let timestampTmp3 = null;
+
+           if (!timestampTmp1) timestampTmp3 = timestampTmp2;
+           else if (!timestampTmp2) timestampTmp3 = timestampTmp1;
+
+           if (!timestampTmp3) {
+              timestampTmp3 = timestampTmp1;
+              if (timestampTmp1 > timestampTmp2) timestampTmp3 = timestampTmp2;
+           }
+
+           newVideoInfo["timestamp"] = timestampTmp3;
+        }
 
         console.log(newVideoInfo.id + ' -- ' + dirName);
 
@@ -329,7 +356,7 @@ for (let j = 63; j >= 63; j--) {
         }
 
         //if (ignoreBilibiliPlaylists) {
-           if (newVideoInfo.extractor_key === "BiliBili" && newVideoInfo.upload_date === undefined) {
+           if (newVideoInfo.extractor_key === "BiliBili" && (newVideoInfo.upload_date === undefined && newVideoInfo.timestamp === undefined)) {
               console.log("Bilibili with undefined release date: not adding");
               return;
               //willBeAdded = false;
@@ -344,7 +371,7 @@ for (let j = 63; j >= 63; j--) {
         
 
         
-        if (newVideoInfo.extractor_key === "Niconico" && newVideoInfo.upload_date === undefined) {
+        if (newVideoInfo.extractor_key === "Niconico" && (newVideoInfo.upload_date === undefined && newVideoInfo.timestamp === undefined)) {
            console.log("Niconico with undefined release date: not adding");
 	   buggedNiconico.push(newVideoInfo.id);
            return;
