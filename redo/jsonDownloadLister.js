@@ -11,7 +11,7 @@ const idSet = new Set();
 
 //var rString = '';
 //let tu;
-for (let tu = 63; tu >= -1; tu--) {
+for (let tu = 65; tu >= -1; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
 //var parsedVideos = JSON.parse(videoitaFile);
     let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';

@@ -13,7 +13,7 @@ const JSONStream = require('JSONStream');
 console.log("Amane");
 
 // This determines how many JSON files are to be sorted
-const maxJsonAmount = 63;
+const maxJsonAmount = 65;
 
 /* These determine the time frame that will be processed. If a video was released outside
    of this time frame or has an undefined release date, its metadata won't be processed and
@@ -94,7 +94,8 @@ let pathsS = [];
 // let pathCurrent = 0;
 //let parsedData = [];
 
-for (let tu = maxJsonAmount; tu >= -1; tu--) {
+for (let tu = 65; tu >= 52; tu--) {
+// for (let tu = maxJsonAmount; tu >= -1; tu--) {
 // for (let tu = 0; tu >= -1; tu--) {
 
     //for (let tu = 0; tu < vidds.length; tu++) {
@@ -176,7 +177,7 @@ for (let i = 0; i < pathsS.length; i++) {
    for (let j = 0; j < parsedData.length; j++) {
       let idTmp = parsedData[j].id;
       //console.log((i + 1) + "/" + pathsS.length + " --- " + (j + 1) + "/" + parsedData.length);
-      if (!parsedData[j].upload_date) { 
+      if (!parsedData[j].upload_date && !parsedData[j].timestamp) {
          //console.log("Video with ID " + idTmp + " doesn't have upload date");
          continue;
       }
@@ -184,7 +185,7 @@ for (let i = 0; i < pathsS.length; i++) {
       if (Array.isArray(idTmp)) idTmp = idTmp[0];
 
       if (gatheredIds.has(idTmp)) { 
-         console.log("Video with ID " + idTmp + " already present");
+         //console.log("Video with ID " + idTmp + " already present");
          continue;
       }
 
@@ -194,10 +195,19 @@ for (let i = 0; i < pathsS.length; i++) {
          //console.log("Video with ID " + idTmp + " was discarded due to entryEditor");
          continue;
       }
-      
-      if (!parsedData2[parsedData[j].upload_date.substring(0,6)]) parsedData2[parsedData[j].upload_date.substring(0,6)] = [];
 
-      parsedData2[parsedData[j].upload_date.substring(0,6)].push(tmpEnt);
+      let uploadDateTmp = parsedData[j].upload_date;
+      if (!uploadDateTmp) {
+         let dateTmp = new Date(parsedData[j].timestamp * 1000);
+         uploadDateTmp = dateTmp.getUTCFullYear() + "" + String(dateTmp.getUTCMonth() + 1).padStart(2, '0');
+      }
+      else uploadDateTmp = uploadDateTmp.substring(0,6);
+      
+      // if (!parsedData2[parsedData[j].upload_date.substring(0,6)]) parsedData2[parsedData[j].upload_date.substring(0,6)] = [];
+      // parsedData2[parsedData[j].upload_date.substring(0,6)].push(tmpEnt);
+      
+      if (!parsedData2[uploadDateTmp]) parsedData2[uploadDateTmp] = [];
+      parsedData2[uploadDateTmp].push(tmpEnt);
 
       if (Array.isArray(parsedData[j].id)) parsedData[j].id.forEach(id => gatheredIds.add(id));
       else gatheredIds.add(parsedData[j].id);
@@ -306,8 +316,25 @@ for (let k = 0; k < Object.keys(parsedData2).length; k++) {
       //if (a.extractor_key === "Twitter") titleA = a.id;
       //let titleB = b.title + b.id;
       //if (b.extractor_key === "Twitter") titleB = b.id;
+      
+      let tmpADate = a.upload_date;
+      if (!tmpADate) {
+         let timestampTmpA = new Date(a.timestamp * 1000);
+         tmpADate = timestampTmpA.getUTCFullYear() + String(timestampTmpA.getUTCMonth() + 1).padStart(2, '0') + String(timestampTmpA.getUTCDate()).padStart(2, '0') +
+                    String(timestampTmpA.getUTCHours()).padStart(2, '0') + String(timestampTmpA.getUTCMinutes()).padStart(2, '0') + String(timestampTmpA.getUTCSeconds()).padStart(2, '0');
+      }
+      else tmpADate = tmpADate + "000000";
 
-      if (a.upload_date + a.title + a.id > b.upload_date + b.title + b.id) return -1
+      let tmpBDate = b.upload_date;
+      if (!tmpBDate) {
+         let timestampTmpB = new Date(b.timestamp * 1000);
+         tmpBDate = timestampTmpB.getUTCFullYear() + String(timestampTmpB.getUTCMonth() + 1).padStart(2, '0') + String(timestampTmpB.getUTCDate()).padStart(2, '0') +
+                    String(timestampTmpB.getUTCHours()).padStart(2, '0') + String(timestampTmpB.getUTCMinutes()).padStart(2, '0') + String(timestampTmpB.getUTCSeconds()).padStart(2, '0');
+      }
+      else tmpBDate = tmpBDate + "000000";
+
+      // if (a.upload_date + a.title + a.id > b.upload_date + b.title + b.id) return -1
+      if (tmpADate + a.title + a.id > tmpBDate + b.title + b.id) return -1
       return 1;
    });
 
@@ -560,7 +587,7 @@ function writeFiles() {
 function entryEditor(entryVid) {
    if (ignoreUsersSet.has(entryVid.channel_id) || ignoreUsersSet.has(entryVid.uploader_id)) return undefined;
    
-   if (!entryVid.upload_date) return undefined;
+   if (!entryVid.upload_date && !entryVid.timestamp) return undefined;
 
    let entry = entryVid;
 
