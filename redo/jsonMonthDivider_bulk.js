@@ -94,8 +94,8 @@ let pathsS = [];
 // let pathCurrent = 0;
 //let parsedData = [];
 
-for (let tu = 65; tu >= 52; tu--) {
-// for (let tu = maxJsonAmount; tu >= -1; tu--) {
+//for (let tu = 65; tu >= 25; tu--) {
+for (let tu = maxJsonAmount; tu >= -1; tu--) {
 // for (let tu = 0; tu >= -1; tu--) {
 
     //for (let tu = 0; tu < vidds.length; tu++) {

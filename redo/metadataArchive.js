@@ -11,7 +11,7 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts3/";
 //const jsonLocation = "vidJson2/";
 
 /*
@@ -28,9 +28,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202512;
-//const minMonth = 200401;
-const minMonth = 201001;
+const maxMonth = 2025129;
+const minMonth = 2004010;
 
 /*
    Determines how many entries are being shown per page.
