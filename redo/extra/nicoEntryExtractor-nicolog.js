@@ -33,16 +33,15 @@ requ_HSL.onreadystatechange = function() {
 
 checkVideo(process.argv[2].trim());
 
-//checkVideo("sm14226299");
+// checkVideo("sm14226299");
 
-// let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
-
-          /*
-let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-kon3.json', 'utf8')).id;
+//let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
+    /*
+let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp3.json', 'utf8')).id;
 
 for (let i = 0; i < idList.length; i++) {
    checkVideo(idList[i]);
-}       */
+}     */
 
 
 function checkVideo(videoId) {
@@ -69,7 +68,8 @@ function checkVideo(videoId) {
    tmp1 = feats_HSL.indexOf("</dd>");
    teee['title'] = feats_HSL.substring(0, tmp1);
 
-   // Extracting date
+   /*
+   // Extracting date (YYYYMMDD)
    console.log(feats_HSL);
    tmpStr1 = "\u6295\u7A3F\u65E5\u6642</dt><dd>";
    //console.log(tmpStr1);
@@ -85,6 +85,29 @@ function checkVideo(videoId) {
    //console.log(tmp2);
    // Format the date as YYYYMMDD
    teee["upload_date"] = `${tmp2[0]}${tmp2[1].padStart(2, '0')}${tmp2[2].padStart(2, '0')}`;
+   */
+   
+   // Extracting date (YYYYMMDD)
+   console.log(feats_HSL);
+   tmpStr1 = "\u6295\u7A3F\u65E5\u6642</dt><dd>";
+   //console.log(tmpStr1);
+   tmp1 = feats_HSL.indexOf(tmpStr1) + tmpStr1.length;
+   feats_HSL = feats_HSL.substring(tmp1);
+   // Cutting until day kanji
+   let tmp2 = feats_HSL.substring(0, feats_HSL.indexOf("\u79D2"));
+   // Replacing year and month kanji with dashes
+   // tmp2 = tmp2.replace('\u5E74', '-').replace('\u6708', '-');
+   //console.log(tmp2);
+   // Split the string into year, month, and day
+   // tmp2 = tmp2.split('-');
+   tmp2 = tmp2.split(/\u5E74|\u6708|\u65E5|\u6642|\u5206/).map(num => parseInt(num.trim(), 10));
+   //console.log(tmp2);
+   // Format the date as YYYYMMDD
+   // teee["upload_date"] = `${tmp2[0]}${tmp2[1].padStart(2, '0')}${tmp2[2].padStart(2, '0')}`;
+   // The times on Nicolog seem to be saved in UTC+9, so this converts them to UTC properly
+   let jstDate = new Date(Date.UTC(tmp2[0], tmp2[1] - 1, tmp2[2], tmp2[3], tmp2[4], tmp2[5]));
+   let utcDate = new Date(jstDate.getTime() - (9 * 60 * 60 * 1000));
+   teee["timestamp"] = utcDate.getTime() / 1000;
 
    // Extracting length
    tmpStr1 = "\u9577\u3055</dt><dd>";
