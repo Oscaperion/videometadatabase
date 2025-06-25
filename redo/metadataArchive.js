@@ -1,23 +1,38 @@
+/*
+   This is here in order to help the match-all run in the older NodeJS version on
+     A2 Hosting (v10.24.0). Uncomment if you get errors regarding "matchAll".
+     For function "addLinks"
+*/
+// require('core-js/modules/es.string.match-all');
+
+//const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
+
 const fs = require('fs');
 const url = require('url');
 const http = require('http');
-const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
+console.log(__dirname);
 
-// This is here in order to help the match-all run in the older NodeJS version on A2hosting. (For function "addLinks")
-// require('core-js/modules/es.string.match-all');
+/*
+   This is the port number where the database can be accessed once it's running. The link
+     would be in the following form:
+   
+   http://localhost:[portNumber]/YTPMV_Database/
+
+*/
+const portNumber = 3535;
 
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
-//const jsonLocation = "JSON/Videos";
+// const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+const jsonLocation = __dirname + "/Videos/";
 
 /*
    This is where the complementary JSON files for e.g. lists of tags and YouTube user IDs
      are located.
 */
-const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
-//const jsonLocationComp = "JSON/Others";
+//const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
+const jsonLocationComp = __dirname + "/Others/";
 
 /*
    These are used to process the JSON files that contain the entries for the database.
@@ -26,8 +41,8 @@ const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
      correctly. If there are no files for certain months, the code will just ignore those
      months.
 */
-const maxMonth = 202512;
-const minMonth = 200401;
+// const maxMonth = 202512;
+// const minMonth = 200401;
 
 /*
    Determines how many entries are being shown per page.
@@ -46,13 +61,14 @@ const limitForVideoPage = 30;
      without these values (&*botCheckName*=*botCheckValue*) will be redirected to a
      placeholder page, which will provide instructions on how to carry on with the query
      for actual visitors. So far this has been surprisingly effective, but if bots ever
-     learn to take this into consideration a more robust measure need to be implemented.
+     learn to take this into consideration, a more robust measure need to be implemented.
 */
 // const botCheckName = "rumour_do_be";
 // const botCheckValue = "chio_be_chompi";
 
 /*
-   Changes the language for the site. Currently only supports English and Japanese.
+   Changes the language for the site. Currently only supports English (en) and
+     Japanese (jp).
 */
 let pageLanguage = 'en';
 
@@ -111,13 +127,16 @@ const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUs
 const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
 
 const sameUserListLoc = jsonLocationComp + 'sameUsers.json';
-let sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
+let sameUserList = [];
+try { sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8')); console.log("Same user list present! Loaded!"); } catch (error) { console.log("Same user not present!"); }
 
 const reuploadListLoc = jsonLocationComp + 'reuploads.json';
-let reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
+let reuploadShowing = [];
+try { reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8')); console.log("Reuploaded videos list present! Loaded!");  } catch (error) { console.log("Reuploaded videos list not present!"); }
 
 const twitterUserLoc = jsonLocationComp + 'twitterUserList.json';
-let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
+let twitterUserList = [];
+try { twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8')); console.log("Twitter handle list present! Loaded!"); } catch (error) { console.log("Twitter handle list not present!"); }
 
 const headerTextLoc = jsonLocationComp + 'forHeader.txt';
 let headerText = fs.readFileSync(headerTextLoc, 'utf8');
@@ -137,7 +156,7 @@ fs.watchFile(reuploadListLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
-       forceGC();
+       // forceGC();
    } catch (error) {
        console.log ("Noperiino");
    }
@@ -145,9 +164,9 @@ fs.watchFile(reuploadListLoc, (curr,prev) => {
 
 fs.watchFile(twitterUserLoc, (curr,prev) => {
    try {
-       console.log("Hoperiino"); 
+       console.log("Hoperiino");
        twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
-       forceGC();
+       // forceGC();
    } catch (error) {
        console.log ("Noperiino");
    }
@@ -157,7 +176,7 @@ fs.watchFile(sameUserListLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
-       forceGC();
+       // forceGC();
    } catch (error) {
        console.log ("Noperiino");
    }
@@ -167,7 +186,7 @@ fs.watchFile(headerTextLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        headerText = fs.readFileSync(headerTextLoc, 'utf8');
-       forceGC();
+       // forceGC();
    } catch (error) {
        console.log ("Noperiino");
    }
@@ -177,7 +196,7 @@ fs.watchFile(headerTextJpLoc, (curr,prev) => {
    try {
        console.log("Hoperiino"); 
        headerTextJp = fs.readFileSync(headerTextLocJp, 'utf8');
-       forceGC();
+       // forceGC();
    } catch (error) {
        console.log ("Noperiino");
    }
@@ -194,14 +213,14 @@ const nullUploaderPlaceholder = 'skaPiPiduuDelierp';
    IF YOU NEED TO BE MINDFUL OF MEMORY USAGE, UNCOMMENT THIS BIT AS WELL AS ALL
      "forceGC();" FOUND IN THIS SCRIPT
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
-*/
+*/  /*
 function forceGC() {
    if (global.gc) {
       global.gc();
    } else {
       console.warn('No GC hook! Start your program as `node --expose-gc file.js`.');
    }
-}
+} */
 
 /*
    Linebreak for strings
@@ -285,9 +304,12 @@ fs.readdir(jsonLocation, (err, files) => {
          console.log('Loaded!');
          // forceGC();
       } catch(e) {
-         console.log("ERROR! FILE COULDN'T BE READ");
+         console.log("ERROR! FILE COULDN'T BE READ!");
       }
    });
+
+   console.log('All metadata loaded!');
+   console.log("Total number of entries: " + parsedVideos.length);
 });
 
 /*
@@ -310,10 +332,6 @@ fs.readdir(jsonLocation, (err, files) => {
       }
    }
 }  */
-
-console.log('All metadata loaded!');
-
-console.log("Total number of entries: " + parsedVideos.length);
 
 /*
    Used to turn seconds into more readable form.
@@ -609,7 +627,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       foundVids = vidTmp_.slice(startVidInd,endVidInd);
    }
   }
-   forceGC();
+  // forceGC();
 }
 
 function hasSearchWords(searchWord,video) {
@@ -809,11 +827,11 @@ function addLinks(descri) {
       let checkTmp2 = true;
       while ((checkTmp < linkChek3.length) && checkTmp2) {
          if (smMatches[i].strIndex > linkChek3[checkTmp] && smMatches[i].strIndex < linkChek3[checkTmp + 1]) {
-            console.log("Foapofifsf");
+            // console.log("Foapofifsf");
             checkTmp2 = false;
             continue;
          }
-         console.log("Foapofi");
+         // console.log("Foapofi");
          checkTmp = checkTmp + 2;
       }
       if (!checkTmp2) continue;
@@ -1271,7 +1289,7 @@ function createVideoPreviewDailymotion(vidId) {
 
     return embbee;
 }
-
+         /*
 function createVideoPreviewTwitter(vidId) {
     let requ = new XMLRequest();
     let apiLink = 'https://publish.twitter.com/oembed?url=https%3A%2F%2Ftwitter.com%2Fi%2Fstatus%2F' + vidId;
@@ -1292,7 +1310,7 @@ function createVideoPreviewTwitter(vidId) {
     if (embbee === '') embbee = '<br/>[No video preview. The tweet seem to have been deleted.]<br/>';
 
     return embbee;
-}
+}       */
 
 // Creates the metadata header and part of the top of the page
 function htmlHeadCompiler(htmlTitle = null) {
@@ -1302,7 +1320,53 @@ function htmlHeadCompiler(htmlTitle = null) {
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="stylesheet" href="https://finnrepo.a2hosted.com/assets/dark_theme_style.css">` + breakline;
+<style>
+
+body {
+   background-color: #292929;
+   color: white;
+}
+
+a {
+   text-decoration: none;
+}
+
+/* unvisited link */
+a:link {
+   color: #788BFF;
+}
+
+/* visited link */
+a:visited {
+  color: #9BB1FF;
+}
+
+/* mouse over link */
+a:hover {
+  color: #BFD7FF;
+}
+
+/* selected link */
+a:active {
+  color: #E2FDFF;
+}
+
+
+/* For description */
+.videoDescription {
+   background-color: #3C3C3C;
+   /* These two together make it 640px in width */
+   max-width: 620px;
+   padding: 10px;
+   
+   border-radius: 15px;
+   
+   word-wrap: break-word;   
+   overflow-wrap: break-word; 
+   white-space: normal; 
+}
+
+</style>` + breakline;
    // let titleStr =  'YTPMV Metadata Archive';
    // if (htmlTitle !== null) titleStr = 'YTPMV Metadata Archive - ' + htmlTitle;
 
@@ -1486,7 +1550,7 @@ function checkUserInputs(userStr) {
 let srvr = http.createServer(function (req, res) {
 
    // console.log(parsedVideos);
-   console.log(videoEntryWithId("sm44501923"));
+   // console.log(videoEntryWithId("sm44501923"));
    // console.log(videoEntryWithId("sm44501923")._tags);
 
    let quer = url.parse(req.url, true);
@@ -1758,7 +1822,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.end("404 Not Found. Tried to get to: " +  quer.pathname);
    }
 
-   forceGC();
+   // forceGC();
 });
 
-srvr.listen(3535);
+srvr.listen(portNumber);
