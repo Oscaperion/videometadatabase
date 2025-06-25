@@ -4,7 +4,7 @@ var fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-var vids =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+var vids =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
 var ignoreUsers =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
 var replll = [];
 
@@ -48,4 +48,4 @@ for (let j = 0; j < vids.length; j++) {
 
 console.log("Dun");
 console.log(replll.length);
-fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', JSON.stringify(replll));
+fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', JSON.stringify(replll));

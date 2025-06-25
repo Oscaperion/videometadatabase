@@ -6,18 +6,20 @@ const XMLRequest = require("xmlhttprequest").XMLHttpRequest;
 // This is here in order to help the match-all run in the older NodeJS version on A2hosting. (For function "addLinks")
 // require('core-js/modules/es.string.match-all');
 
+// let tmpConsole = '';
+
 /*
    This is where the primary JSON files for video entries are located
 */
 const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
-//const jsonLocation = "JSON/Videos";
+//const jsonLocation = "vidJson2/";
 
 /*
    This is where the complementary JSON files for e.g. lists of tags and YouTube user IDs
      are located.
 */
 const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
-//const jsonLocationComp = "JSON/Others";
+//const jsonLocationComp = "vidJson2/";
 
 /*
    These are used to process the JSON files that contain the entries for the database.
@@ -41,15 +43,14 @@ const videosPerPage = 15;
 const limitForVideoPage = 30;
 
 /*
-   FOR ONLINE PURPOSES! NO NEED FOR THESE ON LOCAL ENVIRONMENTS
    These are used as part of crude bot prevention measures. Any queries provided
      without these values (&*botCheckName*=*botCheckValue*) will be redirected to a
      placeholder page, which will provide instructions on how to carry on with the query
      for actual visitors. So far this has been surprisingly effective, but if bots ever
      learn to take this into consideration a more robust measure need to be implemented.
 */
-// const botCheckName = "rumour_do_be";
-// const botCheckValue = "chio_be_chompi";
+const botCheckName = "rumour_do_be";
+const botCheckValue = "chio_be_chompi";
 
 /*
    Changes the language for the site. Currently only supports English and Japanese.
@@ -70,13 +71,16 @@ let lastUpdated;
    lastUpdated = cYear + cMonth + cDay;
 }
 
-/*
-   For getting a string of the date when the current instance of the database was launched.
-*/
 function getLastUpdated() {
    if (pageLanguage === 'jp') return lastUpdated + ' [&#9633;&#9633;&#9633;&#9633;&#24180;&#9633;&#9633;&#26376;&#9633;&#9633;&#26085;]';
    return lastUpdated + ' [YYYYMMDD]';
 }
+
+/*
+   Link to an external Dropbox repository that has a backup of the JSON files used for
+     the database.
+*/
+//const dropboxLink = 'https://www.dropbox.com/sh/veadx97ot0pmhvs/AACiy1Pqa7dMj33v-yqG_1GYa?dl=0';
 
 /*
    These JSON arrays will be used in junction with the video entries.
@@ -91,11 +95,11 @@ function getLastUpdated() {
      this array.
 
    reuploadShowing: Includes pairings of video IDs as follows:
-     .id        = An ID of a video that has been deleted or otherwise unavailable through
-                  video preview.
+     .id        = An ID of a video that has been either deleted or otherwise unavailable
+                  through video preview.
      .reup      = An ID of a video that is used as a replacement for video preview purposes.
      .reup_site = The site where the replacement video is located. Needs to match the
-                  .extractor_key values from video entries.
+                   .extractor_key values from video entries.
 
    twitterUserList: Includes pairings of Twitter related user IDs as follows:
      .id     = A static ID attached to a Twitter account.
@@ -105,18 +109,26 @@ function getLastUpdated() {
 */
 
 const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf8'));
+//const tagsList = JSON.parse(fs.readFileSync('vidJson2/tags.json', 'utf8'));
 
-const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList2.json', 'utf8'));
+//const youtubeUserList = JSON.parse(fs.readFileSync('vidJson2/youtubeUserList2.json', 'utf8'));
 
 const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
 
 const sameUserListLoc = jsonLocationComp + 'sameUsers.json';
+//const sameUserListLoc = 'vidJson2/sameUsers.json';
+
 let sameUserList = JSON.parse(fs.readFileSync(sameUserListLoc, 'utf8'));
 
 const reuploadListLoc = jsonLocationComp + 'reuploads.json';
+//const reuploadListLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/reuploads.json';
+//const reuploadListLoc = 'vidJson2/reuploads.json';
 let reuploadShowing = JSON.parse(fs.readFileSync(reuploadListLoc, 'utf8'));
 
 const twitterUserLoc = jsonLocationComp + 'twitterUserList.json';
+//const twitterUserLoc = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json';
+//const twitterUserLoc = 'vidJson2/twitterUserList.json';
 let twitterUserList = JSON.parse(fs.readFileSync(twitterUserLoc, 'utf8'));
 
 const headerTextLoc = jsonLocationComp + 'forHeader.txt';
@@ -191,8 +203,6 @@ fs.watchFile(headerTextJpLoc, (curr,prev) => {
 const nullUploaderPlaceholder = 'skaPiPiduuDelierp';
 
 /*
-   IF YOU NEED TO BE MINDFUL OF MEMORY USAGE, UNCOMMENT THIS BIT AS WELL AS ALL
-     "forceGC();" FOUND IN THIS SCRIPT
    https://www.xarg.org/2016/06/forcing-garbage-collection-in-node-js-and-javascript/
 */
 function forceGC() {
@@ -238,6 +248,16 @@ let searchedUser = "";
 let searchingUser = false;
 
 /*
+   These are to be used as part of queries that specify certain dates. Also used to 
+     ensure that the user won't just input whatever they please.
+*/
+//let mostRecentDate;
+//let leastRecentDate;
+//let dateQueried1;
+//let dateQueried2;
+//let customRangeApplied = false;
+
+/*
    These are used as part of a method to determine, whether or not to exclude particular
      sites from search results. Compares this list to the .extractor_key values of the
      entries, aside from the last option. The "Others" option covers every other site,
@@ -274,23 +294,6 @@ console.log('Loading metadata...');
      be edited through maxMonth and minMonth values.
 */
 
-fs.readdir(jsonLocation, (err, files) => {
-   if (err) throw err;
-   // localeCompare is meant to put the files in a most-to-least-recent order
-   files.sort((a, b) => b.localeCompare(a)).forEach(file => {
-      console.log(file);
-      let jsonFile = jsonLocation + file;
-      try {
-         parsedVideos.push(...JSON.parse(fs.readFileSync(jsonFile, 'utf8')));
-         console.log('Loaded!');
-         // forceGC();
-      } catch(e) {
-         console.log("ERROR! FILE COULDN'T BE READ");
-      }
-   });
-});
-
-/*
 {
    //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
@@ -301,19 +304,29 @@ fs.readdir(jsonLocation, (err, files) => {
       try {
          parsedVideos.push(...JSON.parse(fs.readFileSync(terappi, 'utf8')));
 
+
+         //let parSub = JSON.parse(fs.readFileSync(terappi, 'utf8'));
          console.log('Loaded!')  ;
 
+         //numm++;
          console.log(terappi)  ;
          forceGC();
       } catch(e) {
          console.log("Oh wait, that doesn't exist");
       }
    }
-}  */
+}
 
 console.log('All metadata loaded!');
+// parsedVideos.forEach(entry => videoEntryConverter(entry));
+// console.log('All metadata processed!');
 
 console.log("Total number of entries: " + parsedVideos.length);
+
+//mostRecentDate = parsedVideos[0].upload_date;
+//leastRecentDate = parsedVideos[parsedVideos.length - 1].upload_date;
+//dateQueried1 = mostRecentDate;
+//dateQueried1 = leastRecentDate;
 
 /*
    Used to turn seconds into more readable form.
@@ -329,6 +342,12 @@ function formatDuration(justSeconds) {
         secs = secs - minute;
     }
 
+    /*
+    if (secs < 10 && mins < 60) {
+        return mins + ':0' + secs;
+    }
+    */
+
     if (mins < 60) {
         return mins + ':' + ("" + secs).padStart(2, '0');
     }
@@ -343,11 +362,6 @@ function formatDuration(justSeconds) {
     return hours + ':' + ("" + mins).padStart(2, '0') + ':' + ("" + secs).padStart(2, '0');
 }
 
-/*
-   Provides the upload date of a video in "YYYYMMDD HH:MM:SS UTC" format. If an entry does
-     not have a "timestamp" value, the script will provide the "upload_date" value in
-     "YYYYMMDD ??:??:?? UTC" format.
-*/
 function getUploadDate(entry) {
    if (!entry.timestamp) return entry.upload_date + " &#63;&#63;:&#63;&#63;:&#63;&#63; UTC";
 
@@ -362,20 +376,17 @@ function getUploadDate(entry) {
    return `${entYear}${entMonth}${entDay} ${entHours}:${entMinutes}:${entSeconds} UTC`;
 }
 
-/*
-   These are for converting video metadata into more decipherable form.
-   parsedVideosId: the index in the parsedVideos array.
-*/
+// These are for converting video metadata into more decipherable form.
+
+// parsedVideosId: the index in the parsedVideos array.
 function videoEntryFromParsedVideo(parsedVideosId) {
    if (parsedVideos[parsedVideosId]) return videoEntryConverter(parsedVideos[parsedVideosId]);
 
    return undefined;
 }
 
-/*
-   videoId: ID of the searched video
-   videoSite: The site where we want to find the video (Optional, has to be in form of site's extractor_key)
-*/
+// videoId: ID of the searched video
+// videoSite: The site where we want to find the video (Optional, has to be in form of site's extractor_key)
 function videoEntryWithId(videoId, videoSite = null) {
    let vidTmp = parsedVideos.find(vid => vid.id === videoId);
 
@@ -386,17 +397,17 @@ function videoEntryWithId(videoId, videoSite = null) {
 }
 
 function videoEntryConverter(vidEnt) {
-
+   
    // Helper function to convert tags when requested
    function getConvertedTags() {
       if (!vidEnt.tags) return [];
-
+        
       return vidEnt.tags.map(tag => {
          if (Number.isInteger(tag)) return tagsList[tag];
          return tag; // Return non-integer tags as-is
       });
    }
-
+   
    // Helper function for uploader_id
    function getUploaderId() {
       // Look for uId and convert based on the extractor
@@ -412,6 +423,21 @@ function videoEntryConverter(vidEnt) {
       }
       return vidEnt.uploader_id; // If uId is not present, return existing uploader_id or undefined
    }
+   
+   /*
+   // Define getters for tags and uploader_id
+   Object.defineProperties(vidEnt, {
+      '_tags': {
+         get: getConvertedTags,
+         enumerable: true,
+         configurable: true
+      },
+      '_uploader_id': {
+         get: getUploaderId,
+         enumerable: true,
+         configurable: true
+      }
+   });        */
 
    return vidEnt;
 }
@@ -486,22 +512,35 @@ function optimizeSearching(searchWord,exactSearch) {
 
 */
 function isSameUser(searchUserStr,video) {
+   // let video = parsedVideos[videoInd];
    let tmpStr = [searchUserStr.trim()];
 
    if (searchedUploaderHasAlts) {
       tmpStr = uploadersAlts;
    }
 
+   // if (video.uId === undefined && video.extractor_key !== "Twitter") return tmpStr.includes(video.uploader_id); // return video.uploader_id === searchUserStr.trim();
    if (video.extractor_key === "Twitter") {
       let twtTmp = twitterUserList.find(ent => ent.handle.includes(video.uploader_id) || ent.id === video.uploader_id);
-      if (!twtTmp) return tmpStr.includes(video.uploader_id);
+      //console.log(twtTmp);
+      if (!twtTmp) return tmpStr.includes(video.uploader_id); // return video.uploader_id === searchUserStr.trim();
       for (let k = 0; k < tmpStr.length; k++) {
          if (twtTmp.handle.includes(tmpStr[k])) return true;
       }
 
       return tmpStr.includes(twtTmp.id);
+      // return (twtTmp.id === searchUserStr.trim() ||  twtTmp.handle.includes(searchUserStr.trim()));
+   }
+   /*
+
+   if (video.uId !== undefined && video.extractor_key === "Niconico") {
+      return tmpStr.includes(niconicoUserList[video.uId]);
    }
 
+   for (let p = 0; p < tmpStr.length; p++) {
+      if (youtubeUserList[video.uId].includes(tmpStr[p])) return true;
+   }     */
+   
    let upIdTmp = getUploaderId(video);
    if (Array.isArray(upIdTmp)) {
       for (let p = 0; p < tmpStr.length; p++) {
@@ -511,6 +550,10 @@ function isSameUser(searchUserStr,video) {
    }
    
    return tmpStr.includes(upIdTmp);
+
+   //let userArr = youtubeUserList[video.uId];
+
+   //return youtubeUserList[video.uId].includes(searchUserStr.trim());
 }
 
 /*
@@ -540,8 +583,11 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
   {
    let showAllVideos = false;
    foundVids = [];
+   // console.log(exactSearch);
    let searchTmp = optimizeSearching(searchWord,exactSearch);
+   //console.log(searchTmp);
    if (!searchTmp && !searchUploaderId && !ignoredSitesPresent()) showAllVideos = true;
+   //else showAllVideos = false;
 
    if (showAllVideos) {
       pageTotal = Math.ceil(parsedVideos.length / videosPerPage);
@@ -554,6 +600,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       foundVids = [];
 
       for (let u = searchThres; u < (searchThres + videosPerPage) && u < parsedVideos.length; u++) {
+         // foundVids.push(u);
          foundVids.push(u);
       }
    }
@@ -575,16 +622,47 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             for (let j = 0; j < tmpArr.length; j++) {
                tmpArr2.push(...tmpArr[j]);
             }
+            // console.log(tmpArr2);
+            // console.log(tmpArr);
             uploadersAlts = tmpArr2;
          }
       }
 
+      /*
+      let vidTmp1 = parsedVideos.map((ent,ind) => {
+         let tmp2 = sitesList.findIndex(siteEnt => siteEnt.site === ent.extractor_key);
+         if (tmp2 === -1) tmp2 = sitesList.length - 1;
+         if (sitesList[tmp2].isIgnored) return undefined;
+         if (searchUploaderToo && !isSameUser(searchUploaderId,ent)) return undefined;
+         if (!hasSearchWords(searchTmp,ent)) return undefined;
+         return ind;
+      }).filter(ent => ent !== undefined);
+      */
+
       let startTmp1 = 0;
       let startTmp2 = videosPerPage;
+                                               /*
+      let pageTmp = reqPage;
+      if (pageTmp < 1) pageTmp = 1;
+      let endTmp1 = (pageTmp - 1) * videosPerPage;
+      let endTmp2 = pageTmp * videosPerPage;
+      // pageNumber = pageTmp;
+                                             */
+      //console.log(itIsFirstPage);
       let foundVidAmount = 0;
+      // let vidTmp1 = [];
       let foundMore = false;
+
+      // FOR OFFLINE BLACLISTING PURPOSES
+      // amountBlack = {};
+      // amountWhite = {};
+     
+
+      // let itIsFirstPage = (startTmp1 === endTmp1);
       let foundVidAmoun2 = 0;
       let alreadyEnough = false;
+
+      //console.log(`Values : ${startTmp1} - ${startTmp2} > ${endTmp1} - ${endTmp2}`);
 
       let vidTmp_ = parsedVideos.map((val, ind) => ind).filter(ind => {
          let val = parsedVideos[ind];
@@ -594,10 +672,15 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             if (sitesList[tmp2].isIgnored) return false;
          }
          if (searchUploaderToo && !isSameUser(searchUploaderId,val)) return false;
+         // return hasSearchWords(searchTmp,parsedVideos[ind]);
          return hasSearchWords(searchTmp,val);
       });
 
       pageTotal = Math.ceil(vidTmp_.length / videosPerPage);
+      /*
+      console.log(vidTmp_);
+      console.log( vidTmp_.length / videosPerPage);
+      console.log(pageTotal);  */
       let pageTmp = reqPage;
       if (pageTmp > pageTotal || pageTmp < 1) pageTmp = 1;
       pageNumber = pageTmp;
@@ -606,33 +689,84 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
       let endVidInd   = pageTmp * videosPerPage;
       if (endVidInd > (pageTotal * videosPerPage)) endVidInd = vidTmp_.length;
 
+      // vidTmp_
+
       foundVids = vidTmp_.slice(startVidInd,endVidInd);
    }
   }
    forceGC();
 }
 
+// FOR OFFLINE BLACKLISTING PURPOSES, DON'T HAVE THIS WHEN PUTTING THIS ONLINE
+// let amountBlack = {};
+// let amountWhite = {};
+
 function hasSearchWords(searchWord,video) {
    if (!searchWord) return true;
 
+   // let video = parsedVideos[videoInd];
    let tagsTmp = videoTags2(video).join(" ").toLowerCase();
    let uploaderIdTmp = getUploaderId(video);
+   // console.log(video);
+   // console.log(uploaderIdTmp);
    if (video.extractor_key === "Youtube" && Array.isArray(uploaderIdTmp)) uploaderIdTmp = uploaderIdTmp.join(" ");
    if (!uploaderIdTmp) uploaderIdTmp = "";
 
+   /*
+   {
+      if (video.uId !== undefined) {
+         if (video.extractor_key === "Niconico") uploaderIdTmp = niconicoUserList[video.uId];
+         if (video.extractor_key === "Youtube") uploaderIdTmp = youtubeUserList[video.uId].join(" ").toLowerCase();
+      }
+      else if (video.uploader_id) uploaderIdTmp = video.uploader_id.toLowerCase();
+   } */
+
    return searchWord.every(srcWrd => {
+         // console.log(video.id);
          if ((video.id && !Array.isArray(video.id) && video.id.toLowerCase().includes(srcWrd)) ||
              (video.id && Array.isArray(video.id)  && video.id.join(" ").toLowerCase().includes(srcWrd)) ||
              (video.title && video.title.toLowerCase().includes(srcWrd)) ||
              (video.description && video.description.toLowerCase().includes(srcWrd)) ||
+             // videoTags(video.tags).join(" ").toLowerCase().includes(srcWrd) ||
+             // videoTags(videoInd).join(" ").toLowerCase().includes(srcWrd) ||
              tagsTmp.includes(srcWrd) ||
              (video.uploader && video.uploader.toLowerCase().includes(srcWrd)) ||
-             uploaderIdTmp.toLowerCase().includes(srcWrd)
+             /*
+             (video.uId !== undefined && video.extractor_key === "Niconico" && niconicoUserList[video.uId].includes(srcWrd)) ||
+             (video.uId !== undefined && video.extractor_key === "Youtube" && youtubeUserList[video.uId].join(" ").toLowerCase().includes(srcWrd)) ||
+             (video.uploader_id && video.uploader_id.toLowerCase().includes(srcWrd)) ||
+             */
+             uploaderIdTmp.toLowerCase().includes(srcWrd) //|| video.upload_date.toLowerCase().includes(srcWrd)
              ) return true;
 
          return false;
       });
 }
+
+/*
+function blaclListCheck() {
+   let blackUsers = Object.keys(amountBlack);
+   console.log(amountBlack);
+   let blackList = [];
+
+   for (let i = 0; i < blackUsers.length; i++) {
+      if (amountBlack[blackUsers[i]] === 1) continue;
+
+      if (amountBlack[blackUsers[i]] >= 50) {
+          blackList.push(blackUsers[i]);
+          continue;
+      }
+
+      if (amountBlack[blackUsers[i]] >= ( Math.floor(amountWhite[blackUsers[i]] * (2 / 3)) ) ) {
+          blackList.push(blackUsers[i]);
+      }
+   }
+   
+   let writerino = '"' + blackList.join('","') + '"';
+
+   fs.writeFileSync('F:/Dropbox/NodeJS/blacklisterino.txt', writerino);
+} 
+*/
 
 function htmlBlockCompiler(typeHtm,txt,additionalInfo = null) {
    if (additionalInfo === null) return '<' + typeHtm + '>' + txt + '</' + typeHtm + '>' ;
@@ -663,18 +797,18 @@ function userLinkCompiler(userName,userId,site) {
          multipleId = true;
       }
 
-      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + langTmp /* + `&${botCheckName}=${botCheckValue}` */ ,htmlBlockCompiler("code",searchUploaderStr),false);
+      if (!multipleId) return htmlLinkCompiler(userAddressCompiler(idTmp,site),(userName + ' [' + htmlBlockCompiler("code",idTmp) + ']')) + " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
 
       let retStr = htmlLinkCompiler(userAddressCompiler(idTmp[0],site),(userName + ' [' + htmlBlockCompiler("code",idTmp[0]) + ']'));
       for (let j = 1; j < idTmp.length; j++) {
          retStr += ' ' + htmlLinkCompiler(userAddressCompiler(idTmp[j],site),('[' + htmlBlockCompiler("code",idTmp[j]) + ']'));
       }
-      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + langTmp /* + `&${botCheckName}=${botCheckValue}` */,htmlBlockCompiler("code",searchUploaderStr),false);
+      retStr += " &#8887; " + htmlLinkCompiler("results.html?uploader_id=" + idTmp[idTmp.length - 1] + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
 
       return retStr;
    }
    if (site === "Twitter" || site === "Niconico" || site === "BiliBili") {
-      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + langTmp /* + `&${botCheckName}=${botCheckValue}` */ ,htmlBlockCompiler("code",searchUploaderStr),false);
+      return htmlLinkCompiler(userAddressCompiler(userId,site),(userName + ' [' + htmlBlockCompiler("code",userId) + ']')) + " &#8887; " +  htmlLinkCompiler("results.html?uploader_id=" + userId + `${langTmp}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
    }
 }
 
@@ -704,6 +838,18 @@ function userAddressCompiler(id_,site) {
 function videoTags(vidInd) {
    if (!parsedVideos[vidInd].tags) return [];
 
+   /*
+   let vidTags = parsedVideos[vidInd].tags;
+
+   let tagsTmp = [];
+
+   for (let i = 0; i < vidTags.length; i++) {
+      if (Number.isInteger(vidTags[i])) tagsTmp.push(tagsList[vidTags[i]]);
+      else tagsTmp.push(vidTags[i]);
+   }
+
+   return tagsTmp;  */
+
    return parsedVideos[vidInd].tags.map(tag => {
          if (Number.isInteger(tag)) return tagsList[tag];
          return tag;
@@ -719,6 +865,20 @@ function videoTags2(vidEnt) {
          return tag;
       });
 }
+
+/*
+function videoTags(vidTags) {
+   if (vidTags === undefined || vidTags === null) return [];
+
+   let tagsTmp = [];
+
+   for (let i = 0; i < vidTags.length; i++) {
+      if (Number.isInteger(vidTags[i])) tagsTmp.push(tagsList[vidTags[i]]);
+      else tagsTmp.push(vidTags[i]);
+   }
+
+   return tagsTmp;
+}  */
 
 function videoLinkCompiler(id,site) {
    if (site === "Twitter")  return htmlLinkCompiler('https://twitter.com/i/status/' + id);
@@ -738,12 +898,18 @@ const smIdRegexNeg = /([=\/][sn]m\d+)/g;
 const mylistRegexNeg = /([=\/]mylist\/\d+)/g;
 
 function addLinks(descri) {
+
+
+    
+   //console.log(descri);
+
    let checkHttp1 = 'http';
    let checkHttp2 = [' '];
 
    let descr = descri.split("\n").join(" <br/>");
 
    let retArr = [];
+   // let retArr2 = descr;
 
    let tmpHt = descr.indexOf(checkHttp1);
 
@@ -763,6 +929,7 @@ function addLinks(descri) {
       }
       tmppp = Math.min(...arrrtmp);
       if (tmppp === -1) tmppp = descr.length;
+      //console.log(tmppp + " -- " + descr);
 
       retArr.push(editLink(descr.substring(0,tmppp)));
 
@@ -784,6 +951,9 @@ function addLinks(descri) {
    let smMatchesNeg = Array.from(retArr.matchAll(smIdRegexNeg), (m) => (
       m.index + 1
     ));
+
+   // console.log(smMatches);
+   // console.log( smMatchesNeg);
 
    let noURLs = false;
    if (smMatchesNeg) noURLs = true;
@@ -808,16 +978,21 @@ function addLinks(descri) {
       let checkTmp = 0;
       let checkTmp2 = true;
       while ((checkTmp < linkChek3.length) && checkTmp2) {
+         // console.log("Foapofi");
          if (smMatches[i].strIndex > linkChek3[checkTmp] && smMatches[i].strIndex < linkChek3[checkTmp + 1]) {
             console.log("Foapofifsf");
             checkTmp2 = false;
             continue;
          }
          console.log("Foapofi");
+         // console.log("Foapofi "+ linkChek3 + " " + linkChek3[checkTmp] + " - " + smMatches[i].strIndex + " - " + linkChek3[checkTmp + 1]);
          checkTmp = checkTmp + 2;
       }
       if (!checkTmp2) continue;
 
+      //if (retArr.charAt[smMatches[i].strIndex - 1 + indexOffSet] === '/') continue;
+
+      // let newLink = htmlLinkCompiler('https://www.nicovideo.jp/watch/' + smMatches[i].id, smMatches[i].id);
       let newLink = editLink('https://www.nicovideo.jp/watch/' + smMatches[i].id,true);
       let substringTmp = smMatches[i].strIndex + smMatches[i].id.length + indexOffSet;
 
@@ -852,6 +1027,8 @@ function addLinks(descri) {
 
 function editLink(linkTmp, onlyShowId = false) {
    let tmpp1 = linkTmp;
+   
+   // if (linkTmp.substring(0,2) === "sm") tmpp1 = 'https://www.nicovideo.jp/watch/' + linkTmp;
 
    let youTubeChecking   = ["youtu.be/","youtube.com/watch?v=","youtube.com/shorts/"];
    let nicovideoChecking = ["nicovideo.jp/watch/","nico.ms/"];
@@ -900,6 +1077,8 @@ function editLink(linkTmp, onlyShowId = false) {
       let tmpLinkerino2 = tmpp1.substring(tmpLinkerino3);
       let tmpLinkerino4 = 0;
 
+      //console.log(tmpLinkerino2);
+
       if (tmpLinkerino2.indexOf(" ") > 0) tmpLinkerino4 = tmpLinkerino2.indexOf(" ");
       if (tmpLinkerino2.indexOf("?") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf("?") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf("?");
       if (tmpLinkerino2.indexOf(")") > 0 && (tmpLinkerino4 > tmpLinkerino2.indexOf(")") || tmpLinkerino4 === 0)) tmpLinkerino4 = tmpLinkerino2.indexOf(")");
@@ -915,12 +1094,12 @@ function editLink(linkTmp, onlyShowId = false) {
          if (pageLanguage === 'jp') linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
-                + htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */, htmlBlockCompiler("code",videoMetaStr),false) + " "
-                + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */, htmlBlockCompiler("code",searchIdStr),false);
+                + htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",videoMetaStr),false) + " "
+                + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
       }
 
       return htmlLinkCompiler(linkTmp) + " "
-             + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */, htmlBlockCompiler("code",searchIdStr),false);
+             + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
    }
 
    if (addSearchLinkYoutube) {
@@ -940,8 +1119,12 @@ function editLink(linkTmp, onlyShowId = false) {
          tmpLinkerino2 = tmpLinkerino2.substring(0,youtubeIdLength);
       }
 
+      //console.log (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength));
+
       let checkerCh = tmpp1.charAt(tmpLinkerino3 + youtubeIdLength);
       let linkTmp2 = linkTmp;
+      //if (tmpp1.charAt(tmpLinkerino3 + youtubeIdLength) !== '&') linkTmp2 = tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength);
+      //if (!linkTmp2.includes('http')) linkTmp2 = 'https://' + linkTmp2;
       let extractedId = tmpLinkerino2;
       let linkStr = linkTmp;
       if (onlyShowId) linkStr = extractedId;
@@ -951,17 +1134,21 @@ function editLink(linkTmp, onlyShowId = false) {
         if (matchingVid) {
            linkStr =  matchingVid.title + ' by ' + matchingVid.uploader;
            if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
-           metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */,videoMetaStr);
+           metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`,videoMetaStr);
         }
       }
 
       if (checkerCh !== '&' && checkerCh !== '?') {
       return htmlLinkCompiler(tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength), linkStr) + " "
              + htmlBlockCompiler("code",metadatStr) + " "
-             + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */, htmlBlockCompiler("code",searchIdStr),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
+             + htmlLinkCompiler('results.html?search=' + encodeURIComponent(extractedId) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
       }
+      //if (checkerCh !== '&' && checkerCh !== '?') return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,tmpp1.substring(0,tmpLinkerino3 + youtubeIdLength)) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false) + " " + tmpp1.substring(tmpp1.indexOf(youTubeChecking[tmpLinkerino]) + youTubeChecking[tmpLinkerino].length + youtubeIdLength);
 
-      return htmlLinkCompiler(linkTmp, linkStr) + " " + htmlBlockCompiler("code",metadatStr) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + langStr /* + `&${botCheckName}=${botCheckValue}` */, htmlBlockCompiler("code",searchIdStr),false);
+      return htmlLinkCompiler(linkTmp, linkStr) + " " + htmlBlockCompiler("code",metadatStr) + " " + htmlLinkCompiler('results.html?search=' + encodeURIComponent(tmpLinkerino2) + `${langStr}&${botCheckName}=${botCheckValue}`, htmlBlockCompiler("code",searchIdStr),false);
+      //return htmlLinkCompiler("https://www.youtube.com/watch?v=" + tmpLinkerino2,linkTmp) + " " + htmlLinkCompiler('results.html?search=' + tmpLinkerino2, htmlBlockCompiler("code","[Search ID]"),false);
+
+      //htmlLinkCompiler('results.html?search=' +
    }
    return htmlLinkCompiler(linkTmp);
 }
@@ -980,7 +1167,7 @@ function editDescription(ogDesc,descExtr) {
 
    let descTmp = ogDesc.trim();
 
-   if (!descTmp.includes('</a>')) {
+   if (!descTmp.includes('</a>')) { // && (descTmp.includes('http') || descTmp.includes('sm') || descTmp.includes('mylist'))) {
       descTmp = addLinks(ogDesc);
    }
 
@@ -1003,6 +1190,12 @@ function editDescription(ogDesc,descExtr) {
 function putDescriptionInBox(descr) {          
    return htmlBlockCompiler("div",convertToHTMLEntities(descr),'class="videoDescription"');
 }
+
+/*
+console.log(compileEntry(parsedVideos[0]));
+console.log(compileEntry(parsedVideos.find(ent => ent.extractor_key === "Youtube")));
+console.log(compileEntry(parsedVideos.find(ent => ent.tags.length > 0)));
+console.log(compileEntry(parsedVideos.find(ent => ent.webpage_url !== undefined && ent.extractor_key !== "VK"))); */
 
 function idPresentInAltList(checkUploaderId) {
    let valueArr = [];
@@ -1044,6 +1237,8 @@ function checkForOtherChannels(siteKey,checkUploaderId,checkuId) {
          }
       });
    });
+
+   // console.log(valueArr);
 
    if ((siteKey === "Youtube" || siteKey === "Niconico") && checkuId !== undefined) {
       if (siteKey === "Youtube") {
@@ -1092,6 +1287,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    let retStr = "Alt channels:";
    if (pageLanguage === 'jp') retStr = "&#21029;&#12481;&#12515;&#12531;&#12493;&#12523;:";
    let vals = Object.values(sameUserList[userArr]);
+   //console.log(vals);
    for (let h = 0; h < vals.length; h++) {
       if (checkUploaderId && vals[h] === checkUploaderId) continue;
       if (checkuId && youtubeUserList[checkuId].includes(vals[h])) continue;
@@ -1100,11 +1296,22 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
       let tmpLink = 'results.html?uploader_id=' + vals[h];
       if (showVidPrev) tmpLink += '&preview=true';
       if (pageLanguage === "jp") tmpLink += '&lang=jp';
-      // tmpLink += '&' + botCheckName + '=' + botCheckValue;
+      tmpLink += '&' + botCheckName + '=' + botCheckValue;
       
       retStr += " " + htmlLinkCompiler(tmpLink,"[" + vals[h] + "]",false);
    }
 
+   /*
+   if (sameUserList[userArr].mainYoutube !== undefined) retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + sameUserList[userArr].mainYoutube + '&' + botCheckName + '=' + botCheckValue,"[" + sameUserList[userArr].mainYoutube + "]",false);
+   
+   if (sameUserList[userArr].altYoutube !== undefined) {
+      for (let h = 0; h < sameUserList[userArr].altYoutube.length; h++) {
+         retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + sameUserList[userArr].altYoutube[h] + '&' + botCheckName + '=' + botCheckValue,"[" + sameUserList[userArr].altYoutube[h] + "]",false);
+      }
+   }
+
+   if (sameUserList[userArr].mainNiconico !== undefined) retStr += " " + htmlLinkCompiler('results.html?uploader_id=' + sameUserList[userArr].mainNiconico + '&' + botCheckName + '=' + botCheckValue,"[" + sameUserList[userArr].mainNiconico + "]",false); */
+   
    return htmlBlockCompiler("code",retStr);
 }
 
@@ -1120,7 +1327,7 @@ function compileEntry(videoInd) {
    if (pageLanguage === 'jp') searchUploaderStr = '[&#25237;&#31295;&#32773;&#12434;&#26908;&#32034;]';
 
    let userAddress = "";
-   if (video.uploader_url) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}` /* + `&${botCheckName}=${botCheckValue}` */,htmlBlockCompiler("code",searchUploaderStr),false);
+   if (video.uploader_url) userAddress = htmlLinkCompiler(video.uploader_url,video.uploader + ' [' + htmlBlockCompiler("code",video.uploader_id) + ']') + " &#8887; " + htmlLinkCompiler(`results.html?uploader_id=${video.uploader_id}&${botCheckName}=${botCheckValue}`,htmlBlockCompiler("code",searchUploaderStr),false);
    else {
       if ((video.extractor_key === "Youtube" || video.extractor_key === "Niconico") && video.uId !== undefined) {
 
@@ -1151,7 +1358,7 @@ function compileEntry(videoInd) {
          linkDescForVid = "[&#21205;&#30011;&#12398;&#12513;&#12479;&#12487;&#12540;&#12479;]";
          singleVideoUrl += "&lang=jp";
       }
-      // singleVideoUrl += '&' + botCheckName + '=' + botCheckValue;
+      singleVideoUrl += '&' + botCheckName + '=' + botCheckValue;
       titleTmp += htmlBlockCompiler("code"," &#8887; " + htmlLinkCompiler(singleVideoUrl,linkDescForVid, false));
    }
 
@@ -1211,11 +1418,11 @@ function createVideoPreview(vidId,vidSite) {
        tmpId = tmp1.reup;
        tmpSite = tmp1.reup_site;
        if (pageLanguage === 'jp') tmpStr += "<code><b>&#27880;&#24847;:</b> " + 
-          htmlLinkCompiler('video.html?id=' + encodeURIComponent(tmpId) + `&lang=jp` /* + `&${botCheckName}=${botCheckValue}` */,tmpId) +
+          htmlLinkCompiler('video.html?id=' + encodeURIComponent(tmpId) + `&lang=jp&${botCheckName}=${botCheckValue}`,tmpId) +
           `(${tmpSite})&#12363;&#12425;&#12398;&#21205;&#30011;&#12503;&#12524;&#12499;&#12517;&#12540;&#12391;&#12377;&#12290;</code><br/><br/>`;
        else tmpStr += // `<code><b>NOTE:</b> The following video preview is from ${tmpId} (${tmpSite})</code><br/><br/>`;
           "<code><b>NOTE:</b> The following video preview is from " +
-          htmlLinkCompiler('video.html?id=' + encodeURIComponent(tmpId) /* + `&${botCheckName}=${botCheckValue}` */, tmpId) +
+          htmlLinkCompiler('video.html?id=' + encodeURIComponent(tmpId) + `&${botCheckName}=${botCheckValue}`, tmpId) +
           ` (${tmpSite})</code><br/><br/>`;
 
     }
@@ -1374,7 +1581,7 @@ function switchLister(pageN = 1, searchW = null, prev = null, changeLang = null)
    if (pageLanguage === 'en' && changeLang !== null && changeLang === 'jp') retStr.push('lang=' + changeLang);
    if (pageLanguage === 'jp' && changeLang !== null) retStr.push('lang=' + changeLang);
 
-   // retStr.push(`${botCheckName}=${botCheckValue}`);
+   retStr.push(`${botCheckName}=${botCheckValue}`);
 
    return retStr.join("&");
 }
@@ -1427,8 +1634,9 @@ ${searchText1}<br/><br/>
 <input type="checkbox" id="exactSearch" name="exactSearch" value="true"`;
    if (exactWordSearch) retStr += ' checked="yes"';
    retStr += `><label for="exactSearch">&nbsp;${searchText3}</label> &nbsp;&#124; ${prevTxt2}
+<input type="hidden" name="${botCheckName}" value="${botCheckValue}" />
 <br/><br/>
-${searchText4}` /* + `<input type="hidden" name="${botCheckName}" value="${botCheckValue}" />` */ + breakline;
+${searchText4}` + breakline;
 
    for (let y = 0; y < sitesList.length; y++) {
       retStr += `<input type="checkbox" id="${sitesList[y].site}" name="${sitesList[y].site}" value="true"`;
@@ -1455,7 +1663,7 @@ function htmlStrIndex(querie) {
 
    htmlStrIndex += '<br/>' + breakline + '<input type="text" name="search" />&nbsp;' + breakline;
    htmlStrIndex += '<input type="submit" value="Search" />' + breakline;
-   // htmlStrIndex += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + breakline;
+   htmlStrIndex += '<input type="hidden" name="' + botCheckName + '" value="' + botCheckValue + '" />' + breakline;
    htmlStrIndex += '</form><br/>' + breakline;
 
    return htmlBlockCompiler("div",htmlStrIndex);
@@ -1550,19 +1758,16 @@ let srvr = http.createServer(function (req, res) {
    else showVidPrev = true;
  }
 
-   let doThis = true;
+   let doThis = true;                                                                                            // botCheckName
+   // let botCheckTmp = (quer.query[botCheckName] !== undefined && quer.query[botCheckName] === botCheckValue);     // botCheckValue
+   let botCheckTmp = (urlValueCheker(quer.query[botCheckName]) === botCheckValue);                               // botCheckValue
 
-   /*
-      This is for the bot mitigation page
-   */  
-   /*
-   let botCheckTmp = (urlValueCheker(quer.query[botCheckName]) === botCheckValue);
    if (!botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
       let excepTmp = htmlHeadCompiler("Search bot prevention");
       excepTmp += htmlBlockCompiler("div",`<b>Search bot prevention</b>
 <br/><br/>
-This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&")  + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
+This page is here to mitigate the load caused by search bots. ` + htmlLinkCompiler("results.html?" + Object.entries(quer.query).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&") + `&${botCheckName}=${botCheckValue}`, "Click here",false) + " to complete your query");
 
       res.write(excepTmp + '</body></html>');
 
@@ -1583,10 +1788,10 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.end();
 
       doThis = false;
-   }  */
+   }
 
    // Individual entry page
-   if (/* botCheckTmp && */ (htmPage + '/video.html') === quer.pathname) {
+   if (botCheckTmp && (htmPage + '/video.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
 
       let queryValues = quer.query;
@@ -1668,7 +1873,7 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
    }
 
    // Results page
-   if (/*botCheckTmp && */ (htmPage + '/results.html') === quer.pathname) {
+   if (botCheckTmp && (htmPage + '/results.html') === quer.pathname) {
       res.writeHead(200, {'Content-Type': 'text/html'});
 
       if (!searchingUser) findVideos(searchTmp,pageTmp,exactWordSearch);
