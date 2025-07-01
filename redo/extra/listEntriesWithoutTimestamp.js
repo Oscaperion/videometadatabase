@@ -39,19 +39,22 @@ let files = fs.readdirSync(jsonLocation); //, (err, files) => {
 
    try {
       files.forEach(jsonFile => {
-         // console.log(jsonLocation + jsonFile);
-         // console.log("fof");
+         console.log(jsonLocation + jsonFile);
          let tmpFile = JSON.parse(fs.readFileSync(jsonLocation + jsonFile, 'utf8'));
-         // console.log("faf");
-         let tmpList = tmpFile
-             .filter(entry => entry.extractor_key === "Youtube")
-             .map(entry => entry.id);
+         if (!!tmpFile.videos) tmpFile = tmpFile.videos;
+         console.log("fof");
+         let tmpList = tmpFile.filter(entry => entry.extractor_key === "Youtube" /* && !timestampIds.includes(entry.id) */ )
+           .map(entry => entry.id);
 
-         allIds.push(...tmpList);
+         console.log(tmpList);
+
+         allIds.push(tmpList);
+         // allIds = allIds + "https://www.youtube.com/watch?v=" + tmpList.join("\nhttps://www.youtube.com/watch?v=");
+         console.log("fef");
          console.log('Processed... ' + jsonFile);
       });
    } catch(e) {
-      console.log("ERROR! FILE COULDN'T BE READ!");
+      console.log("ERROR! FILE COULDN'T BE READ! " + e);
    }
 
    // console.log('All metadata loaded!');
@@ -68,19 +71,20 @@ function createList() {
 let returnArray = [];
 
 for (let i = 0; i < allIds.length; i++) {
+for (let k = 0; k < allIds[i].length; k++) {
 
 
-   let hasTimestamp = !timestampIds.includes(allIds[i]);
+   let hasTimestamp = !timestampIds.includes(allIds[i][k]);
 
-   if (hasTimestamp) {
+   if (hasTimestamp && !returnArray.includes(allIds[i][k])) {
       // console.log(allIds.length + " / " + (i + 1));
       // console.log(allIds[i]);
-      returnArray.push(allIds[i]);
+      returnArray.push(allIds[i][k]);
       //console.log(hasTimestamp);
    }
 
-   if (i % 1000 === 0) { console.log(i + " / " + allIds.length); console.log(returnArray.length); }
-}
+   if (k % 1000 === 0) { console.log((i + 1) + " / " + allIds.length); console.log((k + 1) + " / " + allIds[i].length); console.log(returnArray.length); }
+}}
 
 fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/vids-with-no-timestamp.txt', "https://www.youtube.com/watch?v=" + returnArray.join("\nhttps://www.youtube.com/watch?v="));
 

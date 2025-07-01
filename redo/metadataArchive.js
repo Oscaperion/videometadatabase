@@ -24,15 +24,15 @@ const portNumber = 3535;
 /*
    This is where the primary JSON files for video entries are located
 */
-// const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
-const jsonLocation = __dirname + "/Videos/";
+const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+// const jsonLocation = __dirname + "/Videos/";
 
 /*
    This is where the complementary JSON files for e.g. lists of tags and YouTube user IDs
      are located.
 */
-//const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
-const jsonLocationComp = __dirname + "/Others/";
+const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
+// const jsonLocationComp = __dirname + "/Others/";
 
 /*
    These are used to process the JSON files that contain the entries for the database.
