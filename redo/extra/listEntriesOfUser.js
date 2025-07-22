@@ -1,7 +1,7 @@
 const fs = require('fs');
 //const readline = require('readline');
 
-const searchChannelId =  "UCsGL_4KimcE2xEXUdYFUd0w";
+const searchChannelId = ["UCTQy6tm_jhLqTevJCRrvCVw","UC_9aRSnVcHt2XshM2UHx9cg","UCsY3Kzqx3LLjNjYCc_ANG3w","UCXlwtXcmL9J6Qfc58bO9M7g"];
 
 const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 //const jsonLocation = "D:/testtt1/";
@@ -25,7 +25,7 @@ let files = fs.readdirSync(jsonLocation); //, (err, files) => {
          //let channelId = channel_id;
 
          let tmpList = tmpFile
-             .filter(entry => (entry.channel_id === searchChannelId || entry.uploader_id === searchChannelId) && !returnArray.includes(entry.id))
+             .filter(entry => (searchChannelId.includes(entry.channel_id) || searchChannelId.includes(entry.uploader_id)) && !returnArray.includes(entry.id))
              .map(entry => entry.id);
 
 
@@ -42,6 +42,6 @@ let files = fs.readdirSync(jsonLocation); //, (err, files) => {
 console.log("Processed! " + jsonLocation);
 
 
-fs.writeFileSync('F:/Dropbox/NodeJS/vids-' + searchChannelId + '.txt', 'https://www.youtube.com/watch?v=' + returnArray.join("\nhttps://www.youtube.com/watch?v="));
+fs.writeFileSync('F:/Dropbox/NodeJS/vids-' + searchChannelId[0] + '.txt', 'https://www.youtube.com/watch?v=' + returnArray.join("\nhttps://www.youtube.com/watch?v="));
 
 console.log("List created!");
