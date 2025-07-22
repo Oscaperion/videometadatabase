@@ -395,12 +395,13 @@ function videoEntryFromParsedVideo(parsedVideosId) {
    videoSite: The site where we want to find the video (Optional, has to be in form of site's extractor_key)
 */
 function videoEntryWithId(videoId, videoSite = null) {
-   let vidTmp = parsedVideos.find(vid => vid.id === videoId);
+   let vidTmp = parsedVideos.find(vid => (!videoSite && vid.id === videoId) || (!!videoSite && vid.id === videoId && vid.extractor_key === videoSite));
 
-   if (videoSite && vidTmp) vidTmp = parsedVideos.find(vid => (vid.id === videoId && vid.extractor_key === videoSite));
+   // if (videoSite && vidTmp) vidTmp = parsedVideos.find(vid => (vid.id === videoId && vid.extractor_key === videoSite));
    if (!vidTmp) return undefined;
 
-   return videoEntryConverter(vidTmp);
+   // return videoEntryConverter(vidTmp);
+   return vidTmp;
 }
 
 function videoEntryConverter(vidEnt) {
@@ -969,7 +970,8 @@ function editLink(linkTmp, onlyShowId = false) {
         if (matchingVid) {
            linkStr =  matchingVid.title + ' by ' + matchingVid.uploader;
            if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
-           metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */,videoMetaStr);
+           metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */,videoMetaStr) ;
+           // metadatStr +=
         }
       }
 
@@ -1161,16 +1163,24 @@ function compileEntry(videoInd) {
       if (video.webpage_url) titleTmp += htmlBlockCompiler("code",htmlLinkCompiler(video.webpage_url));
       else titleTmp += htmlBlockCompiler("code",videoLinkCompiler(video.id,video.extractor_key));
 
+      let idenTmp = video.id;
+      if (Array.isArray(video.id)) idenTmp = video.id[0];
       let linkDescForVid = "[Video Metadata Page]";
-      let singleVideoUrl = "video.html?id=";
-      if (Array.isArray(video.id)) singleVideoUrl += video.id[0];
-      else singleVideoUrl += video.id;
+      let singleVideoUrl = "video.html?id=" + idenTmp;
+      // let singleVideoUrl = "video.html?id=";
+      // if (Array.isArray(video.id)) singleVideoUrl += video.id[0];
+      // else singleVideoUrl += video.id;
       if (pageLanguage === "jp") {
          linkDescForVid = "[&#21205;&#30011;&#12398;&#12513;&#12479;&#12487;&#12540;&#12479;]";
          singleVideoUrl += "&lang=jp";
       }
       // singleVideoUrl += '&' + botCheckName + '=' + botCheckValue;
       titleTmp += htmlBlockCompiler("code"," &#8887; " + htmlLinkCompiler(singleVideoUrl,linkDescForVid, false));
+      
+      // Link to provide a JSON file of the video metadata
+      let jsonDownloadText = "[JSON File]";
+      if (pageLanguage === "jp") jsonDownloadText = "[JSON&#12501;&#12449;&#12452;&#12523;]";
+      titleTmp += " " + htmlBlockCompiler("code", htmlLinkCompiler("json/" + video.extractor_key.toLowerCase() + "-" + idenTmp + ".json",jsonDownloadText,true));
    }
 
    if (pageLanguage === "jp") {
@@ -1181,7 +1191,7 @@ function compileEntry(videoInd) {
 
    if (checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId)) userAddress += ' &#8212; ' + addOtherChannels(video.extractor_key,video.uploader_id,video.uId) + breakline;
 
-   userAddress += '<br/>';                              getUploadDate
+   userAddress += '<br/>';                              
 
    // let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
    let releaseDate = "Release date: " + getUploadDate(video) + '<br/><br/>' + breakline;
@@ -1536,7 +1546,7 @@ function urlValueCheker(urlValue) {
 }
 
 function checkUserInputs(userStr) {
-    return userStr
+   return userStr
        .replace(/&/g, "&amp;")
        .replace(/</g, "&lt;")
        .replace(/>/g, "&gt;")
@@ -1546,12 +1556,133 @@ function checkUserInputs(userStr) {
        .replace(/'/g, "&#039;");
 }
 
+function getJson(videoId, videoExtractorKey) {
+//function getJson(vidEnt) {
+   console.log(videoId);
+   let videoTmp = parsedVideos.find(vid => (vid.id === videoId || vid.id.includes(videoId)) && vid.extractor_key.toLowerCase() === videoExtractorKey.toLowerCase());
+   // let videoTmp = vidEnt;
+
+   if (!videoTmp) return undefined;
+
+   let uploaderIdTmp = (() => {
+      if (videoTmp.uId === 0 || !!videoTmp.uId) {
+         switch(videoTmp.extractor_key) {
+            case "Niconico":
+               return niconicoUserList[videoTmp.uId];
+            case "Youtube":
+               return youtubeUserList[videoTmp.uId];
+            default:
+               return undefined; // If extractor_key doesn't match known cases
+         }
+      }
+      return videoTmp.uploader_id; // If uId is not present, return existing uploader_id or undefined
+   })();    /*
+   let uploaderIdTmp = videoTmp.uploader_id;
+
+   if (!!videoTmp.uId) {
+      switch(videoTmp.extractor_key) {
+         case "Niconico":
+            return niconicoUserList[videoTmp.uId];
+         case "Youtube":
+            return youtubeUserList[videoTmp.uId];
+         default:
+            return undefined; // If extractor_key doesn't match known cases
+      }
+   }      */
+
+   if (!uploaderIdTmp) uploaderIdTmp = null;
+
+   let tagsTmp = (() => {
+      if (!videoTmp.tags) return [];
+
+      return videoTmp.tags.map(tag => {
+         if (Number.isInteger(tag)) return tagsList[tag];
+         return tag; // Return non-integer tags as-is
+      });
+   })();
+
+   let upload_dateTmp = getUploadDate(videoTmp).substring(0,8);
+   
+   let webpageTmp = videoTmp.webpage_url;
+   
+   if (!webpageTmp) {
+      switch(videoTmp.extractor_key) {
+         case "Niconico":
+            webpageTmp = "https://www.nicovideo.jp/watch/" + videoTmp.id;
+            break;
+         case "Youtube":
+            webpageTmp = "https://www.youtube.com/watch?v=" + videoTmp.id;
+            break;
+         case "BiliBili":
+            webpageTmp = videoTmp.id.map(iden => "https://www.bilibili.com/video/" + iden + "/");
+            break;
+         case "Twitter":
+            webpageTmp = "https://twitter.com/" + videoTmp.uploader_id + "/status/" + videoTmp.id;
+            break;
+         default:
+            webpageTmp = null; // If extractor_key doesn't match known cases
+      }
+   }
+   
+   let uploaderUrlTmp = videoTmp.uploader_url;
+
+   if (!uploaderUrlTmp) {
+      switch(videoTmp.extractor_key) {
+         case "Niconico":
+            uploaderUrlTmp = "https://www.nicovideo.jp/user/" + uploaderIdTmp;
+            break;
+         case "Youtube":
+            uploaderUrlTmp = uploaderIdTmp.map(uploId => {
+                  if (uploId.charAt(0) === "@" || uploId.substring(0,2) === "c/") return "https://www.youtube.com/" + uploId;
+                  if (uploId.length === 24 && uploId.substring(0,2) === "UC") return "https://www.youtube.com/channel/" + uploId;
+                  return "https://www.youtube.com/user/" + uploId;
+              });
+            break;
+         case "BiliBili":
+            uploaderUrlTmp = "https://space.bilibili.com/" + uploaderIdTmp;
+            break;
+         case "Twitter":
+            uploaderUrlTmp = ["https://twitter.com/" + videoTmp.uploader_id];
+            let twitCheck = twitterUserList.findIndex(ent => ent.handle.includes(videoTmp.uploader_id));
+            if (twitCheck >= 0) uploaderUrlTmp.push("https://twitter.com/i/user/" + twitterUserList[twitCheck].id);
+            break;
+         default:
+            uploaderUrlTmp = null; // If extractor_key doesn't match known cases
+      }
+   }
+
+
+   let jsonTmp = {
+      "id":videoTmp.id,
+      "title":videoTmp.title,
+      "upload_date":upload_dateTmp,
+      "uploader":videoTmp.uploader,
+      "uploader_id": uploaderIdTmp,
+      "duration": videoTmp.duration,
+      "description": videoTmp.description,
+      "webpage_url": webpageTmp,
+      "uploader_url": uploaderUrlTmp,
+      "tags":tagsTmp
+   };
+
+   if (!!videoTmp.timestamp) jsonTmp["timestamp"] = videoTmp.timestamp;
+   
+   jsonTmp["extractor_key"] = videoTmp.extractor_key;
+   
+   jsonTmp["json_source"] = "YTPMV Metadata Archive";
+   
+   return jsonTmp;
+}
+
+
 // sitesList = [ {'site': 'Youtube',    'isIgnored':true},
 let srvr = http.createServer(function (req, res) {
 
    // console.log(parsedVideos);
    // console.log(videoEntryWithId("sm44501923"));
    // console.log(videoEntryWithId("sm44501923")._tags);
+    console.log(getJson("9_wU0qhEPR8","Youtube"));
+    console.log(parsedVideos[10]);
 
    let quer = url.parse(req.url, true);
    pageLanguage = 'en';
@@ -1800,6 +1931,34 @@ This page is here to mitigate the load caused by search bots. ` + htmlLinkCompil
       res.write(headTmo + makeSearchBar(urlValueCheker(quer.query.search),quer.query.preview) + linksTmp  + compileList() + linksTmp + '</body></html>');
 
       res.end();
+
+      doThis = false;
+   }
+   
+   if (/*botCheckTmp && */ quer.pathname.includes(htmPage + '/json/')) {
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      let basenameTmp = quer.pathname.substring(quer.pathname.indexOf('/json/') + 6);
+      
+      let showedContent = "Invalid query. Cannot search with: " + basenameTmp;
+
+      if (basenameTmp.includes('.json') && basenameTmp.includes('-')) {
+         let dashIndex = basenameTmp.indexOf('-');
+         let jsonIndex = basenameTmp.indexOf('.json',dashIndex);
+
+         basenameTmp = basenameTmp.substring(0,jsonIndex);
+         
+         // let extractorTmp = basenameTmp.substring(0,dashIndex);
+         // let idTmp = basenameTmp.substring(dashIndex + 1);
+
+         let jsonTmp = getJson(basenameTmp.substring(dashIndex + 1).trim(), basenameTmp.substring(0,dashIndex).trim());
+         
+         if (!!jsonTmp) showedContent = JSON.stringify(jsonTmp);
+      }
+
+      res.end(showedContent);
+
+      // getJson(videoId, videoExtractorKey)
+
 
       doThis = false;
    }
