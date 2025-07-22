@@ -36,12 +36,12 @@ checkVideo(process.argv[2].trim());
 // checkVideo("sm14226299");
 
 //let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
-    /*
-let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp3.json', 'utf8')).id;
+ /*
+let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', 'utf8')).id;
 
 for (let i = 0; i < idList.length; i++) {
    checkVideo(idList[i]);
-}     */
+}  */
 
 
 function checkVideo(videoId) {

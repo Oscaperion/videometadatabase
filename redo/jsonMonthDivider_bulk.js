@@ -13,7 +13,7 @@ const JSONStream = require('JSONStream');
 console.log("Amane");
 
 // This determines how many JSON files are to be sorted
-const maxJsonAmount = 65;
+const maxJsonAmount = 66;
 
 /* These determine the time frame that will be processed. If a video was released outside
    of this time frame or has an undefined release date, its metadata won't be processed and
@@ -27,7 +27,7 @@ const minMonth = 200401;
 
 /* A list of the most common tags used across all videos, generated through tagsLogger.js.
    Used to replace these most common tags from the metadata with their respective indexes
-   within this list.                                                                           
+   within this list.
 */
 const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
 

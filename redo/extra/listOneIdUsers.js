@@ -8,7 +8,7 @@ let searchPhrase = ' - Topic';
 
 
 {
-    let parsedVideos = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList2.json', 'utf8'));
+    let parsedVideos = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
 
     for (let i = 0; i < parsedVideos.length; i++) {
         if (parsedVideos[i].length === 1) {

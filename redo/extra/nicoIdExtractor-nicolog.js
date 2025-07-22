@@ -34,8 +34,7 @@ teee['id'] = [];
 //checkVideo("nm7328662");
 
 //let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
-let pages = ["https://www.nicolog.jp/user/131035962","https://www.nicolog.jp/user/60662137","https://www.nicolog.jp/user/60662137?page=2",
-"https://www.nicolog.jp/user/60662137?page=3"
+let pages = ["https://www.nicolog.jp/user/74220588"
              ];
 
 for (let i = 0; i < pages.length; i++) {
@@ -67,4 +66,4 @@ function checkPage(pageUrl) {
    }
 }
 
-fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp3.json', JSON.stringify(teee));
+fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', JSON.stringify(teee));
