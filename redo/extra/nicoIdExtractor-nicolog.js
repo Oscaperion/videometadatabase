@@ -5,6 +5,9 @@ const url = require('url');
 const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
+let pages = ["https://www.nicolog.jp/user/70860612" ,"https://www.nicolog.jp/user/70860612?page=2"
+             ];
+
 let feats_HSL;
 
 let codeTmp = 0;
@@ -34,8 +37,6 @@ teee['id'] = [];
 //checkVideo("nm7328662");
 
 //let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
-let pages = ["https://www.nicolog.jp/user/74220588"
-             ];
 
 for (let i = 0; i < pages.length; i++) {
    checkPage(pages[i]);
@@ -56,7 +57,7 @@ function checkPage(pageUrl) {
    while (idIndex !== -1) {
       feats_HSL = feats_HSL.substring(idIndex + checkStr.length);
       let tmp2 = '">';
-      
+
       let extractedId = feats_HSL.substring(0,feats_HSL.indexOf(tmp2));
 
       console.log(extractedId);
@@ -66,4 +67,4 @@ function checkPage(pageUrl) {
    }
 }
 
-fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', JSON.stringify(teee));
+fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-list.json', JSON.stringify(teee));

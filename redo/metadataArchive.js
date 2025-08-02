@@ -1681,8 +1681,8 @@ let srvr = http.createServer(function (req, res) {
    // console.log(parsedVideos);
    // console.log(videoEntryWithId("sm44501923"));
    // console.log(videoEntryWithId("sm44501923")._tags);
-    console.log(getJson("9_wU0qhEPR8","Youtube"));
-    console.log(parsedVideos[10]);
+    // console.log(getJson("9_wU0qhEPR8","Youtube"));
+    //console.log(parsedVideos[10]);
 
    let quer = url.parse(req.url, true);
    pageLanguage = 'en';

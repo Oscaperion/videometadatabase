@@ -1,7 +1,7 @@
 const fs = require('fs');
 //const readline = require('readline');
 
-const searchChannelId = ["UCTQy6tm_jhLqTevJCRrvCVw","UC_9aRSnVcHt2XshM2UHx9cg","UCsY3Kzqx3LLjNjYCc_ANG3w","UCXlwtXcmL9J6Qfc58bO9M7g"];
+const searchChannelId = ["UCpShmYXYV5buvzKjGi-0k6Q"];
 
 const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 //const jsonLocation = "D:/testtt1/";

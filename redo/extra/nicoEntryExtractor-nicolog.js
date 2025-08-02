@@ -5,6 +5,9 @@ const url = require('url');
 const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
+let provideId = true;
+let fileSource = 'F:/Dropbox/NodeJS/idsFromNicolog-comp-list.json';
+
 let feats_HSL;
 
 let codeTmp = 0;
@@ -31,17 +34,21 @@ requ_HSL.onreadystatechange = function() {
 
 // console.log('Arguments: ', process.argv);
 
-checkVideo(process.argv[2].trim());
+if (provideId) checkVideo(process.argv[2].trim());
 
 // checkVideo("sm14226299");
 
-//let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
+if (!provideId) {
+
+let idList = JSON.parse(fs.readFileSync(fileSource, 'utf8')).id;
  /*
 let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', 'utf8')).id;
+   */
 
 for (let i = 0; i < idList.length; i++) {
    checkVideo(idList[i]);
-}  */
+}
+}
 
 
 function checkVideo(videoId) {

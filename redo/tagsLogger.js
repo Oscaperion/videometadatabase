@@ -4,6 +4,9 @@ let tagsAll = {};
 
 const tagThreshold = 100;
 
+let maxY = 67;
+let minY = 1;
+
 {
 
   try {
@@ -57,8 +60,6 @@ const tagThreshold = 100;
   }
 }
 
-let maxY = 66;
-let minY = 1;
 
 {
   let parsedVideos = [];

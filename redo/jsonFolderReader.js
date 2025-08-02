@@ -61,8 +61,8 @@ function takeOutLinks(ogDescription) {
 //for (let j = 12; j >= 12; j--) {
 //for (let j = 61; j >= 7; j--) {
 //for (let j = 7; j >= 0; j--) {
-for (let j = 66; j >= 66; j--) {
-//  for (let j = 0; j >= 0; j--) {
+for (let j = 67; j >= 67; j--) {
+//for (let j = 0; j >= 0; j--) {
 
   if (j === 0) readTwitterVids = true;
   else readTwitterVids = false;

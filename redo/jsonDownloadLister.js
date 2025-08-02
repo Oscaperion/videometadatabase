@@ -11,7 +11,8 @@ const idSet = new Set();
 
 //var rString = '';
 //let tu;
-for (let tu = 66; tu >= -1; tu--) {
+for (let tu = 67; tu >= -1; tu--) {
+//for (let tu = 67; tu >= 67; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
 //var parsedVideos = JSON.parse(videoitaFile);
     let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';
@@ -22,7 +23,7 @@ for (let tu = 66; tu >= -1; tu--) {
 //var k = 25;
 //var searchWord = 'thwy';
 
-    let parsedIds = parsedVideos.filter(ent => { return !(ent.extractor_key === "BilibiliSpaceVideo" || 
+    let parsedIds = parsedVideos.filter(ent => { return !(ent.extractor_key === "BilibiliSpaceVideo" ||
                                                             ent.extractor_key === "YoutubeTab" ||
                                                             ent.extractor_key === "SoundcloudPlaylist"); })
                                 .map(ent => {
