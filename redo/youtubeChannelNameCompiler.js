@@ -32,23 +32,6 @@ try {
       let tmpFile = JSON.parse(fs.readFileSync(jsonLocation + jsonFile, 'utf8'));
       if (!!tmpFile.videos) tmpFile = tmpFile.videos;
 
-      /*
-      tmpFile = tmpFile.map(item => {
-
-            let newItem = {};
-            newItem["id"] = tmpFile.id;
-
-            let userIds = [];
-            if (!!tmpFile[i].channel_id)  userIds.push(tmpFile[i].channel_id);
-            if (!!tmpFile[i].uploader_id) userIds.push(tmpFile[i].uploader_id);
-            newItem["channelIds"] = userIds;
-
-            newItem["channelName"] = tmpFile[i].uploader;
-
-            return newItem;
-         });
-      console.log(tmpFile); */
-
       for (let i = 0; i < tmpFile.length; i++) {
          if (tmpFile[i].extractor_key !== "Youtube") continue;
          
@@ -62,7 +45,7 @@ try {
 
          let channelName = tmpFile[i].uploader;
          if (!recompiledVids[isPresentAt]["channelNames"]) recompiledVids[isPresentAt]["channelNames"] = [];
-         if (!recompiledVids[isPresentAt]["channelNames"].includes(channelName)) {
+         if (!recompiledVids[isPresentAt]["channelNames"].includes(channelName) && !!channelName) {
             recompiledVids[isPresentAt]["channelNames"].push(channelName);
             console.log(jsonFile + " --- " + i + "/" + tmpFile.length);
             console.log(recompiledVids[isPresentAt]);
@@ -79,7 +62,7 @@ function checkForPresence(_channelIds) {
    let initialCheck = _channelIds.findIndex(item => item.substring(0,2) === "UC" && item.length === 24);
    if (initialCheck > -1) {
       let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[initialCheck]));
-      if (checkTmp > -1) { console.log("Found UC id!"); return checkTmp; }
+      if (checkTmp > -1) { /* console.log("Found UC id!"); */ return checkTmp; }
    }
 
    // Otherwise this goes through all given ids
