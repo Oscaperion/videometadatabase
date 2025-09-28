@@ -42,7 +42,8 @@ const nicoTags  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata A
 /* This file includes
 
 */
-const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+//const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-with-channelNames.json', 'utf8'));
 
 const niconicoUserList = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
 
@@ -53,17 +54,18 @@ let ignoreUsers = [];
 
 {
   let ignoreUsersTmp = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
-  let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+  // let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+  let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames.json', 'utf8'));
 
   for (let ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
     let ter = ignoreUsersTmp[ttu];
     let foundMoreIds = false;
 
     for (let tty = 0; tty < youtubeUserList1.length; tty++) {
-      if (youtubeUserList1[tty].uploader_id.includes(ter)) {
+      if (youtubeUserList1[tty].channelIds.includes(ter)) {
         foundMoreIds = true;
-          for (let ttz = 0; ttz < youtubeUserList1[tty].uploader_id.length; ttz++) {
-            ignoreUsers.push(youtubeUserList1[tty].uploader_id[ttz]);
+          for (let ttz = 0; ttz < youtubeUserList1[tty].channelIds.length; ttz++) {
+            ignoreUsers.push(youtubeUserList1[tty].channelIds[ttz]);
           }
           break;
       }
@@ -83,11 +85,13 @@ const niconicoUserListSet = new Set(niconicoUserList);
 const tagsListMap = new Map(tagsList.map((tag, index) => [tag.toLowerCase().trim(), index]));
 
 const youtubeUserListMap = new Map();
-youtubeUserList.forEach((userIds, index) => {
+youtubeUserList.map(item => item.channelIds).forEach((userIds, index) => {
+    //console.log(userIds);
     userIds.forEach(id => {
         youtubeUserListMap.set(id, index);
     });
 });
+//console.log(youtubeUserListMap);
     
 let allEntries = {};
 let pathsS = [];
@@ -525,6 +529,8 @@ function entryEditor(entryVid) {
              }
              delete tmpVid["uploader_id"];
              delete tmpVid["channel_id"];
+             // console.log(uId);
+             if (!!youtubeUserList[uId].channelNames) delete tmpVid["uploader"];
          }
        }
 

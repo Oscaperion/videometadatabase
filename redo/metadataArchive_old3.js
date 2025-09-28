@@ -122,8 +122,7 @@ function getLastUpdated() {
 
 const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf8'));
 
-// const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList-with-channelNames.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList.json', 'utf8'));
 
 const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
 
@@ -425,7 +424,7 @@ function videoEntryConverter(vidEnt) {
             case "Niconico":
                return niconicoUserList[vidEnt.uId];
             case "Youtube":
-               return youtubeUserList[vidEnt.uId].channelIds;
+               return youtubeUserList[vidEnt.uId];
             default:
                return undefined; // If extractor_key doesn't match known cases
          }
@@ -443,7 +442,7 @@ function getUploaderId(vidEnt) {
          case "Niconico":
             return niconicoUserList[vidEnt.uId];
          case "Youtube":
-            return youtubeUserList[vidEnt.uId].channelIds;
+            return youtubeUserList[vidEnt.uId];
          default:
             return undefined; // If extractor_key doesn't match known cases
       }
@@ -587,7 +586,7 @@ function findVideos(searchWord,reqPage = 1,exactSearch = false,searchUploaderId 
             searchedUploaderHasAlts = true;
             let tmpArr = youtubeUserList.filter(ent => {
                for (let j = 0; j < ent.length; j++) {
-                  if (Object.values(sameUserList[checkTmp]).includes(ent[j].channelIds)) return true;
+                  if (Object.values(sameUserList[checkTmp]).includes(ent[j])) return true;
                }
                return false;
             });
@@ -647,9 +646,7 @@ function hasSearchWords(searchWord,video) {
              (video.description && video.description.toLowerCase().includes(srcWrd)) ||
              tagsTmp.includes(srcWrd) ||
              (video.uploader && video.uploader.toLowerCase().includes(srcWrd)) ||
-             (video.extractor_key === "Youtube" && !!(youtubeUserList[video.uId].channelNames) && youtubeUserList[video.uId].channelNames.join(' ').toLowerCase().includes(srcWrd)) ||
-             uploaderIdTmp.toLowerCase().includes(srcWrd) ||
-             getUploadDate(video).includes(srcWrd)
+             uploaderIdTmp.toLowerCase().includes(srcWrd)
              ) return true;
 
          return false;
@@ -681,7 +678,7 @@ function userLinkCompiler(userName,userId,site) {
       let idTmp = userId;
       let multipleId = false;
       if (Number.isInteger(userId)) {
-         idTmp = youtubeUserList[userId].channelIds;
+         idTmp = youtubeUserList[userId];
          multipleId = true;
       }
 
@@ -933,10 +930,8 @@ function editLink(linkTmp, onlyShowId = false) {
       // Checking if there is a video with this ID
       let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
       if (matchingVid) {
-         let uploaderName = matchingVid.uploader;
-         if (!uploaderName && matchingVid.extractor_key === "Youtube") uploaderName = youtubeUserList[matchingVid.uId].channelNames[0];
-         let linkStr = matchingVid.title + ' by ' + uploaderName;
-         if (pageLanguage === 'jp') linkStr = uploaderName + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
+         let linkStr = matchingVid.title + ' by ' + matchingVid.uploader;
+         if (pageLanguage === 'jp') linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
          return htmlLinkCompiler(linkTmp, linkStr) + " "
                 + htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */, htmlBlockCompiler("code",videoMetaStr),false) + " "
@@ -973,10 +968,8 @@ function editLink(linkTmp, onlyShowId = false) {
       {
         let matchingVid = parsedVideos.find(vid => vid.id === extractedId);
         if (matchingVid) {
-           let uploaderName = matchingVid.uploader;
-           if (!uploaderName && matchingVid.extractor_key === "Youtube") uploaderName = youtubeUserList[matchingVid.uId].channelNames[0];
-           linkStr =  matchingVid.title + ' by ' + uploaderName;
-           if (pageLanguage === 'jp')  linkStr = uploaderName + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
+           linkStr =  matchingVid.title + ' by ' + matchingVid.uploader;
+           if (pageLanguage === 'jp')  linkStr = matchingVid.uploader + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
            metadatStr = htmlLinkCompiler('video.html?id=' + encodeURIComponent(extractedId) + langStr /* + `&${botCheckName}=${botCheckValue}` */,videoMetaStr) ;
            // metadatStr +=
         }
@@ -1074,7 +1067,7 @@ function checkForOtherChannels(siteKey,checkUploaderId,checkuId) {
 
    if ((siteKey === "Youtube" || siteKey === "Niconico") && checkuId !== undefined) {
       if (siteKey === "Youtube") {
-         let userIdss = youtubeUserList[checkuId].channelIds;
+         let userIdss = youtubeUserList[checkuId];
          for (let i = 0; i < userIdss.length; i++) {
             if (valueArr.includes(userIdss[i])) return true;
          }
@@ -1098,7 +1091,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
 
       if ((siteKey === "Youtube" || siteKey === "Niconico") && checkuId !== undefined) {
          if (siteKey === "Youtube") {
-            let userIdss = youtubeUserList[checkuId].channelIds;
+            let userIdss = youtubeUserList[checkuId];
             for (let i = 0; i < userIdss.length; i++) {
                if (checkArr.includes(userIdss[i])) {
                  userArr = j;
@@ -1121,7 +1114,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    let vals = Object.values(sameUserList[userArr]);
    for (let h = 0; h < vals.length; h++) {
       if (checkUploaderId && vals[h] === checkUploaderId) continue;
-      if (checkuId && youtubeUserList[checkuId].channelIds.includes(vals[h])) continue;
+      if (checkuId && youtubeUserList[checkuId].includes(vals[h])) continue;
       if (checkuId && niconicoUserList[checkuId] === vals[h]) continue;
 
       let tmpLink = 'results.html?uploader_id=' + vals[h];
@@ -1154,8 +1147,7 @@ function compileEntry(videoInd) {
          if (video.extractor_key === "Youtube") {
              // tmpConsole = video;
              //if (video.uId === undefined) console.log(video);
-             if (!!youtubeUserList[video.uId].channelNames) userAddress = userLinkCompiler(convertToHTMLEntities(youtubeUserList[video.uId].channelNames[0]),video.uId,video.extractor_key);
-             else { userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),video.uId,video.extractor_key); }
+             userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),video.uId,video.extractor_key);
          }
          if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),niconicoUserList[video.uId],video.extractor_key);
       }
@@ -1199,18 +1191,7 @@ function compileEntry(videoInd) {
 
    if (checkForOtherChannels(video.extractor_key,video.uploader_id,video.uId)) userAddress += ' &#8212; ' + addOtherChannels(video.extractor_key,video.uploader_id,video.uId) + breakline;
 
-   userAddress += '<br/>';  
-
-   if (video.extractor_key === "Youtube" && !!youtubeUserList[video.uId].channelNames && youtubeUserList[video.uId].channelNames.length > 1) {
-      userAddress += '&nbsp;&nbsp;&#10551;&nbsp;<code>';
-      if (pageLanguage === "jp") {
-         userAddress += '&#26087;&#12495;&#12531;&#12489;&#12523;&#21517;: ';
-      } else {
-         userAddress += 'Also known as: ';
-      }
-      
-      userAddress += youtubeUserList[video.uId].channelNames.slice(1).join(', ') + '</code><br/>';
-   }
+   userAddress += '<br/>';                              
 
    // let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
    let releaseDate = "Release date: " + getUploadDate(video) + '<br/><br/>' + breakline;
@@ -1589,7 +1570,7 @@ function getJson(videoId, videoExtractorKey) {
             case "Niconico":
                return niconicoUserList[videoTmp.uId];
             case "Youtube":
-               return youtubeUserList[videoTmp.uId].channelIds;
+               return youtubeUserList[videoTmp.uId];
             default:
                return undefined; // If extractor_key doesn't match known cases
          }
