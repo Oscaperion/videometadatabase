@@ -130,43 +130,6 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
        }
 }
 
-// let monthCheck = {};
-
-/*
-
-for (let tr = 0; tr < pathsS.length; tr++) {
-   let tmoe = JSON.parse(fs.readFileSync(pathsS[tr], 'utf8'));
-   if (!pathsS[tr].includes("finnredo")) tmoe = tmoe.videos;
-   
-   for (let wer = maxMonth; wer >= minMonth; wer--) {
-      let tmpsstr = wer + "_" + tr;
-      let tmmw  = tmoe.findIndex(ent => ent.upload_date !== undefined && ent.upload_date.substring(0,6) === ('' + wer) );
-      let tmmw2 = true;
-      if (tmmw === -1) tmmw2 = false;
-
-      monthCheck[tmpsstr] = tmmw2;
-      
-      console.log(tmpsstr + " -> " + tmmw2);
-
-      if ((wer + '').substring(4) === '01' ) wer = wer - 88;
-   }
-   // console.log(tr);
-
-   //maxMonth
-   //minMonth
-}  */
-
-// console.log(monthCheck);
-
-/*
-for (let jj = 0; jj < pathsS.length; jj++) {
-   readFileJ(pathsS[jj]);
-} */
-
-// let gatheredIds = [];
-
-//const dayRange = [[1,10],[11,20],[21,31]];
-
 let parsedData2 = {};
 const gatheredIds = new Set();
 
@@ -215,96 +178,7 @@ for (let i = 0; i < pathsS.length; i++) {
       // console.log(parsedData[j].upload_date.substring(0,6) + " --- " + parsedData[j].id);
    }
    // console.log(parsedData2);
-}    
-
-              /*
-let indexList = [];
-
-for (let i = 0; i < parsedData.length; i++) {
-   for (let j = 0; j < parsedData[i].length; j++) {
-      let tmpIndLi  = {};
-      tmpIndLi.ind1 = i;
-      tmpIndLi.ind2 = j;
-      indexList.push(tmpIndLi);
-   }
 }
-
-console.log("Marco");
-
-let idList = indexList.map(ent => { return parsedData[ent.ind1][ent.ind2].id });
-
-indexList = indexList.filter((ent, ind) => {
-
-  if (!parsedData[ent.ind1][ent.ind2].upload_date) return false;
-
-  // if (idList.indexOf(idList[ind]) !== ind) return false;
-
-  return true;
-
-});
-
-let months = [];
-
-for (let yyyy = 2025; yyyy >= 2004; yyyy--) {
-   for (let mm = 12; mm >= 1; mm--) {
-      let strMont = "" + yyyy + ("" + mm).padStart(2,"0");
-      months.push(strMont);
-      console.log(strMont);
-   }
-}
-
-console.log(months);
-
-console.log("Polo");
-
-for (let m = 0; m < months.length; m++) {
-  
-   let gatheredIds = [];
-
-   let tmpList = indexList.filter((ent, ind) => {
-      if (parsedData[ent.ind1][ent.ind2].upload_date.substring(0,6) !== months[m]) return false;
-      
-      if (gatheredIds.includes(parsedData[ent.ind1][ent.ind2].id)) return false;
-      gatheredIds.push(parsedData[ent.ind1][ent.ind2].id);
-
-      // if (idList.indexOf(idList[ind]) === ind) return true;
-
-      return true;
-   });
-
-   // tmpList = indexList.filter((ent, ind) => { if (idList.indexOf(parsedData[ent.ind1][ent.ind2].id) === ind) return true; return false; });
-   
-   if (tmpList.length === 0) continue;
-
-   tmpList = tmpList.sort((a,b) => {
-      let tmpEntA = parsedData[a.ind1][a.ind2];
-      let tmpEntB = parsedData[b.ind1][b.ind2];
-
-      if (tmpEntA.upload_date + tmpEntA.title + tmpEntA.id > tmpEntB.upload_date + tmpEntB.title + tmpEntB.id) return -1
-      return 1;
-   });
-   
-   tmpList = tmpList.map(ent => { return entryEditor(parsedData[ent.ind1][ent.ind2]) });
-
-   tmpList = tmpList.filter(ent => { if (!ent) return false; return true; } );
-
-   console.log("Handling: " + months[m]);
-   fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + months[m] + '.json', JSON.stringify(tmpList));
-}     */
-
-/*
-indexList = indexList.sort((a,b) => {
-
-   let tmpEntA = parsedData[a.ind1][a.ind2];
-   let tmpEntB = parsedData[b.ind1][b.ind2];
-
-   if (tmpEntA.upload_date + tmpEntA.title + tmpEntA.id > tmpEntB.upload_date + tmpEntB.title + tmpEntB.id) return -1
-   return 1;
-});
-
-console.log(indexList);
-console.log(parsedData[indexList[0].ind1][indexList[0].ind2]);  */
-
 
 for (let k = 0; k < Object.keys(parsedData2).length; k++) {
    let keyTmp = Object.keys(parsedData2)[k];
@@ -341,54 +215,6 @@ for (let k = 0; k < Object.keys(parsedData2).length; k++) {
    //parsedData2
    fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + keyTmp + '.json', JSON.stringify(monthlyArray));
 }
-
-/*
-
-for (let mont = maxMonth; mont >= minMonth; mont--) {
- // for (let dRangeId = 0; dRangeId < dayRange.length; dRangeId++) {
-   let tmpMo = [];
-   // gatheredIds = [];
-
-   // tmpMo = parsedData.filter(ent => ent.upload_date && ent.upload_date.substring(0,6) === mont && entryEditor(ent) !== undefined);
-
-
-
-
-   for (let jj = 0; jj < parsedData.length; jj++) {
-      let tmpMoom = parsedData[jj].filter(ent => ent.upload_date !== undefined && ent.upload_date.substring(0,6) === mont && entryEditor(ent) !== undefined);
-      console.log(tmpMoom);
-      tmpMo.push(...tmpMoom);
-   }
-
-
-   for (let jj = 0; jj < pathsS.length; jj++) {
-      console.log ("Fuyo " + pathsS[jj] + " " + mont);
-
-      let tmpMo2 = [];
-      if (monthCheck[mont + "_" + jj]) tmpMo2 = readFileMonthly(pathsS[jj],mont  ,dRangeId );
-      else console.log("Skipping " + mont);
-
-      tmpMo.push(...tmpMo2);
-   }
-   
-   tmpMo.sort((a,b) => {
-      //let titleA = a.title + a.id;
-      //if (a.extractor_key === "Twitter") titleA = a.id;
-      //let titleB = b.title + b.id;
-      //if (b.extractor_key === "Twitter") titleB = b.id;
-      
-      if (a.upload_date + a.title + a.id > b.upload_date + b.title + b.id) return -1
-      return 1;
-   });
-
-   if (tmpMo.length > 0) fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont +  '' + dRangeId +  '-test2.json', JSON.stringify(tmpMo));
-
-   let moont = mont + '';
-
-   if (moont.substring(4) === '01' ) mont = mont - 88;
- // }
-}      */
-
 
 function optimizeTags(tagsArray) {
    let tmpTags = [];
@@ -690,35 +516,6 @@ function entryEditor(entryVid) {
 
        tmpVid["tags"] = tmpTagss;
 
-       /*
-       if (tmpVid.extractor_key === "Youtube" && addForSure) {
-          let uploader_id_tmp = -1 // tmpVid.uploader_id;
-          let uploaderFound = false;
-
-          let userIid = tmpVid.channel_id;
-          if (userIid === undefined || userIid === null) userIid = tmpVid.uploader_id;
-
-          for (let i = 0; i < youtubeUserList.length; i++) {
-             for (let j = 0; j < youtubeUserList[i].length; j++) {
-                if (userIid  === youtubeUserList[i][j]) {
-                // if (tmpVid.uploader_id === youtubeUserList[i][j]) {
-                   uploader_id_tmp = i;
-                   uploaderFound = true;
-                   break;
-                }
-             }
-             if (uploaderFound) break;
-          }
-
-          if (uploaderFound) {
-             tmpVid["uId"] = uploader_id_tmp;
-             // console.log("Uploader order number: " + uploader_id_tmp);
-          }
-
-          delete tmpVid["uploader_id"];
-          delete tmpVid["channel_id"];
-       }    */
-       
        if (tmpVid.extractor_key === "Youtube" && addForSure) {
           let userIid = tmpVid.channel_id || tmpVid.uploader_id;
           if (userIid) {
