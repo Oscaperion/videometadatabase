@@ -4,7 +4,7 @@ const fs = require('fs');
 const url = require('url');
 const http = require('http');
 
-const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
+const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
 
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
@@ -35,7 +35,7 @@ requ_HSL.onreadystatechange = function() {
 //for (j = 1; j <= 27; j++) {
 //for (j = 16; j >= 16; j--) {
 
-  let dirName = folderName + 67;
+  let dirName = folderName + 68;
   console.log('Luetaan kansiota ' + dirName);
   //joining path of directory
   let directoryPath = path.join(dirName);
@@ -48,7 +48,7 @@ requ_HSL.onreadystatechange = function() {
        console.log(parsedVideo.upload_date + ' -- ' + parsedVideo.id);
        if (!(parsedVideo.description === undefined) && parsedVideo.extractor_key.indexOf("Twitter") != -1) {
           parsedVideo.description = findLinks(parsedVideo.description, 'https://t.co/');
-          let fileLoc = 'F:/Dropbox/NodeJS/massJsonTesting-1/' + parsedVideo.id + '-tco-link-patched.json';
+          let fileLoc = 'K:/Dropbox/NodeJS/massJsonTesting-1/' + parsedVideo.id + '-tco-link-patched.json';
           fs.writeFileSync(fileLoc, JSON.stringify(parsedVideo));
        } /*if (!(parsedVideo.description === undefined)) {
           parsedVideo.description = findLinks_b23(parsedVideo.description, 'b23.tv/');

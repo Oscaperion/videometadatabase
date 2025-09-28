@@ -13,7 +13,7 @@ const JSONStream = require('JSONStream');
 console.log("Amane");
 
 // This determines how many JSON files are to be sorted
-const maxJsonAmount = 67;
+const maxJsonAmount = 68;
 
 /* These determine the time frame that will be processed. If a video was released outside
    of this time frame or has an undefined release date, its metadata won't be processed and
@@ -29,31 +29,31 @@ const minMonth = 200401;
    Used to replace these most common tags from the metadata with their respective indexes
    within this list.
 */
-const tagsList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
+const tagsList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', 'utf8'));
 
 /* These files include the tags for videos from Niconico. Due to yt-dlp not including them,
    they've been gathered and compiled into these files through nicoTagExtractor.js and
    nicoTagExtractor-nicolog.js. The script will couple each set of tags to their respective
    videos.
 */
-const nicoTags2 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
-const nicoTags  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+const nicoTags2 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
+const nicoTags  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 
 /* This file includes
 
 */
-const youtubeUserList  = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
 
-const niconicoUserList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
+const niconicoUserList = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
 
-const missingNicoUsers = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid2.json', 'utf8'));
+const missingNicoUsers = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid2.json', 'utf8'));
 
 console.log("Kanata");
 let ignoreUsers = [];
 
 {
-  let ignoreUsersTmp = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
-  let youtubeUserList1 = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+  let ignoreUsersTmp = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
+  let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
 
   for (let ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
     let ter = ignoreUsersTmp[ttu];
@@ -104,7 +104,7 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
        //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
        //var parsedVideos = JSON.parse(videoitaFile);
        if (tu === 0) {
-          let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json';
+          let filepath = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json';
           // let filepath = 'C:/Users/Public/test/split_parts/finnredo.json';
           pathsS.push(filepath);
           console.log(filepath);
@@ -112,7 +112,7 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
           // parsedData.push(tmpArrar);
        }
        if (tu === -1) {
-          let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids0.json';
+          let filepath = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids0.json';
           // let filepath = 'C:/Users/Public/test/split_parts/vids0.json';
           pathsS.push(filepath);
           console.log(filepath);
@@ -120,7 +120,7 @@ for (let tu = maxJsonAmount; tu >= -1; tu--) {
           // parsedData.push(tmpArrar);
        }
        if (tu > 0) {
-          let filepath = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';
+          let filepath = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + tu + '.json';
           console.log(filepath);
           // let filepath = 'C:/Users/Public/test/split_parts/vids' + tu + '.json';
           pathsS.push(filepath);
@@ -289,7 +289,7 @@ for (let m = 0; m < months.length; m++) {
    tmpList = tmpList.filter(ent => { if (!ent) return false; return true; } );
 
    console.log("Handling: " + months[m]);
-   fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + months[m] + '.json', JSON.stringify(tmpList));
+   fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + months[m] + '.json', JSON.stringify(tmpList));
 }     */
 
 /*
@@ -339,7 +339,7 @@ for (let k = 0; k < Object.keys(parsedData2).length; k++) {
    });
 
    //parsedData2
-   fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + keyTmp + '.json', JSON.stringify(monthlyArray));
+   fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + keyTmp + '.json', JSON.stringify(monthlyArray));
 }
 
 /*
@@ -381,7 +381,7 @@ for (let mont = maxMonth; mont >= minMonth; mont--) {
       return 1;
    });
 
-   if (tmpMo.length > 0) fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont +  '' + dRangeId +  '-test2.json', JSON.stringify(tmpMo));
+   if (tmpMo.length > 0) fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + mont +  '' + dRangeId +  '-test2.json', JSON.stringify(tmpMo));
 
    let moont = mont + '';
 

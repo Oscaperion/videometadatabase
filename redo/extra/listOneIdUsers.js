@@ -8,7 +8,7 @@ let searchPhrase = ' - Topic';
 
 
 {
-    let parsedVideos = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+    let parsedVideos = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
 
     for (let i = 0; i < parsedVideos.length; i++) {
         if (parsedVideos[i].length === 1) {
@@ -37,8 +37,8 @@ console.log(presentIds.includes(2));
 
 let foundUsers = [];
 
-for (var ty = 202412; ty > 200600; ty--) {
-    let fileSource = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + ty + '.json';
+for (var ty = 202512; ty > 200600; ty--) {
+    let fileSource = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + ty + '.json';
     var checkingFile;
     try {
        checkingFile = JSON.parse(fs.readFileSync(fileSource, 'utf8'));
@@ -90,4 +90,4 @@ let finStr = '"' + foundUsers.map(ent => ent.userId).join('","') + '"';
 
 //console.log(finStr);
 
-fs.writeFileSync('F:/Dropbox/NodeJS/topic-users.txt', finStr);
+fs.writeFileSync('K:/Dropbox/NodeJS/topic-users.txt', finStr);

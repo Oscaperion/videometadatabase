@@ -36,7 +36,7 @@ let teee = {};
 teee['id'] = [];
 //checkVideo("nm7328662");
 
-//let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
+//let idList = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/undefined_niconico_vids12.txt', 'utf8')).ids;
 
 for (let i = 0; i < pages.length; i++) {
    checkPage(pages[i]);
@@ -67,4 +67,4 @@ function checkPage(pageUrl) {
    }
 }
 
-fs.writeFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-list.json', JSON.stringify(teee));
+fs.writeFileSync('K:/Dropbox/NodeJS/idsFromNicolog-comp-list.json', JSON.stringify(teee));

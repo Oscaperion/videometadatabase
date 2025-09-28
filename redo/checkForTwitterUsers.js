@@ -1,10 +1,10 @@
 var path = require('path');
 var fs = require('fs');
 
-const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
-let userList =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', 'utf8'));
+const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
+let userList =  JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', 'utf8'));
 
-let dirName = folderName + 67;
+let dirName = folderName + 68;
 console.log('Reading folder ' + dirName);
 let directoryPath = path.join(dirName);
 let changed = false;
@@ -52,7 +52,7 @@ fs.readdirSync(directoryPath).forEach(function (file) {
 });
 
 if (changed) {
-   fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', JSON.stringify(userList));
+   fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', JSON.stringify(userList));
    console.log("Changes saved!");
 } else {
    console.log("No (new) Twitter user IDs found! Not saving!");

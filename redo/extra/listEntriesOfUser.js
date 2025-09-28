@@ -1,9 +1,9 @@
 const fs = require('fs');
 //const readline = require('readline');
 
-const searchChannelId = ["UCpShmYXYV5buvzKjGi-0k6Q"];
+const searchChannelId = ["UC13Jgx0kgrEVvhHUtDY1aRg","UCr958FPp7tGQNN9T9pGigzw"];
 
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
+const jsonLocation = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 //const jsonLocation = "D:/testtt1/";
 
 let returnArray = [];
@@ -42,6 +42,6 @@ let files = fs.readdirSync(jsonLocation); //, (err, files) => {
 console.log("Processed! " + jsonLocation);
 
 
-fs.writeFileSync('F:/Dropbox/NodeJS/vids-' + searchChannelId[0] + '.txt', 'https://www.youtube.com/watch?v=' + returnArray.join("\nhttps://www.youtube.com/watch?v="));
+fs.writeFileSync('K:/Dropbox/NodeJS/vids-' + searchChannelId[0] + '.txt', 'https://www.youtube.com/watch?v=' + returnArray.join("\nhttps://www.youtube.com/watch?v="));
 
 console.log("List created!");

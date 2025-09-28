@@ -12,11 +12,11 @@ const search2 = '</div>';  */
 
 let foundTags;
 
-// let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json', 'utf8')) };
-let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids67.json', 'utf8'));
-//let vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202210.json', 'utf8')) };
+// let vids = {"videos": JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/finnredo.json', 'utf8')) };
+let vids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids68.json', 'utf8'));
+//let vids = {"videos": JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202210.json', 'utf8')) };
 
-let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+let replll =  JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
 //let tmprep =  replll.map(entry => entry.uploader_id).flat();
 //console.log(tmprep);
 
@@ -69,11 +69,11 @@ for (let orttt = 0; orttt < vids.videos.length; orttt++) {
      //  orttt++;
  }                        /*
 console.log("Temporary save");
-fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', JSON.stringify(replll));
-replll = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));       */
+fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', JSON.stringify(replll));
+replll = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));       */
 }
 console.log("Dun");
-fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', JSON.stringify(replll));
+fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', JSON.stringify(replll));
 
 function checkVideo(video) {
    let dewIt = true;

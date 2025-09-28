@@ -36,14 +36,14 @@ requ_HSL.onreadystatechange = function() {
 
 let foundTags;
 
-//var vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids20.json', 'utf8'));
-//var vids = {"videos": JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202206.json', 'utf8')) };
+//var vids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids20.json', 'utf8'));
+//var vids = {"videos": JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids202206.json', 'utf8')) };
 
-let replll =  JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
+let replll =  JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
 //var replll = [];
 console.log(replll);
 
-let vids = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
+let vids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8'));
 
 let orttt = 0;
 
@@ -79,8 +79,8 @@ while (orttt2 < 10 && orttt < vids.length) {
        orttt++;
 }
 console.log("Temporary save");
-fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', JSON.stringify(replll));
-//replll = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
+fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', JSON.stringify(replll));
+//replll = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8'));
 }
 
 

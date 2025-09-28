@@ -6,7 +6,7 @@ const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
 let provideId = true;
-let fileSource = 'F:/Dropbox/NodeJS/idsFromNicolog-comp-list.json';
+let fileSource = 'K:/Dropbox/NodeJS/idsFrpmNicolog1.json'; // 'K:/Dropbox/NodeJS/idsFromNicolog-comp-list.json';
 
 let feats_HSL;
 
@@ -42,7 +42,7 @@ if (!provideId) {
 
 let idList = JSON.parse(fs.readFileSync(fileSource, 'utf8')).id;
  /*
-let idList = JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', 'utf8')).id;
+let idList = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', 'utf8')).id;
    */
 
 for (let i = 0; i < idList.length; i++) {
@@ -142,5 +142,5 @@ function checkVideo(videoId) {
    teee['extractor_key'] = "Niconico";
    console.log(teee);
 
-   fs.writeFileSync('F:/Dropbox/NodeJS/fetchedNicoInfo/' + videoId + '-edited.json', JSON.stringify(teee));
+   fs.writeFileSync('K:/Dropbox/NodeJS/fetchedNicoInfo/' + videoId + '-edited.json', JSON.stringify(teee));
 }

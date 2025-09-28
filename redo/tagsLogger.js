@@ -4,7 +4,7 @@ let tagsAll = {};
 
 const tagThreshold = 100;
 
-let maxY = 67;
+let maxY = 68;
 let minY = 1;
 
 {
@@ -12,8 +12,8 @@ let minY = 1;
   try {
       console.log("Niconico");
       let tmpNico = [];
-      tmpNico.push(JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8')));
-      tmpNico.push(JSON.parse(fs.readFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
+      tmpNico.push(JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8')));
+      tmpNico.push(JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
       console.log('Loaded!')  ;
       
       let tmpNicoEdit = [];
@@ -66,7 +66,7 @@ let minY = 1;
 
   for (let y = maxY; y >= minY; y--) {
                  //F:\Dropbox\NodeJS\YTPMV Metadata Archive JSON\split_parts2
-    let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + y + '.json';
+    let terappi = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + y + '.json';
     //let terappi = 'vidJson2/vids' + y + '.json';
     console.log('Loading ' + terappi)  ;
     try {
@@ -111,4 +111,4 @@ for (let k = 0; k < tmpTaags.length; k++) {
 }
 console.log(tagsComp2);
 
-fs.writeFileSync('F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', JSON.stringify(tagsComp2));
+fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/tags.json', JSON.stringify(tagsComp2));

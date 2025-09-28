@@ -24,14 +24,14 @@ const portNumber = 3535;
 /*
    This is where the primary JSON files for video entries are located
 */
-const jsonLocation = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
+const jsonLocation = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/";
 // const jsonLocation = __dirname + "/Videos/";
 
 /*
    This is where the complementary JSON files for e.g. lists of tags and YouTube user IDs
      are located.
 */
-const jsonLocationComp = "F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
+const jsonLocationComp = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/";
 // const jsonLocationComp = __dirname + "/Others/";
 
 /*
@@ -317,7 +317,7 @@ fs.readdir(jsonLocation, (err, files) => {
    //let numm = 0;
    for (let y = maxMonth; y >= minMonth; y--) {
       let terappi = jsonLocation + 'vids' + y + '.json';
-      //let terappi = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
+      //let terappi = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts2/vids' + y + '.json';
       //let terappi = 'vidJson2/vids' + y + '.json';
       console.log('Loading ' + terappi)  ;
       try {

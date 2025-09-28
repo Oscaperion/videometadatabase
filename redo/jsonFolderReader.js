@@ -8,7 +8,7 @@ This script takes the JSON files from a folder and then compiles them into a sin
 let path = require('path');
 let fs = require('fs');
 
-const folderName =  'F:/Dropbox/NodeJS/massJsonTesting';
+const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
 let videoList = '';
 
 let toBeSortedList = [];
@@ -50,7 +50,7 @@ function takeOutLinks(ogDescription) {
 
       linkPresentIndex = tmpDescription.indexOf(checkTmp1);
    }
-   
+
    console.log("Took out links and HTML breaklines");
    console.log(newDescription + tmpDescription);
    
@@ -60,8 +60,9 @@ function takeOutLinks(ogDescription) {
 //for (j = 1; j <= 25; j++) {
 //for (let j = 12; j >= 12; j--) {
 //for (let j = 61; j >= 7; j--) {
-//for (let j = 7; j >= 0; j--) {
-for (let j = 67; j >= 67; j--) {
+//for (let j = 30; j >= 30; j--) {
+//for (let j = 16; j >= 1; j--) {
+for (let j = 68; j >= 68; j--) {
 //for (let j = 0; j >= 0; j--) {
 
   if (j === 0) readTwitterVids = true;
@@ -202,7 +203,7 @@ for (let j = 67; j >= 67; j--) {
                     tmpStr = parsedJSON.webpage_url_basename.substring(0, parsedJSON.webpage_url_basename.indexOf("_"));
                  }
 
-                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/' + parsedJSON.webpage_url_basename + '/\n');
+                 //fs.appendFileSync('K:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/' + parsedJSON.webpage_url_basename + '/\n');
                  testRun = false;
                  idsFound = true;
                  idTmp.push(tmpStr.trim());
@@ -220,7 +221,7 @@ for (let j = 67; j >= 67; j--) {
                     tmpStr = "BV" + tmpStr.substring(2);
                  }
 
-                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/' + parsedJSON.webpage_url_basename + '/\n');
+                 //fs.appendFileSync('K:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/' + parsedJSON.webpage_url_basename + '/\n');
                  testRun = false;
                  idsFound = true;
                  idTmp.push(tmpStr.trim());
@@ -229,8 +230,8 @@ for (let j = 67; j >= 67; j--) {
               if (testRun) {
                  console.log("Check this ID: " + parsedJSON.id);
                  console.log(testtt);
-                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/av' + parsedJSON.id + '/\n');
-                 //fs.appendFileSync('F:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/BV' + parsedJSON.id + '/\n');
+                 //fs.appendFileSync('K:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/av' + parsedJSON.id + '/\n');
+                 //fs.appendFileSync('K:/Dropbox/NodeJS/bilibili-rering2.txt', 'https://www.bilibili.com/video/BV' + parsedJSON.id + '/\n');
                  return;
               }
 
@@ -317,8 +318,16 @@ for (let j = 67; j >= 67; j--) {
               timestampTmp3 = timestampTmp1;
               if (timestampTmp1 > timestampTmp2) timestampTmp3 = timestampTmp2;
            }
-
-           newVideoInfo["timestamp"] = timestampTmp3;
+           
+           // This is for some earlier Niconico entries, where timestamps have been recorded with a 9 hour offset (at least massJsonTesting16 and backwards).
+           /*
+           if (newVideoInfo.extractor_key === "Niconico") {
+             newVideoInfo["timestamp"] = timestampTmp3 - 32400;
+             console.log("Corrected Niconico timestamp");
+           }
+           else { */
+             newVideoInfo["timestamp"] = timestampTmp3;
+           // }
         }
 
         console.log(newVideoInfo.id + ' -- ' + dirName);
@@ -488,12 +497,12 @@ for (let j = 67; j >= 67; j--) {
     //let jsonifyData =  JSON.stringify({videos: toBeSortedList});
     //fs.writeFileSync('videoita.json', jsonifyData);
     //let nimii = 'YTPMV Metadata Archive JSON/videoita.json';
-    let nimii = 'F:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + j + '.json';
+    let nimii = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/vids' + j + '.json';
 
     fs.writeFileSync(nimii, JSON.stringify({videos: toBeSortedList}));
     //fs.writeFileSync('videoita.json', JSON.stringify({videos: sortedList}));
 
-    fs.writeFileSync('F:/Dropbox/NodeJS/undefined_niconico_vids' + j + '.json', JSON.stringify({ids: buggedNiconico}));
+    fs.writeFileSync('K:/Dropbox/NodeJS/undefined_niconico_vids' + j + '.json', JSON.stringify({ids: buggedNiconico}));
 
     console.log("Saved");
     toBeSortedList = [];
