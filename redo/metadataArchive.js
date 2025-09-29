@@ -122,8 +122,8 @@ function getLastUpdated() {
 
 const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf8'));
 
-// const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList.json', 'utf8'));
-const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList-with-channelNames.json', 'utf8'));
+const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList.json', 'utf8'));
+// const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList-with-channelNames.json', 'utf8'));
 
 const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
 
@@ -1209,7 +1209,7 @@ function compileEntry(videoInd) {
          userAddress += 'Also known as: ';
       }
       
-      userAddress += youtubeUserList[video.uId].channelNames.slice(1).join(', ') + '</code><br/>';
+      userAddress += youtubeUserList[video.uId].channelNames.slice(1).join(', ') + '</code><br/><br/>';
    }
 
    // let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;

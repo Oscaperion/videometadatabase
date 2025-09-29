@@ -42,8 +42,8 @@ const nicoTags  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata A
 /* This file includes
 
 */
-//const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
-const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-with-channelNames.json', 'utf8'));
+const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList.json', 'utf8'));
+//const youtubeUserList  = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-with-channelNames.json', 'utf8'));
 
 const niconicoUserList = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
 
@@ -54,8 +54,8 @@ let ignoreUsers = [];
 
 {
   let ignoreUsersTmp = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/ignoreChannels.json', 'utf8'));
-  // let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
-  let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames.json', 'utf8'));
+  let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+  //let youtubeUserList1 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames.json', 'utf8'));
 
   for (let ttu = 0; ttu < ignoreUsersTmp.length; ttu++) {
     let ter = ignoreUsersTmp[ttu];

@@ -6,7 +6,11 @@ const fs = require('fs');
 const jsonLocation = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 
 //let recompiledVids = vids.map(item => {
-let recompiledVids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames.json', 'utf8'));
+let recompiledVids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+
+/*
+let test = recompiledVids.filter(item => { return !item.channelNames });
+console.log(test); */
 
 /*
 let recompiledVids2 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'))
@@ -21,6 +25,7 @@ let recompiledVids2 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metada
 let files = [];
 
 for (let i = 68; i >= 68; --i) {
+//for (let i = 10; i >= 10; --i) {
    files.push("vids" + i + ".json");
 }
 //files.push("finnredo.json");
@@ -36,6 +41,8 @@ try {
       if (!!tmpFile.videos) tmpFile = tmpFile.videos;
 
       for (let i = 0; i < tmpFile.length; i++) {
+         if (i % 100 === 0) console.log(i + " / " + tmpFile.length);
+
          if (tmpFile[i].extractor_key !== "Youtube") continue;
 
          let userIds = [];
@@ -79,7 +86,8 @@ try {
       }
    });
 } catch(e) {
-   console.log("ERROR! FILE COULDN'T BE READ!");
+   // console.log("ERROR! FILE COULDN'T BE READ!");
+   console.log(e);
 }
 
 function checkForPresence(_channelIds) {
@@ -90,15 +98,23 @@ function checkForPresence(_channelIds) {
       if (checkTmp > -1) { /* console.log("Found UC id!"); */ return checkTmp; }
    }
        /*
+   // Then we check if this has a user/ ID present
+   let userCheck = _channelIds.findIndex(item => item.substring(0,1) === "@");
+   if (userCheck > -1) {
+      let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[userCheck]));
+      if (checkTmp > -1) { return checkTmp; }
+   } */
+
    // Otherwise this goes through all given ids
    for (let i = 0; i < _channelIds.length; i++) {
+      if (_channelIds[i].substring(0,1) === '@') continue;
       let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[i]));
       if (checkTmp > -1) return checkTmp;
-   } */
+   }
    
    return -1;
 }
 
 console.log("Dun");
-console.log(recompiledVids);
-fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames.json', JSON.stringify(recompiledVids));
+// console.log(recompiledVids);
+fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', JSON.stringify(recompiledVids));
