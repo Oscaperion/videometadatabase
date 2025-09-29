@@ -6,7 +6,7 @@ const fs = require('fs');
 const jsonLocation = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 
 //let recompiledVids = vids.map(item => {
-let recompiledVids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames-.json', 'utf8'));
+let recompiledVids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed-with-channelNames.json', 'utf8'));
 
 /*
 let recompiledVids2 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'))
@@ -38,19 +38,40 @@ try {
       for (let i = 0; i < tmpFile.length; i++) {
          if (tmpFile[i].extractor_key !== "Youtube") continue;
 
-
          let userIds = [];
          if (!!tmpFile[i].channel_id)  userIds.push(tmpFile[i].channel_id);
          if (!!tmpFile[i].uploader_id) userIds.push(tmpFile[i].uploader_id);
          let isPresentAt = checkForPresence(userIds);
          // let isPresentAt = checkForPresence(tmpFile.channelIds);
-         if (isPresentAt === -1) { console.log("Check video at " + jsonFile + " with id: " + tmpFile[i].id); throw new Error(""); }
+         // if (isPresentAt === -1) { console.log("Check video at " + jsonFile + " with id: " + tmpFile[i].id); throw new Error(""); }
+         if (isPresentAt === -1) {
+            let newItem = {};
+            newItem["channelIds"] = userIds;
+            recompiledVids.push(newItem);
+            isPresentAt = recompiledVids.length - 1;
+            console.log("Added new channel info!");
+            console.log(newItem);
+         }
+         
+         if (isPresentAt !== -1) {
+            // let preVal = recompiledVids[isPresentAt];
+            for (let p = 0; p < userIds.length; p++) {
+               if (!recompiledVids[isPresentAt].channelIds.includes(userIds[p])) {
+                  recompiledVids[isPresentAt].channelIds.push(userIds[p]);
+                  console.log("Added more channel info!");
+                  console.log(recompiledVids[isPresentAt]);
+               }
+            }
+         }
 
          let channelName = tmpFile[i].uploader;
          if (!recompiledVids[isPresentAt]["channelNames"]) recompiledVids[isPresentAt]["channelNames"] = [];
          if (!recompiledVids[isPresentAt]["channelNames"].includes(channelName) && !!channelName) {
+            /*
             let namesTmp = recompiledVids[isPresentAt]["channelNames"];
             recompiledVids[isPresentAt]["channelNames"] = [channelName].push(...namesTmp);
+            */
+            recompiledVids[isPresentAt]["channelNames"].unshift(channelName);
             console.log(jsonFile + " --- " + i + "/" + tmpFile.length);
             console.log(recompiledVids[isPresentAt]);
             console.log("\n");
@@ -68,12 +89,12 @@ function checkForPresence(_channelIds) {
       let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[initialCheck]));
       if (checkTmp > -1) { /* console.log("Found UC id!"); */ return checkTmp; }
    }
-
+       /*
    // Otherwise this goes through all given ids
    for (let i = 0; i < _channelIds.length; i++) {
       let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[i]));
       if (checkTmp > -1) return checkTmp;
-   }
+   } */
    
    return -1;
 }
