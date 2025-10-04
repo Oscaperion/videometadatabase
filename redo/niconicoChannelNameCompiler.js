@@ -6,7 +6,7 @@ const fs = require('fs');
 const jsonLocation = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 
 //let recompiledVids = vids.map(item => {
-let recompiledVids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', 'utf8'));
+let recompiledVids = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', 'utf8'));
 
 /*
 let test = recompiledVids.filter(item => { return !item.channelNames });
@@ -34,26 +34,53 @@ for (let i = 69; i >= 69; --i) {
 console.log(files);
 
 try {
-   files.forEach(jsonFile => {
-      console.log(jsonLocation + jsonFile);
-      // console.log("fof");
-      let tmpFile = JSON.parse(fs.readFileSync(jsonLocation + jsonFile, 'utf8'));
-      if (!!tmpFile.videos) tmpFile = tmpFile.videos;
+  // files.forEach(jsonFile => {
+      // console.log(jsonLocation + jsonFile);
+      // let tmpFile = JSON.parse(fs.readFileSync(jsonLocation + jsonFile, 'utf8'));
+      let tmpFile = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid2.json', 'utf8'));
+      
+      for (let i = 0; i < tmpFile.length; i++) {
+         if (i % 100 === 0) console.log(i + " / " + tmpFile.length);
+         if (!tmpFile[i].nicologEntry) continue;
+         
+         let isPresentAt = checkForPresence(tmpFile[i].uId);
+         
+         if (isPresentAt === -1) {
+            let newItem = {};
+            newItem["channelId"] = tmpFile[i].uId;
+            recompiledVids.push(newItem);
+            isPresentAt = recompiledVids.length - 1;
+            console.log("Added new channel info!");
+            console.log(newItem);
+         }
+         
+         if (isPresentAt !== -1) {
+            if (!recompiledVids[isPresentAt]["channelNames"]) recompiledVids[isPresentAt]["channelNames"] = [];
+
+            if (!recompiledVids[isPresentAt]["channelNames"].includes(tmpFile[i].uploader)) {
+               recompiledVids[isPresentAt]["channelNames"].unshift(tmpFile[i].uploader);
+               console.log("Added more channel info!");
+               console.log(recompiledVids[isPresentAt]);
+            }
+         }
+      }
+
+      /* if (!!tmpFile.videos) tmpFile = tmpFile.videos;
 
       for (let i = 0; i < tmpFile.length; i++) {
          if (i % 100 === 0) console.log(i + " / " + tmpFile.length);
 
-         if (tmpFile[i].extractor_key !== "Youtube") continue;
+         if (tmpFile[i].extractor_key !== "Niconico") continue;
 
-         let userIds = [];
-         if (!!tmpFile[i].channel_id)  userIds.push(tmpFile[i].channel_id);
-         if (!!tmpFile[i].uploader_id) userIds.push(tmpFile[i].uploader_id);
-         let isPresentAt = checkForPresence(userIds);
+         let userId = tmpFile[i].uploader_id;
+         // if (!!tmpFile[i].channel_id)  userIds.push(tmpFile[i].channel_id);
+         // if (!!tmpFile[i].uploader_id) userIds.push(tmpFile[i].uploader_id);
+         let isPresentAt = checkForPresence(userId);
          // let isPresentAt = checkForPresence(tmpFile.channelIds);
          // if (isPresentAt === -1) { console.log("Check video at " + jsonFile + " with id: " + tmpFile[i].id); throw new Error(""); }
          if (isPresentAt === -1) {
             let newItem = {};
-            newItem["channelIds"] = userIds;
+            newItem["channelId"] = userId;
             recompiledVids.push(newItem);
             isPresentAt = recompiledVids.length - 1;
             console.log("Added new channel info!");
@@ -74,29 +101,26 @@ try {
          let channelName = tmpFile[i].uploader;
          if (!recompiledVids[isPresentAt]["channelNames"]) recompiledVids[isPresentAt]["channelNames"] = [];
          if (!recompiledVids[isPresentAt]["channelNames"].includes(channelName) && !!channelName) {
-            /*
-            let namesTmp = recompiledVids[isPresentAt]["channelNames"];
-            recompiledVids[isPresentAt]["channelNames"] = [channelName].push(...namesTmp);
-            */
+
             recompiledVids[isPresentAt]["channelNames"].unshift(channelName);
             console.log(jsonFile + " --- " + i + "/" + tmpFile.length);
             console.log(recompiledVids[isPresentAt]);
             console.log("\n");
          }
       }
-   });
+  });   */
 } catch(e) {
    // console.log("ERROR! FILE COULDN'T BE READ!");
    console.log(e);
 }
 
-function checkForPresence(_channelIds) {
+function checkForPresence(_channelId) {
    // First we check if there is a UC id present, since those are the most individual ids tied to any given channel
-   let initialCheck = _channelIds.findIndex(item => item.substring(0,2) === "UC" && item.length === 24);
-   if (initialCheck > -1) {
-      let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[initialCheck]));
+   // let initialCheck = _channelIds.findIndex(item => item.substring(0,2) === "UC" && item.length === 24);
+   // if (initialCheck > -1) {
+      let checkTmp = recompiledVids.findIndex(item => (item.channelId === _channelId));
       if (checkTmp > -1) { /* console.log("Found UC id!"); */ return checkTmp; }
-   }
+   // }
        /*
    // Then we check if this has a user/ ID present
    let userCheck = _channelIds.findIndex(item => item.substring(0,1) === "@");
@@ -104,17 +128,17 @@ function checkForPresence(_channelIds) {
       let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[userCheck]));
       if (checkTmp > -1) { return checkTmp; }
    } */
-
+        /*
    // Otherwise this goes through all given ids
    for (let i = 0; i < _channelIds.length; i++) {
       if (_channelIds[i].substring(0,1) === '@') continue;
       let checkTmp = recompiledVids.findIndex(item => item.channelIds.includes(_channelIds[i]));
       if (checkTmp > -1) return checkTmp;
-   }
+   }  */
    
    return -1;
 }
 
 console.log("Dun");
 // console.log(recompiledVids);
-fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/youtubeUserList-uncompressed.json', JSON.stringify(recompiledVids));
+fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', JSON.stringify(recompiledVids));

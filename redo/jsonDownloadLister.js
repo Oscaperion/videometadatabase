@@ -11,7 +11,7 @@ const idSet = new Set();
 
 //var rString = '';
 //let tu;
-for (let tu = 68; tu >= -1; tu--) {
+for (let tu = 69; tu >= -1; tu--) {
 //for (let tu = 67; tu >= 67; tu--) {
 //var videoitaFile = fs.readFileSync('videoita.json', 'utf8');
 //var parsedVideos = JSON.parse(videoitaFile);

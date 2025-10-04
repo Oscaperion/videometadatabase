@@ -4,7 +4,7 @@ let tagsAll = {};
 
 const tagThreshold = 100;
 
-let maxY = 68;
+let maxY = 69;
 let minY = 1;
 
 {
@@ -15,7 +15,7 @@ let minY = 1;
       tmpNico.push(JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags2.json', 'utf8')));
       tmpNico.push(JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/nicoTags.json', 'utf8')));
       console.log('Loaded!')  ;
-      
+
       let tmpNicoEdit = [];
 
       for (let tnp = 0; tnp < tmpNico.length; tnp++) {

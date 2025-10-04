@@ -1688,7 +1688,7 @@ function getJson(videoId, videoExtractorKey) {
    
    jsonTmp["extractor_key"] = videoTmp.extractor_key;
    
-   jsonTmp["json_source"] = "YTPMV Metadata Archive";
+   jsonTmp["_json_source"] = "YTPMV Metadata Archive";
    
    return jsonTmp;
 }

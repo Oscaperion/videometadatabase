@@ -1,10 +1,11 @@
 var path = require('path');
 var fs = require('fs');
 
-const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
+//const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
+const folderName =  'F:/massJsonTesting';
 let userList =  JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/twitterUserList.json', 'utf8'));
 
-let dirName = folderName + 68;
+let dirName = folderName + 69;
 console.log('Reading folder ' + dirName);
 let directoryPath = path.join(dirName);
 let changed = false;

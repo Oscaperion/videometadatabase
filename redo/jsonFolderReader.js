@@ -8,7 +8,8 @@ This script takes the JSON files from a folder and then compiles them into a sin
 let path = require('path');
 let fs = require('fs');
 
-const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
+//const folderName =  'K:/Dropbox/NodeJS/massJsonTesting';
+const folderName =  'F:/massJsonTesting';
 let videoList = '';
 
 let toBeSortedList = [];
@@ -62,7 +63,7 @@ function takeOutLinks(ogDescription) {
 //for (let j = 61; j >= 7; j--) {
 //for (let j = 30; j >= 30; j--) {
 //for (let j = 16; j >= 1; j--) {
-for (let j = 68; j >= 68; j--) {
+for (let j = 69; j >= 69; j--) {
 //for (let j = 0; j >= 0; j--) {
 
   if (j === 0) readTwitterVids = true;
