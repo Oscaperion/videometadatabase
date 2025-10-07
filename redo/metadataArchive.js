@@ -938,7 +938,7 @@ function editLink(linkTmp, onlyShowId = false) {
       if (matchingVid) {
          let uploaderName = matchingVid.uploader;
          if (!uploaderName && matchingVid.extractor_key === "Youtube") uploaderName = youtubeUserList[matchingVid.uId].channelNames[0];
-         if (!uploaderName && matchingVid.extractor_key === "Niconico") uploaderName = niconicoUserList[matchingVid.uId].channelNames[0];
+         if (!uploaderName && !!matchingVid.uId && matchingVid.extractor_key === "Niconico") uploaderName = niconicoUserList[matchingVid.uId].channelNames[0];
          let linkStr = matchingVid.title + ' by ' + uploaderName;
          if (pageLanguage === 'jp') linkStr = uploaderName + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
@@ -1235,7 +1235,7 @@ function compileEntry(videoInd) {
       userAddress += youtubeUserList[video.uId].channelNames.slice(1).join(', ') + '</code><br/><br/>';
    }
    
-   if (video.extractor_key === "Niconico" && !!niconicoUserList[video.uId].channelNames && niconicoUserList[video.uId].channelNames.length > 1) {
+   if (video.extractor_key === "Niconico" && !!video.uId && !!niconicoUserList[video.uId].channelNames && niconicoUserList[video.uId].channelNames.length > 1) {
       userAddress += '&nbsp;&nbsp;&#10551;&nbsp;<code>';
       if (pageLanguage === "jp") {
          userAddress += '&#26087;&#12495;&#12531;&#12489;&#12523;&#21517;: ';

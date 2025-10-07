@@ -1,7 +1,7 @@
 node .\jsonFolderReader.js
-node .\youtubeUserLogger.js
+node .\youtubeChannelNameCompiler2.js
 node .\youtubeUserListCompressor.js
-node .\niconicoUserLogger.js
+node .\niconicoChannelNameCompiler.js
 node .\nicoTagExtractor.js
 node .\nicoTagExtractor-nicolog.js
 node .\tagsLogger.js

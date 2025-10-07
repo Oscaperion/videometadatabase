@@ -5,7 +5,7 @@ const url = require('url');
 const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
-let provideId = true;
+let provideId = false;
 let fileSource = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoVidsWithoutUploader.json'; // 'K:/Dropbox/NodeJS/idsFromNicolog-comp-list.json';
 
 let feats_HSL;
