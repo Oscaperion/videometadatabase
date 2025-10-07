@@ -24,27 +24,31 @@ let recompiledVids2 = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metada
 //let files = fs.readdirSync(jsonLocation).reverse();
 let files = [];
 
-for (let i = 69; i >= 69; --i) {
+for (let i = 69; i <= 69; i++) {
 //for (let i = 10; i >= 10; --i) {
    files.push("vids" + i + ".json");
 }
 //files.push("finnredo.json");
 //files.push("finnredo-og.json");
 
+let noUploader = [];
+
 console.log(files);
 
 try {
-  // files.forEach(jsonFile => {
-      // console.log(jsonLocation + jsonFile);
-      // let tmpFile = JSON.parse(fs.readFileSync(jsonLocation + jsonFile, 'utf8'));
-      let tmpFile = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid2.json', 'utf8'));
+  files.forEach(jsonFile => {
+      console.log(jsonLocation + jsonFile);
+      let tmpFile = JSON.parse(fs.readFileSync(jsonLocation + jsonFile, 'utf8'));
       
+      /*
+      let tmpFile = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/missingNicoUid2.json', 'utf8'));
+
       for (let i = 0; i < tmpFile.length; i++) {
          if (i % 100 === 0) console.log(i + " / " + tmpFile.length);
          if (!tmpFile[i].nicologEntry) continue;
          
          let isPresentAt = checkForPresence(tmpFile[i].uId);
-         
+
          if (isPresentAt === -1) {
             let newItem = {};
             newItem["channelId"] = tmpFile[i].uId;
@@ -63,9 +67,9 @@ try {
                console.log(recompiledVids[isPresentAt]);
             }
          }
-      }
+      }     */
 
-      /* if (!!tmpFile.videos) tmpFile = tmpFile.videos;
+      if (!!tmpFile.videos) tmpFile = tmpFile.videos;
 
       for (let i = 0; i < tmpFile.length; i++) {
          if (i % 100 === 0) console.log(i + " / " + tmpFile.length);
@@ -73,6 +77,8 @@ try {
          if (tmpFile[i].extractor_key !== "Niconico") continue;
 
          let userId = tmpFile[i].uploader_id;
+         
+         if (!userId) { console.log(tmpFile[i]); noUploader.push(tmpFile[i].id); continue; } // throw new Error("Check that file!"); }
          // if (!!tmpFile[i].channel_id)  userIds.push(tmpFile[i].channel_id);
          // if (!!tmpFile[i].uploader_id) userIds.push(tmpFile[i].uploader_id);
          let isPresentAt = checkForPresence(userId);
@@ -88,27 +94,16 @@ try {
          }
          
          if (isPresentAt !== -1) {
-            // let preVal = recompiledVids[isPresentAt];
-            for (let p = 0; p < userIds.length; p++) {
-               if (!recompiledVids[isPresentAt].channelIds.includes(userIds[p])) {
-                  recompiledVids[isPresentAt].channelIds.push(userIds[p]);
-                  console.log("Added more channel info!");
-                  console.log(recompiledVids[isPresentAt]);
-               }
+            if (!recompiledVids[isPresentAt]["channelNames"]) recompiledVids[isPresentAt]["channelNames"] = [];
+
+            if (!recompiledVids[isPresentAt]["channelNames"].includes(tmpFile[i].uploader)) {
+               recompiledVids[isPresentAt]["channelNames"].unshift(tmpFile[i].uploader);
+               console.log("Added more channel info!");
+               console.log(recompiledVids[isPresentAt]);
             }
          }
-
-         let channelName = tmpFile[i].uploader;
-         if (!recompiledVids[isPresentAt]["channelNames"]) recompiledVids[isPresentAt]["channelNames"] = [];
-         if (!recompiledVids[isPresentAt]["channelNames"].includes(channelName) && !!channelName) {
-
-            recompiledVids[isPresentAt]["channelNames"].unshift(channelName);
-            console.log(jsonFile + " --- " + i + "/" + tmpFile.length);
-            console.log(recompiledVids[isPresentAt]);
-            console.log("\n");
-         }
       }
-  });   */
+  });
 } catch(e) {
    // console.log("ERROR! FILE COULDN'T BE READ!");
    console.log(e);
@@ -142,3 +137,4 @@ function checkForPresence(_channelId) {
 console.log("Dun");
 // console.log(recompiledVids);
 fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoUserList.json', JSON.stringify(recompiledVids));
+//fs.writeFileSync('K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoVidsWithoutUploader.json', JSON.stringify(noUploader));

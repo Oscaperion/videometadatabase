@@ -62,7 +62,7 @@ function takeOutLinks(ogDescription) {
 //for (let j = 12; j >= 12; j--) {
 //for (let j = 61; j >= 7; j--) {
 //for (let j = 30; j >= 30; j--) {
-//for (let j = 16; j >= 1; j--) {
+//for (let j = 6; j >= 6; j--) {
 for (let j = 69; j >= 69; j--) {
 //for (let j = 0; j >= 0; j--) {
 

@@ -6,7 +6,7 @@ const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
 let provideId = true;
-let fileSource = 'K:/Dropbox/NodeJS/idsFrpmNicolog1.json'; // 'K:/Dropbox/NodeJS/idsFromNicolog-comp-list.json';
+let fileSource = 'K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/niconicoVidsWithoutUploader.json'; // 'K:/Dropbox/NodeJS/idsFromNicolog-comp-list.json';
 
 let feats_HSL;
 
@@ -40,7 +40,8 @@ if (provideId) checkVideo(process.argv[2].trim());
 
 if (!provideId) {
 
-let idList = JSON.parse(fs.readFileSync(fileSource, 'utf8')).id;
+let idList = JSON.parse(fs.readFileSync(fileSource, 'utf8'));
+//let idList = JSON.parse(fs.readFileSync(fileSource, 'utf8')).id;
  /*
 let idList = JSON.parse(fs.readFileSync('K:/Dropbox/NodeJS/idsFromNicolog-comp-ku.json', 'utf8')).id;
    */

@@ -81,7 +81,8 @@ const missingNicoUsers_idSet = new Set(missingNicoUsers.map(item => item.id));
 const ignoreUsersSet = new Set(ignoreUsers);
 const nicoTagsMap  = new Map(nicoTags.map(item => [item.id, item]));
 const nicoTags2Map = new Map(nicoTags2.map(item => [item.id, item]));
-const niconicoUserListSet = new Set(niconicoUserList);
+const niconicoUserListSet = new Set(niconicoUserList.map(item => item.channelId));
+const niconicoUserList2 = niconicoUserList.map(item => item.channelId);
 const tagsListMap = new Map(tagsList.map((tag, index) => [tag.toLowerCase().trim(), index]));
 
 const youtubeUserListMap = new Map();
@@ -508,8 +509,11 @@ function entryEditor(entryVid) {
           // If the uploader ID is present in the external list of IDs, this'll add the ID matching that list
           // if (niconicoUserList.includes(tmpVid.uploader_id)) {
           if (niconicoUserListSet.has(tmpVid.uploader_id)) {
-             tmpVid["uId"] = niconicoUserList.indexOf(tmpVid.uploader_id);
+             tmpVid["uId"] = niconicoUserList2.indexOf(tmpVid.uploader_id);
              delete tmpVid["uploader_id"];
+             delete tmpVid["channel_id"];
+             delete tmpVid["uploader"];
+             // console.log("Found!");
           }
        }
        else {

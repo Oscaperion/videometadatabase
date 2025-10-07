@@ -125,7 +125,9 @@ const tagsList = JSON.parse(fs.readFileSync(jsonLocationComp + 'tags.json', 'utf
 const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList.json', 'utf8'));
 // const youtubeUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'youtubeUserList-with-channelNames.json', 'utf8'));
 
+// const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList-without-channelNames.json', 'utf8'));
 const niconicoUserList = JSON.parse(fs.readFileSync(jsonLocationComp + 'niconicoUserList.json', 'utf8'));
+// console.log(niconicoUserList);
 
 const sameUserListLoc = jsonLocationComp + 'sameUsers.json';
 let sameUserList = [];
@@ -423,7 +425,7 @@ function videoEntryConverter(vidEnt) {
       if (vidEnt.uId) {
          switch(vidEnt.extractor_key) {
             case "Niconico":
-               return niconicoUserList[vidEnt.uId];
+               return niconicoUserList[vidEnt.uId].channelId;
             case "Youtube":
                return youtubeUserList[vidEnt.uId].channelIds;
             default:
@@ -441,7 +443,7 @@ function getUploaderId(vidEnt) {
    if (vidEnt.uId) {
       switch(vidEnt.extractor_key) {
          case "Niconico":
-            return niconicoUserList[vidEnt.uId];
+            return niconicoUserList[vidEnt.uId].channelId;
          case "Youtube":
             return youtubeUserList[vidEnt.uId].channelIds;
          default:
@@ -647,7 +649,8 @@ function hasSearchWords(searchWord,video) {
              (video.description && video.description.toLowerCase().includes(srcWrd)) ||
              tagsTmp.includes(srcWrd) ||
              (video.uploader && video.uploader.toLowerCase().includes(srcWrd)) ||
-             (video.extractor_key === "Youtube" && !!(youtubeUserList[video.uId].channelNames) && youtubeUserList[video.uId].channelNames.join(' ').toLowerCase().includes(srcWrd)) ||
+             (video.extractor_key === "Youtube" && !!video.uId && !!youtubeUserList[video.uId].channelNames && youtubeUserList[video.uId].channelNames.join(' ').toLowerCase().includes(srcWrd)) ||
+             (video.extractor_key === "Niconico" && !!video.uId && !!niconicoUserList[video.uId].channelNames && niconicoUserList[video.uId].channelNames.join(' ').toLowerCase().includes(srcWrd)) ||
              uploaderIdTmp.toLowerCase().includes(srcWrd) ||
              getUploadDate(video).includes(srcWrd)
              ) return true;
@@ -935,6 +938,7 @@ function editLink(linkTmp, onlyShowId = false) {
       if (matchingVid) {
          let uploaderName = matchingVid.uploader;
          if (!uploaderName && matchingVid.extractor_key === "Youtube") uploaderName = youtubeUserList[matchingVid.uId].channelNames[0];
+         if (!uploaderName && matchingVid.extractor_key === "Niconico") uploaderName = niconicoUserList[matchingVid.uId].channelNames[0];
          let linkStr = matchingVid.title + ' by ' + uploaderName;
          if (pageLanguage === 'jp') linkStr = uploaderName + "&#27663;&#12395;&#12424;&#12427;&#12302;" + matchingVid.title + "&#12303;";
 
@@ -1079,14 +1083,14 @@ function checkForOtherChannels(siteKey,checkUploaderId,checkuId) {
             if (valueArr.includes(userIdss[i])) return true;
          }
       } if (siteKey === "Niconico") {
-         return valueArr.includes(niconicoUserList[checkuId]);
+         return valueArr.includes(niconicoUserList[checkuId].channelId);
       }
    }
    
    if (valueArr.includes(checkUploaderId)) return true;
 
    return false;
-}
+}                                            
 
 function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    let userArr = -1;
@@ -1105,7 +1109,7 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
                  break;
                }
             }
-         } if (siteKey === "Niconico" && checkArr.includes(niconicoUserList[checkuId])) {
+         } if (siteKey === "Niconico" && checkArr.includes(niconicoUserList[checkuId].channelId)) {
             userArr = j;
             break;
          }
@@ -1121,8 +1125,9 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
    let vals = Object.values(sameUserList[userArr]);
    for (let h = 0; h < vals.length; h++) {
       if (checkUploaderId && vals[h] === checkUploaderId) continue;
-      if (checkuId && youtubeUserList[checkuId].channelIds.includes(vals[h])) continue;
-      if (checkuId && niconicoUserList[checkuId] === vals[h]) continue;
+      if (checkuId && siteKey === "Youtube" && youtubeUserList[checkuId].channelIds.includes(vals[h])) continue;
+      // console.log(checkuId + " - loafk");
+      if (checkuId && siteKey === "Niconico" && niconicoUserList[checkuId].channelId === vals[h]) continue;
 
       let tmpLink = 'results.html?uploader_id=' + vals[h];
       if (showVidPrev) tmpLink += '&preview=true';
@@ -1140,8 +1145,23 @@ function addOtherChannels(siteKey,checkUploaderId,checkuId) {
 */
 function compileEntry(videoInd) {
    let video = parsedVideos[videoInd];
+                                                                       /*
+   console.log(video.uId + " - arfj");
+   console.log(niconicoUserList[video.uId] + " - arf");
+   console.log(niconicoUserList);
+   console.log(niconicoUserList[video.uId].channelNames + " - sad"); */
+                                    /*
+   console.log(niconicoUserList[0]);
+   console.log(niconicoUserList[0].channelNames + " - sad");
+   console.log(niconicoUserList[0].channelId + " - sad");
+   console.log(niconicoUserList); */
+                                                          /*
+   console.log(video);
+   let daffdaf = video.uId;
+   console.log(niconicoUserList[daffdaf].channelId + " - sad");
+   console.log(niconicoUserList[58369].channelId + " - sads");
+   console.log(niconicoUserList.length + " - sads");    */
 
-   console.log(video.id);
 
    let searchUploaderStr = '[Search uploader]';
    if (pageLanguage === 'jp') searchUploaderStr = '[&#25237;&#31295;&#32773;&#12434;&#26908;&#32034;]';
@@ -1157,7 +1177,10 @@ function compileEntry(videoInd) {
              if (!!youtubeUserList[video.uId].channelNames) userAddress = userLinkCompiler(convertToHTMLEntities(youtubeUserList[video.uId].channelNames[0]),video.uId,video.extractor_key);
              else { userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),video.uId,video.extractor_key); }
          }
-         if (video.extractor_key === "Niconico") userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),niconicoUserList[video.uId],video.extractor_key);
+         if (video.extractor_key === "Niconico") {
+             if (!!niconicoUserList[video.uId].channelNames) {  userAddress = userLinkCompiler(convertToHTMLEntities(niconicoUserList[video.uId].channelNames[0]),niconicoUserList[video.uId].channelId,video.extractor_key); }
+             else { userAddress = userLinkCompiler(convertToHTMLEntities(video.uploader),niconicoUserList[video.uId].channelId,video.extractor_key); }
+         }
       }
       else {
          // console.log(video);
@@ -1210,6 +1233,17 @@ function compileEntry(videoInd) {
       }
       
       userAddress += youtubeUserList[video.uId].channelNames.slice(1).join(', ') + '</code><br/><br/>';
+   }
+   
+   if (video.extractor_key === "Niconico" && !!niconicoUserList[video.uId].channelNames && niconicoUserList[video.uId].channelNames.length > 1) {
+      userAddress += '&nbsp;&nbsp;&#10551;&nbsp;<code>';
+      if (pageLanguage === "jp") {
+         userAddress += '&#26087;&#12495;&#12531;&#12489;&#12523;&#21517;: ';
+      } else {
+         userAddress += 'Also known as: ';
+      }
+      
+      userAddress += niconicoUserList[video.uId].channelNames.slice(1).join(', ') + '</code><br/><br/>';
    }
 
    // let releaseDate = "Release date: " + video.upload_date + '<br/><br/>' + breakline;
@@ -1587,7 +1621,7 @@ function getJson(videoId, videoExtractorKey) {
       if (videoTmp.uId === 0 || !!videoTmp.uId) {
          switch(videoTmp.extractor_key) {
             case "Niconico":
-               return niconicoUserList[videoTmp.uId];
+               return niconicoUserList[videoTmp.uId].channelId;
             case "Youtube":
                return youtubeUserList[videoTmp.uId].channelIds;
             default:

@@ -1,7 +1,7 @@
 const fs = require('fs');
 //const readline = require('readline');
 
-const searchChannelId = ["UCuMW6QFVFKfyO5kWGJ6VBVg","UC08ac06rxLJL5dPpqQ9Nbgw"];
+const searchChannelId = ["UCpOCzT42yg0dCJSj4YVjjJg","UCmVVhneCvmhqDvsdarhIyFg","UCrondOtii9xrGGqZbwPrOJQ","UCTZtIY-D-7AMTlctwaD0eDw","UCsRDQvVimYzdAbtPab3Z4qA","UCvp4gQH2xflzUNi4cZqko5A","UCLZanFDwpj_0wwpGBc4haBQ","UC_FDcD-FztthCur5_yqLYug","UCUUM3ciG6EEAHTIpakUxxKw","UCnL_xKabQ94C3xQJrUewpsQ"];
 
 const jsonLocation = "K:/Dropbox/NodeJS/YTPMV Metadata Archive JSON/split_parts/";
 //const jsonLocation = "D:/testtt1/";

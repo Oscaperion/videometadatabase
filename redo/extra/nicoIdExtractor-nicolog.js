@@ -5,7 +5,7 @@ const url = require('url');
 const http = require('http');
 const XMLHttpRequest_node = require("xmlhttprequest").XMLHttpRequest;
 
-let pages = ["https://www.nicolog.jp/user/31670693?page=1" ,"https://www.nicolog.jp/user/31670693?page=2", "https://www.nicolog.jp/user/21961240?page=1"
+let pages = ["https://www.nicolog.jp/user/65960456" ,"https://www.nicolog.jp/user/65960456?page=2", "https://www.nicolog.jp/user/65960456?page=3"
              ];
 
 let feats_HSL;
@@ -67,4 +67,4 @@ function checkPage(pageUrl) {
    }
 }
 
-fs.writeFileSync('K:/Dropbox/NodeJS/idsFromNicolog-yamasst.json', JSON.stringify(teee));
+fs.writeFileSync('K:/Dropbox/NodeJS/idsFromNicolog-31.json', JSON.stringify(teee));
